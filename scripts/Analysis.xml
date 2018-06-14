@@ -1,0 +1,29 @@
+<job  name="PicoAnalysis" minFilesPerProcess="3" maxFilesPerProcess="5"  filesPerHour="2" simulateSubmission="false" fileListSyntax="paths">
+<stdout URL="file:__CURRENTFOLDER__/log/$JOBID.log" />
+<stderr URL="file:__CURRENTFOLDER__/log/$JOBID.err" />
+<command> 
+  mkdir /tmp/mzyzak_${JOBID}
+  cd /tmp/mzyzak_${JOBID}
+  cp ${SUBMITTINGDIRECTORY}/setDEV2.csh .
+  cp -rf ${SUBMITTINGDIRECTORY}/.sl73_x8664_gcc485/ .
+  cp ${SUBMITTINGDIRECTORY}/femtoAnalysis.C .
+  cp ${SUBMITTINGDIRECTORY}/lMuDst.C .
+  cat ${FILELIST} | xargs -I % cp % .
+  source ~fisyak/.tcshrc
+  source setDEV2.csh  
+  
+  set flowFileList=""
+  if ( "__year__" == "2018" ) then
+    cp ${SUBMITTINGDIRECTORY}/setFlowFiles.csh . 
+    source setFlowFiles.csh ${FILELIST} "/gpfs01/star/pwg/fisyak/Femto/2016/" "__FLOWFOLDER__"
+    set flowFileList=`cat flowFileList.txt`
+  endif
+  
+  root4star -l -b -q 'femtoAnalysis.C(10000000,"./*.femtoDst.root","${JOBID}.root",__year__,"'${flowFileList}'")' &gt;&amp; ${SUBMITTINGDIRECTORY}/${JOBID}B.log 
+  mv ${JOBID}.root ${SUBMITTINGDIRECTORY}
+  ls -lart >> ${SUBMITTINGDIRECTORY}/${JOBID}B.log 
+  cd ${SUBMITTINGDIRECTORY}
+  rm -rf /tmp/mzyzak_${JOBID}
+</command>
+<input URL="file:__INPUT__*/*.femtoDst.root" /> 
+</job>
