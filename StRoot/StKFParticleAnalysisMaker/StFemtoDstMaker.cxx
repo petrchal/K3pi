@@ -2,8 +2,8 @@
 // $Log: StFemtoDstMaker.cxx,v $
 #include "StFemtoDstMaker.h"
 #include "StPicoDstMaker/StPicoDstMaker.h"
-#include "StPicoDstMaker/StPicoDst.h"
-#include "StPicoDstMaker/StPicoArrays.h"
+#include "StPicoEvent/StPicoDst.h"
+#include "StPicoEvent/StPicoArrays.h"
 #include "StChain/StChainOpt.h"
 #include "StKFParticleInterface.h"
 #include "TSystem.h"
@@ -45,10 +45,14 @@ Int_t StFemtoDstMaker::Make(){
   if(isGoodEvent) openCharmTrigger = fStKFParticleInterface->OpenCharmTrigger();
   if (! openCharmTrigger) {
     for (UInt_t i = StPicoArrays::Track; i < StPicoArrays::NAllPicoArrays; i++) {
+#ifdef __TFG__VERSION__
       StPicoDstMaker::instance()->picoArrays()[i]->Clear();
+#else /* ! __TFG__VERSION__ */
+      StPicoDst::instance()->picoArray(i)->Clear();
+#endif /* __TFG__VERSION__ */
     }
   } else {
-    TClonesArray *tracks = StPicoDstMaker::instance()->picoArrays()[StPicoArrays::Track];
+    TClonesArray *tracks = StPicoDst::instance()->picoArray(StPicoArrays::Track);
     Int_t N = tracks->GetEntriesFast();
     TArrayC flags(N);
     for (UInt_t i = 0; i < triggeredTracks.size(); i++) flags[triggeredTracks[i]] = kTRUE;
