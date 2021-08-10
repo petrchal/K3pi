@@ -169,6 +169,9 @@ class KFParticleFinder
   void MatchKaons(KFPTrackVector* vTracks, 
                   std::vector<KFParticleSIMD, KFPSimdAllocator<KFParticleSIMD> >& PrimVtx,
                   std::vector<KFParticle>& Particles);
+  
+  //Turn on/off kaond PID for k->3pi macthing
+  //void SetKaonPIDinK3pi(char isOn){fKaonPIDinK3pi=isOn;}
 
   //Set Emc clusters containing gammas
   void SetEmcClusters(KFPEmcCluster* clusters) { fEmcClusters = clusters; } ///< Set a pointer to the gamma-clusters from the electromagnetic calorimeter.
@@ -479,6 +482,7 @@ class KFParticleFinder
   
   KFParticleFinder(const KFParticleFinder&); ///< Copying is disabled for this class.
   KFParticleFinder& operator=(const KFParticleFinder&); ///< Copying is disabled for this class.
+
 };
 
 #endif /* !KFParticleFinder_h */

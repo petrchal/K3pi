@@ -33,6 +33,8 @@
 //--- StRefMult class ---
 #include "StRefMultCorr/StRefMultCorr.h"
 #include "StRefMultCorr/CentralityMaker.h"
+
+
 ClassImp(StKFParticleAnalysisMaker);
 
 //________________________________________________________________________________
@@ -237,8 +239,11 @@ Int_t StKFParticleAnalysisMaker::Init()
     TDirectory* curDirectory = gDirectory;
     
     fKaonFile = new TFile(fKaonFileName, "RECREATE");
-    hKaonNtuple = new TNtuple("kaons","kaons","runId:eventId:mother_PID:Vz:mother_pt:mother_eta:mother_phi:mother_m:mother_nhits:mother_PV_L:mother_PV_dl:decay_Vr:decay_Vx:decay_Vy:decay_Vz:daughter_index:daughter_pdg:daughter_pt:daughter_eta:daughter_nhits:daughter_decayDca:daughter_pvtxDca");
-
+    hKaonNtuple = new TNtuple("kaons","kaons","RunId:eventId:Vz:mother_PID:mother_pt:mother_px:mother_py:mother_pz:mother_eta:mother_phi:mother_pt_PVX:mother_px_PVX:mother_py_PVX:mother_pz_PVX:mother_eta_PVX:mother_phi_PVX:mother_m:mother_PV_l:mother_PV_dl:\
+decay_Vr:decay_Vx:decay_Vy:decay_Vz:\
+daughter_index:daughter_pdg:daughter_nhits:daughter_nhitsPoss:daughter_lastHitR:daughter_nhits_dEdx:daughter_dEdx:daughter_p:daughter_pt:daughter_eta:daughter_phi:daughter_px:daughter_py:daughter_pz:dp_PVX:\
+daughter_decay_dl:daughter_DecayPt:daughter_DecayEta:daughter_DecayPhi:daughter_DecayPx:daughter_DecayPy:daughter_DecayPz:dp_Decay:dp_Decay_KF:\
+daughter_DecayDca_KF:daughter_DecayDca_mu:daughter_PvtxDca_KF:daughter_PvtxDca_mu:daughter_PvtxDca_official:isBest");
     gFile = curFile;
     gDirectory = curDirectory;
   }
@@ -250,7 +255,7 @@ Int_t StKFParticleAnalysisMaker::InitRun(Int_t runumber)
 //   assert(StPicoDstMaker::instance());
 //   if (StPicoDstMaker::instance()->IOMode() == StPicoDstMaker::ioRead) {
     //TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO Ask Yuri
-//     StPicoDstMaker::instance()->SetStatus("*",0);
+//     StPicoDstMaker::instance()->SetStatus("*":0);
 //     const Char_t *ActiveBranches[] = {
 //       "MuEvent"
 //       ,"PrimaryVertices"
@@ -868,7 +873,8 @@ Int_t StKFParticleAnalysisMaker::Make()
 
 void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
   cout<<"StKFParticleAnalysisMaker::Fill_KaonNtuples() "<<endl;
-  struct{Float_t id=0,index=0,pt=0,eta=0, nhits=0, pdg=0,DecayDca=0,PvtxDca;} daughter;
+ typedef struct{Float_t id=0,index=0,p=0,pt=0,eta=0,phi=0, px=0,py=0,pz=0,dp_Decay=0,dp_PVX=0,nhits=0, nhits_dEdx=0,nhits_pos=0, 
+  lastPointR=0,pdg=0,DecayDca_KF=0,DecayDca_mu=0,PvtxDca_KF=0,PvtxDca_official=0,PvtxDca_mu=0,dEdx=0,isBest=0;} _daughter;
   const int nPIDS=4;
   int particlesPDG[nPIDS] = {100321, 200321,-100321, -200321}; //K->3pi with found K (200321), K->3pi only (100321)
   int nDaughters[nPIDS] = {3, 4, 3, 4};
@@ -878,13 +884,28 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
 // and then macth the primary kaon
 
  const KFParticleTopoReconstructor *topoRec=fStKFParticleInterface->GetTopoReconstructor();
-  //cout<<" Primary vertices:"<<endl<<"in KF: "<<topoRec->NPrimaryVertices()<< " , ID="<<topoRec->GetPrimVertex().Id()<<endl;
+ // cout<<" Primary vertices:"<<endl<<"in KF: "<<topoRec->NPrimaryVertices()<< " , ID="<<topoRec->GetPrimVertex().Id()<<endl;
   //cout<<"in MuDst: "<<fMuDst->numberOfPrimaryVertices()<<endl;
+  int npt=fStKFParticleInterface->GetParticles().size();
+  //cout<<"fStKFParticleInterface->GetParticles().size()="<<npt<<endl;
+  /*test 
+  for(unsigned int iParticle=0; iParticle<npt; iParticle++) {
+    cout<<"iParticle="<<iParticle<<" ID="<<fStKFParticleInterface->GetParticles()[iParticle].Id()<<endl;
+  }  */
 
-  for(unsigned int iParticle=0; iParticle<fStKFParticleInterface->GetParticles().size(); iParticle++) {
-    //cout<<"i="<<iParticle<<" PDG="<<fStKFParticleInterface->GetParticles()[iParticle].GetPDG()<<endl;
+//primary vertex
+  Float_t Vz=topoRec->GetPrimVertex().GetZ();
+  Float_t Vx=topoRec->GetPrimVertex().GetX();
+  Float_t Vy=topoRec->GetPrimVertex().GetY();
+  StThreeVectorD pVtx(Vx, Vy, Vz);
+
+  for(unsigned int iParticle=0; iParticle<npt; iParticle++) {
+    //cout<<"i="<<iParticle<<" KFP_iD="<<fStKFParticleInterface->GetParticles()[iParticle].Id()
+    //<<" PDG="<<fStKFParticleInterface->GetParticles()[iParticle].GetPDG()<<" pt="<<
+    //fStKFParticleInterface->GetParticles()[iParticle].GetPt()<<endl;
+    //cout<< fStKFParticleInterface->GetParticles()[iParticle]<<endl;
     for(int iPDG = 0; iPDG < nPIDS; iPDG++){
-      if(fStKFParticleInterface->GetParticles()[iParticle].GetPDG() == particlesPDG[iPDG]) {
+      if(fStKFParticleInterface->GetParticles()[iParticle].GetPDG() != particlesPDG[iPDG]) continue;
         KFParticle particle = fStKFParticleInterface->GetParticles()[iParticle];
 
         Float_t runId;
@@ -899,25 +920,45 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
           runId   = fMuDst->event()->runId();
           eventId = fMuDst->event()->eventId();
         }
+      
 
         Float_t mother_PID=particle.GetPDG();
-        Float_t mother_pt = particle.GetPt();
-        Float_t mother_eta = particle.GetEta();
-        Float_t mother_phi = particle.GetPhi();
         Float_t mother_m = particle.GetMass();
-        Float_t mother_nhits = 0;
-        Float_t Vz=topoRec->GetPrimVertex().GetZ();
-
+       
+        //decay point
         Float_t decay_Vx=particle.GetX();
         Float_t decay_Vy=particle.GetY();
         Float_t decay_Vz=particle.GetZ();
         Float_t decay_Vr=particle.GetR();
+        if (decay_Vr<50) continue; // skip decays out of TPC
+        StThreeVectorD decayVtx(decay_Vx, decay_Vy, decay_Vz); 
 
-        //distance to PV
+         //momentum at decay point
+        Float_t mother_pt = particle.GetPt();
+        Float_t mother_px = particle.GetPx();
+        Float_t mother_py = particle.GetPy();
+        Float_t mother_pz = particle.GetPz();
+        StThreeVectorD mother_p_decay(mother_px,mother_py,mother_pz);
+        Float_t mother_eta = particle.GetEta();
+        Float_t mother_phi = particle.GetPhi();          
+
+        // move to primary vertex
+        particle.TransportToPoint(topoRec->GetPrimVertex().Parameters());
+        //momentum at primary vertex
+        Float_t mother_px_PVX = particle.GetPx();
+        Float_t mother_py_PVX = particle.GetPy();
+        Float_t mother_pz_PVX = particle.GetPz();
+        Float_t mother_pt_PVX = particle.GetPt();
+        Float_t mother_eta_PVX = particle.GetEta();
+        Float_t mother_phi_PVX = particle.GetPhi();
+        StThreeVectorD mother_p_PVX(mother_px_PVX,mother_py_PVX,mother_pz_PVX);
+      
+        //TODO!!
+        //distance to PV - usefull to see if it comes from the primary vertex...I coudl have seom decays of secondary kaons
         //float_v lCandidate, dlCandidate;
          //KFParticleSIMD part(particle);
         //KFParticleSIMD pvt(topoRec->GetPrimVertex());
-        //part.GetDistanceToVertexLine(pvt, lCandidate, dlCandidate);
+        //daugh.GetDistanceToVertexLine(pvt, lCandidate, dlCandidate);
        
         Float_t mother_PV_l=particle.GetDistanceFromVertex(topoRec->GetPrimVertex());
         Float_t mother_PV_dl=particle.GetDeviationFromVertex(topoRec->GetPrimVertex());
@@ -927,111 +968,190 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
             cout << "Wrong number of daughters! for"<< particlesPDG[iPDG] << " expected "<< nDaughters[iPDG]<<" but found "<< particle.NDaughters()<<endl;
              continue;
         } 
+/*
+      cout<<"---test------"<<endl;
+      cout<<" fMuDst->numberOfGlobalTracks()="<<fMuDst->numberOfGlobalTracks()<<" fMuDst->globalTracks(fMuDst->numberOfGlobalTracks()-1).Id()"
+      <<fMuDst->globalTracks(fMuDst->numberOfGlobalTracks()-1)->id()<<endl;
+      cout<<"fStKFParticleInterface->GetParticles().size()="<<npt<<endl<<endl;
+     
+      cout<<" mother particle PDG="<<particle.GetPDG()<<" with #Daughters="<<particle.NDaughters()<<endl;
+      cout<<" mother particle  pt="<<particle.GetPt()<<"  R="<<particle.GetR()<<" phi="<<particle.GetPhi()<<" eta="<<particle.GetEta()<<endl;
+  */    
+      //cout<<" daugterIds[0]="<<particle.DaughterIds()[0]<<endl;;
+      //cout<<" daugterIds[1]="<<particle.DaughterIds()[1]<<endl;;
+      //cout<<" daugterIds[2]="<<particle.DaughterIds()[2]<<endl;;
+      //cout<<" StKFParticleInterface->TrackIdToI().size()="<<fStKFParticleInterface->TrackIdToI().size()<<endl;
+      //cout<<" TrackIdToI[particle.DaughterIds()[0]]="<<fStKFParticleInterface->TrackIdToI()[particle.DaughterIds()[0]]<<endl;
 
-       for(int iD=0; iD<particle.NDaughters(); iD++) {
+      for(int iD=0; iD<particle.NDaughters(); iD++) {
+              _daughter daughter;
+             // cout<<"filling...daughter index#="<<iD<<endl;               
               daughter.index=iD;
-              int id=particle.DaughterIds()[iD];
-              daughter.id=id;
-              KFParticle part=(fStKFParticleInterface->GetParticles())[id];
+              int id_kf=particle.DaughterIds()[iD];
+              KFParticle daugh=(fStKFParticleInterface->GetParticles())[id_kf];
+              daughter.id=daugh.DaughterIds()[0]; //id of parent MuDST tracks
+              const int iMuTrack = fStKFParticleInterface->TrackIdToI()[daughter.id];
+              StMuTrack *mutrack = (StMuTrack *) fMuDst->globalTracks(iMuTrack); 
+         
+
+              daughter.pt = daugh.GetPt();
+              daughter.p  = daugh.GetP();
+              daughter.pdg = daugh.GetPDG();
+              daughter.eta = daugh.GetEta();
+              daughter.phi = daugh.GetPhi();
+              daughter.px = daugh.GetPx();
+              daughter.py = daugh.GetPy();
+              daughter.pz = daugh.GetPz();
+              daughter.nhits=mutrack->nHitsFit(); 
+              daughter.nhits_dEdx=mutrack->nHitsDedx(); 
+              daughter.nhits_pos=mutrack->nHitsPoss(); 
+              daughter.lastPointR=mutrack->lastPoint().perp(); //from PV to last hist
+              daughter.dEdx=mutrack->dEdx();
              
-              StMuTrack *mutrack = (StMuTrack *) fMuDst->globalTracks(part.Id());
 
-              daughter.pt = part.GetPt();
-              daughter.pdg = part.GetPDG();
-              daughter.eta = particle.GetEta();
-              daughter.nhits=0; //mutracks->Nhits(); //first check that the pt a eta agree!!!
-              daughter.PvtxDca =0.;
-              float vtx[3]={decay_Vx, decay_Vy, decay_Vz};
-              daughter.DecayDca = part.GetDistanceFromVertex(vtx);
+              //DCA's - mainly useful for mother track - iD==3
+              //a) to decay Vtx: from KFP, from MuTrack
+                 //from KFP
+              daughter.DecayDca_KF = daugh.GetDistanceFromVertex(particle);
+              KFParticle tmp=daugh;
+              tmp.TransportToParticle(particle);
+              StThreeVectorD daugher_p_decay_KF(tmp.Px(),tmp.Py(),tmp.Pz());
+              double dp_decay_KF=(daugher_p_decay_KF-mother_p_decay).mag();
+              //muDST
+              StPhysicalHelixD helix = mutrack->helix();
+              double pathlength = helix.pathLength(decayVtx, true ); // false- do not scan periods
+              daughter.pdg=pathlength; //temporary
+              daughter.DecayDca_mu=helix.distance(decayVtx);//(helix.at(pathlength)-decayVtx).mag();
+              //momentum at decay vtx - from global track!
+              StThreeVectorD daughter_p_decay= helix.momentumAt(pathlength,fMuDst->event()->runInfo().magneticField()*kilogauss);
+              daughter.dp_Decay=(daughter_p_decay-mother_p_decay).mag();
 
-              Float_t toFill[] = { runId,eventId,mother_PID, Vz, mother_pt, mother_eta, mother_phi, mother_m, mother_nhits, mother_PV_l, mother_PV_dl,
-                            decay_Vr, decay_Vx, decay_Vy, decay_Vz, 
-                            daughter.index, daughter.pdg, daughter.pt, daughter.eta, daughter.nhits,daughter.DecayDca,daughter.PvtxDca};
-             //Float_t toFill[] = {(Float_t)Vz, (Float_t)mother_eta, (Float_t)mother_phi, (Float_t) mother_m, (Float_t) mother_nhits, (Float_t) decayV_r, (Float_t) decayV_z,  daughters_pt[0], daughters_pt[1], daughters_pt[2]};
-             //Float_t toFill[11] = {(Float_t)runId, (Float_t)eventId, (Float_t)cent + 0.5, (Float_t)mother_pt, (Float_t)mother_eta, (Float_t)mother_phi, (Float_t) mother_m, (Float_t)Reweight, bdt_value, daughters_pt[0], daughters_pt[1]};
-             cout<<"filling...iD="<<iD<<endl;               
-             hKaonNtuple->Fill(toFill);
-            }
+            
+              
+              //B)to prim Vtx:
+              //from KFP
+              daughter.PvtxDca_KF = daugh.GetDistanceFromVertex(topoRec->GetPrimVertex());
+              //from MuTrack 
+              pathlength = helix.pathLength(pVtx, true );
+              daughter.PvtxDca_mu=(helix.at(pathlength)-pVtx).mag();
+              //daughter.PvtxDca_mu=helix.distance(pVtx); o
+              StThreeVectorD daughter_p_PVX= helix.momentumAt(pathlength,fMuDst->event()->runInfo().magneticField()*kilogauss);
+              double dp_PVX=(daughter_p_PVX-mother_p_PVX).mag();
+       
+              //DCA from MuDST
+              daughter.PvtxDca_official=mutrack->dcaGlobal().mag();                
 
-          //now the clasical geometrical matching
-          if(fIsPicoAnalysis) continue;
-          //set primary vertex to the one in KFP
-          int PVindex=topoRec->GetPrimVertex().Id();
-          fMuDst->setVertexIndex(PVindex);
+              //KFP probabilities
+              Float_t mother_PV_l=particle.GetDistanceFromVertex(topoRec->GetPrimVertex());
+              Float_t mother_PV_dl=particle.GetDeviationFromVertex(topoRec->GetPrimVertex());
+              Float_t daughter_decay_dl=daugh.GetDeviationFromVertex(particle);
 
-          //loop over global tracks
-          /*
-          for (UInt_t k = 0; k < fMuDst->numberOfGlobalTracks(); k++) {
-              cout<<"k="<<k<<endl;
-              StMuTrack *gTrack = (StMuTrack *) fMuDst->globalTracks(k);
+              Float_t toFill[] = { runId,eventId,Vz, mother_PID, mother_pt, mother_px,mother_py,mother_pz, mother_eta, mother_phi, 
+                mother_pt_PVX, mother_px_PVX, mother_py_PVX, mother_pz_PVX, mother_eta_PVX, mother_phi_PVX, mother_m,  mother_PV_l, mother_PV_dl,
+                decay_Vr, decay_Vx, decay_Vy, decay_Vz,
+                daughter.index, daughter.pdg, daughter.nhits,daughter.nhits_pos,daughter.lastPointR,daughter.nhits_dEdx, daughter.dEdx, daughter.p,daughter.pt, daughter.eta,daughter.phi,daughter.px,daughter.py,daughter.pz,dp_PVX,
+                daughter_decay_dl,daughter_p_decay.perp(),daughter_p_decay.pseudoRapidity(),daughter_p_decay.phi(),daughter_p_decay.x(),daughter_p_decay.y(),daughter_p_decay.z(),daughter.dp_Decay,dp_decay_KF,
+                daughter.DecayDca_KF,daughter.DecayDca_mu,daughter.PvtxDca_KF,daughter.PvtxDca_mu,daughter.PvtxDca_official,0};
+                hKaonNtuple->Fill(toFill);
+             } //NDaughters loop
 
-              //dca to primary vertex
-              //static StDcaGeometry *  fMuDst->covGlobTracks (int i)
-              daughter.PvtxDca =gTrack->dca(PVindex).mag();
-              //static StDcaGeometry *= gTrack->covGlobTracks(k);
-                 
-              /* code copied as an inspiration
-                if (globalTrack->dcaGeometry()) {
-  171           const StDcaGeometry *dcaGeometry = globalTrack->dcaGeometry();
-  172           const StThreeVectorF &pvert = vertex->position();
-  173           Double_t        vtx[3] = {pvert[0],pvert[1],pvert[2]};
-  174           THelixTrack     thelix =  dcaGeometry->thelix();
-  175           thelix.Move(thelix.Path(vtx));
-  176           const Double_t *pos = thelix.Pos();
-  177           const Double_t *mom = thelix.Dir();
-  178           mDCAGlobal = StThreeVectorF(pos[0],pos[1],pos[2]) - vertex->position();
-  179           if (track->type() == global) {
-  180             mDCA = mDCAGlobal;
-  181             mP   = StThreeVectorF(mom[0],mom[1],mom[2]);
-  182             mP  *= dcaGeometry->momentum().mag();
-              /
+      // matching of tracks from MuDST to the found decay vertex
+     if(fabs(fStKFParticleInterface->GetParticles()[iParticle].GetPDG())!=100321) continue;// run only decay vertices
+     if(decay_Vr <50) continue; //there can be no kaon associated
 
-              //dca to decay vertex
-              StPhysicalHelixD h=gTrack->helix();
-              StThreeVectorD v(particle.GetX(),particle.GetY(),particle.GetZ());
-              daughter.DecayDca=fabs(h.geometricSignedDistance(v));
-              //if (daughter.DecayDca>1) continue;
+      StMuTrack *mutrack;
+      _daughter best_dt;
+      StThreeVectorD best_dt_p_PVX;
+      best_dt.dp_Decay=10e20;
+      best_dt.DecayDca_mu=10e20;
+      //loop over global
+      for (UInt_t k = 0; k < fMuDst->numberOfGlobalTracks(); k++) {
+           mutrack = (StMuTrack *) fMuDst->array(muGlobal)->UncheckedAt(k);
+      //loop over primary
+      //for (UInt_t k = 0; k < fMuDst->numberOfPrimaryTracks(); k++) {
+      //    track = (StMuTrack *) fMuDst->array(muPrimary)->UncheckedAt(k);
+           if (! mutrack) continue;
+           _daughter daughter;
+         
+          //DCA from MuDST
+          daughter.PvtxDca_official=mutrack->dcaGlobal().mag();
+          if (daughter.PvtxDca_official>10 ) continue;//junk
 
-              daughter.pt = gTrack->pt();
-              daughter.pdg = -1;
-              daughter.index = -1;
-              daughter.eta = gTrack->eta();
-              daughter.nhits=gTrack->nHitsFit();
-              Float_t toFill[] = { runId,eventId,mother_PID, Vz, mother_pt, mother_eta, mother_phi, mother_m, mother_nhits, mother_PV_l, mother_PV_dl,
-                            decay_Vr, decay_Vx, decay_Vy, decay_Vz, 
-                            daughter.index, daughter.pdg, daughter.pt, daughter.eta, daughter.nhits,daughter.DecayDca,daughter.PvtxDca};
-              hKaonNtuple->Fill(toFill); 
-            }
-              */
 
-        //loop over primary
-         for (UInt_t k = 0; k < fMuDst->numberOfPrimaryTracks(); k++) {
-              cout<<"k="<<k<<endl;
-              StMuTrack *pTrack = (StMuTrack *) fMuDst->array(muPrimary)->UncheckedAt(k);
-              if (! pTrack) continue;
-               //if (! fMuDst->Accept(pTrack)) continue; //??
-             
-              StPhysicalHelixD h=pTrack->helix();
-              StThreeVectorD v(particle.GetX(),particle.GetY(),particle.GetZ());
-              daughter.DecayDca=fabs(h.geometricSignedDistance(v));
-              if (daughter.DecayDca>1) continue;
+          daughter.index=4;
+          daughter.id=mutrack->id();
 
-              daughter.PvtxDca = pTrack->dcaGlobal().mag();
-              daughter.pt = pTrack->pt();
-              daughter.pdg = -1;
-              daughter.index = -1;
-              daughter.eta = pTrack->eta();
-              daughter.nhits=pTrack->nHitsFit();
-              Float_t toFill[] = { runId,eventId,mother_PID, Vz, mother_pt, mother_eta, mother_phi, mother_m, mother_nhits, mother_PV_l, mother_PV_dl,
-                            decay_Vr, decay_Vx, decay_Vy, decay_Vz, 
-                            daughter.index, daughter.pdg, daughter.pt, daughter.eta, daughter.nhits,daughter.DecayDca,daughter.PvtxDca};
-              hKaonNtuple->Fill(toFill);             
-            }
+          daughter.pt = mutrack->pt();
+          daughter.p  = mutrack->p().mag();
+          daughter.eta = mutrack->eta();
+          daughter.phi = mutrack->phi();
+          daughter.px = mutrack->p().x();
+          daughter.py = mutrack->p().y();
+          daughter.pz = mutrack->p().z();
+          daughter.nhits=mutrack->nHitsFit(); 
+          daughter.nhits_dEdx=mutrack->nHitsDedx();
+          daughter.nhits_pos=mutrack->nHitsPoss(); 
+          daughter.lastPointR=mutrack->lastPoint().perp(); //from PV to last hist
+          daughter.dEdx=mutrack->dEdx(); 
+
+           StPhysicalHelixD helix = mutrack->helix();
+           double pathlength = helix.pathLength(decayVtx, true ); // false- do not scan periods
+           daughter.pdg=pathlength;// ok, that's dirty...
+           daughter.DecayDca_mu=helix.distance(decayVtx);//(helix.at(pathlength)-decayVtx).mag();
+            
+         
+           //momentum at decay vtx - from global track!
+           StThreeVectorD daughter_p_decay= helix.momentumAt(pathlength,fMuDst->event()->runInfo().magneticField()*kilogauss);
+           daughter.dp_Decay=(daughter_p_decay-mother_p_decay).mag();
+
+        
+          pathlength = helix.pathLength(pVtx, true );
+          daughter.PvtxDca_mu=(helix.at(pathlength)-pVtx).mag();
+              //daughter.PvtxDca_mu=helix.distance(pVtx); 
+             //daughter.DecayDca_mu=fabs(helix.geometricSignedDistance(v));
+          StThreeVectorD daughter_p_PVX= helix.momentumAt(pathlength,fMuDst->event()->runInfo().magneticField()*kilogauss);
+          daughter.dp_PVX=(daughter_p_PVX-mother_p_PVX).mag();
+
+          if (daughter.dp_Decay>2.) continue; //junk                
+          if (daughter.DecayDca_mu>2.) continue; //junk
+
           
-
+          if (best_dt.dp_Decay>daughter.dp_Decay){
+            daughter.isBest=1;
+            if (best_dt.DecayDca_mu>daughter.DecayDca_mu) daughter.isBest=2;
+            _daughter tmpd=best_dt;   best_dt=daughter;  daughter=tmpd;
+            StThreeVectorD tmpp=best_dt_p_PVX; best_dt_p_PVX=daughter_p_decay; daughter_p_decay=tmpp;
           }
-      }
-    }
+
+         
+          if (daughter.dp_Decay>1000.) continue; //junk from initialization best_dt.dp_Decay=10e20;
+          
+          Float_t toFill[] = { runId,eventId,Vz, mother_PID, mother_pt, mother_px,mother_py,mother_pz, mother_eta, mother_phi, 
+            mother_pt_PVX, mother_px_PVX, mother_py_PVX, mother_pz_PVX, mother_eta_PVX, mother_phi_PVX, mother_m,  mother_PV_l, mother_PV_dl,
+            decay_Vr, decay_Vx, decay_Vy, decay_Vz,
+            daughter.index, daughter.pdg, daughter.nhits,daughter.nhits_pos,daughter.lastPointR,daughter.nhits_dEdx, daughter.dEdx, daughter.p,daughter.pt, 
+            daughter.eta,daughter.phi,daughter.px,daughter.py,daughter.pz,daughter.dp_PVX,
+            0,daughter_p_decay.perp(),daughter_p_decay.pseudoRapidity(),daughter_p_decay.phi(),daughter_p_decay.x(),daughter_p_decay.y(),daughter_p_decay.z(),daughter.dp_Decay,0,
+            daughter.DecayDca_KF,daughter.DecayDca_mu,daughter.PvtxDca_KF,daughter.PvtxDca_mu,daughter.PvtxDca_official,0};
+            hKaonNtuple->Fill(toFill);        
+            } //loop over primary     
+
+        //now save the best
+        if (best_dt.dp_Decay<= 1000.){
+         //if (best_dt.DecayDca_mu<= 20.){
+           Float_t toFill[] = { runId,eventId,Vz, mother_PID, mother_pt, mother_px,mother_py,mother_pz, mother_eta, mother_phi, 
+            mother_pt_PVX, mother_px_PVX, mother_py_PVX, mother_pz_PVX, mother_eta_PVX, mother_phi_PVX, mother_m,  mother_PV_l, mother_PV_dl,
+            decay_Vr, decay_Vx, decay_Vy, decay_Vz,
+            best_dt.index, best_dt.pdg, best_dt.nhits,best_dt.nhits_pos,best_dt.lastPointR,best_dt.nhits_dEdx, best_dt.dEdx, best_dt.p,best_dt.pt, 
+            best_dt.eta,best_dt.phi,best_dt.px,best_dt.py,best_dt.pz,best_dt.dp_PVX,
+            0,best_dt_p_PVX.perp(),best_dt_p_PVX.pseudoRapidity(),best_dt_p_PVX.phi(),best_dt_p_PVX.x(),best_dt_p_PVX.y(),best_dt_p_PVX.z(),best_dt.dp_Decay,0,
+            best_dt.DecayDca_KF,best_dt.DecayDca_mu,best_dt.PvtxDca_KF,best_dt.PvtxDca_mu,best_dt.PvtxDca_official,best_dt.isBest};
+            hKaonNtuple->Fill(toFill);        
+        }
+
+    }//nPIDs loop
+       
+  }//FKparticles loop
 }
 
 void StKFParticleAnalysisMaker::GetDaughterParameters(const int iReader, int& iDaughterTrack, int& iDaughterParticle, KFParticle& particle)

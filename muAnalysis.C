@@ -1,7 +1,7 @@
 /*
   root.exe -q -b -x 'muMc.C(1e6,"../*MuDst.root")'
 */
-void muAnalysis(Int_t N = 1000, const Char_t *input = "/gpfs01/star/subsys-tpc/fisyak/Pico/2020/TFG21b/RF/9p8GeV_fixedTarget/032/hlt_21032016_10_01_000.MuDst.root", const Char_t *output = "mu.root") {
+void muAnalysis(Int_t N = 1000, char isSim=false, char noPID=false, const Char_t *input = "/gpfs01/star/subsys-tpc/fisyak/Pico/2020/TFG21b/RF/9p8GeV_fixedTarget/032/hlt_21032016_10_01_000.MuDst.root", const Char_t *output = "mu.root") {
 #if !defined(__CINT__)
   std::cout << "This code cannot be compiled" << std::endl;
 #else
@@ -14,10 +14,10 @@ void muAnalysis(Int_t N = 1000, const Char_t *input = "/gpfs01/star/subsys-tpc/f
   kfpAnalysis->RunKaonAnalysis();
   TString fname="kaon_";fname+=output;
   kfpAnalysis->SetKaonFile(fname);
-//  kfpAnalysis->ProcessSignal();  enable for simulations
+  if (isSim) kfpAnalysis->ProcessSignal();  //enable for simulations
 
 //   kfpAnalysis->CollectPIDHistograms();
-   kfpAnalysis->CollectTrackHistograms();
+  kfpAnalysis->CollectTrackHistograms();
 
   kfpAnalysis->AddDecayToReconstructionList( 310);
   kfpAnalysis->AddDecayToReconstructionList( 100321);
@@ -51,7 +51,7 @@ void muAnalysis(Int_t N = 1000, const Char_t *input = "/gpfs01/star/subsys-tpc/f
   kfpAnalysis->AddDecayToReconstructionList( 3007);
   kfpAnalysis->AddDecayToReconstructionList( 3012);
   kfpAnalysis->AddDecayToReconstructionList( 3013);
-
+/*
   kfpAnalysis->AddDecayToReconstructionList(-7000211);
   kfpAnalysis->AddDecayToReconstructionList(-7000014);
   kfpAnalysis->AddDecayToReconstructionList( 7000211);
@@ -88,8 +88,7 @@ void muAnalysis(Int_t N = 1000, const Char_t *input = "/gpfs01/star/subsys-tpc/f
   kfpAnalysis->AddDecayToReconstructionList(-8000111);
   kfpAnalysis->AddDecayToReconstructionList( 8003222);
   kfpAnalysis->AddDecayToReconstructionList( 8000111);
-
-  //kfpAnalysis->ProcessSignal(); for MC analysis
+*/
   
   ((StBFChain *) StMaker::GetTopChain())->Init();
   
@@ -97,6 +96,7 @@ void muAnalysis(Int_t N = 1000, const Char_t *input = "/gpfs01/star/subsys-tpc/f
   StKFParticleInterface::instance()->CleanLowPVTrackEvents();  
   
   StKFParticleInterface::instance()->SetSoftKaonPIDMode();
+  if (noPID) StKFParticleInterface::instance()->SetAllIsKaonPIDMode();
   StKFParticleInterface::instance()->SetSoftTofPidMode();
 
   

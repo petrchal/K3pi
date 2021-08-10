@@ -93,6 +93,7 @@ class StKFParticleInterface: public TObject
   void SetStrictTofPidMode() { fStrictTofPID = true;  }
   void SetSoftTofPidMode()   { fStrictTofPID = false; }
   void SetSoftKaonPIDMode()  { fCleanKaonsWitTof = false; }
+  void SetAllIsKaonPIDMode()  { fAllIsKaonPID = true; }
   void UseCorrecteddEdX()    { fdEdXMode = 2; }
   void SetTriggerMode()      { fTriggerMode = true; }
   //KF Particle Finder cuts
@@ -126,6 +127,7 @@ class StKFParticleInterface: public TObject
   void SetChi2TopoCutCharm2D(float cut);
   void SetChi2CutCharm2D(float cut);
   static StKFParticleInterface *instance() {return fgStKFParticleInterface;}
+  std::vector<int>& TrackIdToI(){return fTrackIdToI;}
  private:
   
   double InversedChi2Prob(double p, int ndf) const;
@@ -146,7 +148,8 @@ class StKFParticleInterface: public TObject
 #endif
   std::vector<int> fParticlesPdg;
   std::vector<int> fNHftHits;
-  
+  std::vector<int> fTrackIdToI;
+
   //histograms
   bool fCollectTrackHistograms;
   bool fCollectPIDHistograms;
@@ -171,6 +174,7 @@ class StKFParticleInterface: public TObject
   //PID cuts
   bool fStrictTofPID;
   bool fCleanKaonsWitTof;
+  bool fAllIsKaonPID;
   int fdEdXMode;
   //trigger cuts
   bool fTriggerMode;

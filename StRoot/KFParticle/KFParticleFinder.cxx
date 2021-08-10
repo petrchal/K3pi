@@ -2939,40 +2939,49 @@ void KFParticleFinder::MatchKaons(KFPTrackVector* vTracks,
                                   std::vector<KFParticle>& Particles)
 {
   constexpr const int nKaonSets=2;
-  constexpr const int primCandidatesSet[nKaonSets]{11,12};
-  constexpr const int trackSet[nKaonSets]{6,7}; // primary "+" and "-" tracks at last hit
+  constexpr const int primCandidatesSet[nKaonSets]{11,12}; // 100310 reconstrucete candidates
+
+  //description at: KFParticleTopoReconstructor::SortTracks()
+  constexpr const int trackSet[nKaonSets]{6,7}; //6) primary positive at the last hit position; \n
+                                               // 7) primary negative at the last hit position.
+  //
+  //constexpr const int trackSet[nKaonSets]{2,3}; //2) primary positive at the first hit position; \n
+                                               // 3) primary negative at the first hit position.
   constexpr const int trackPdg[nKaonSets]{321, -321};
   constexpr const int newPdg[nKaonSets]{200321, -200321};
   
   KFParticleSIMD kaonTrack;
 
-  for(int iKaonSet=0; iKaonSet<nKaonSets; iKaonSet++) {
+  for(int iKaonSet=0; iKaonSet<nKaonSets; iKaonSet++) { // + , - loop
     if(!(fDecayReconstructionList.empty()) && (fDecayReconstructionList.find(newPdg[iKaonSet]) == fDecayReconstructionList.end())) continue;
     
-    std::vector< std::vector<KFParticle> >& candidateSets = fPrimCandidates[primCandidatesSet[iKaonSet]];
-    KFPTrackVector& primTracks = vTracks[trackSet[iKaonSet]];
-    const int firstTrack = primTracks.FirstKaon();
+    std::vector< std::vector<KFParticle> >& candidateSets = fPrimCandidates[primCandidatesSet[iKaonSet]]; //select 100310 candidates
+    KFPTrackVector& primTracks = vTracks[trackSet[iKaonSet]]; //vector of primary tracks 
+
+    const int firstTrack = primTracks.FirstKaon(); //selecting kaons to run over
     const int lastTrack = primTracks.LastKaon();
     
-    for(unsigned int iPV=0; iPV < candidateSets.size(); iPV++) {
+
+    for(unsigned int iPV=0; iPV < candidateSets.size(); iPV++) { //loop over primary vertices of 100310 candidates
       std::vector<KFParticle>& candidates = candidateSets[iPV];
 
-      for(unsigned int iCandidate=0; iCandidate<candidates.size(); iCandidate++) {
+      for(unsigned int iCandidate=0; iCandidate<candidates.size(); iCandidate++) { //over individual 100310 candidates
         KFParticleSIMD candidate(candidates[iCandidate]);
         
-        for(int iTrack=firstTrack; iTrack<lastTrack; iTrack+=float_vLen) {
+        for(int iTrack=firstTrack; iTrack<lastTrack; iTrack+=float_vLen) {  // over primary kaon candidates
           const int NTracks = (iTrack + float_vLen < lastTrack) ? float_vLen : (lastTrack - iTrack);
           const int_v& trackPDG = reinterpret_cast<const int_v&>(primTracks.PDG()[iTrack]);
           const int_v& trackPVIndex = reinterpret_cast<const  int_v&>(primTracks.PVIndex()[iTrack]);
           const int_m& isSamePV = (iPV == trackPVIndex);
 
-          float_m active = simd_cast<float_m>(abs(trackPDG)==321) &&
-            simd_cast<float_m>(isSamePV) && 
-            simd_cast<float_m>(int_v::IndexesFromZero() < int(NTracks));
+         float_m active = simd_cast<float_m>(abs(trackPDG)==321) && //kaons selection
+          simd_cast<float_m>(isSamePV) && 
+          simd_cast<float_m>(int_v::IndexesFromZero() < int(NTracks));
             
           if(active.isEmpty()) continue;
           
-          kaonTrack.Load(primTracks, iTrack, trackPdg[iTrack]);
+          //kaonTrack.Load(primTracks, iTrack, trackPdg[iTrack]);
+          kaonTrack.Load(primTracks, iTrack, trackPdg[iKaonSet]); //Petr
           
           float_v dx = candidate.X() - kaonTrack.X();
           float_v dy = candidate.Y() - kaonTrack.Y();
