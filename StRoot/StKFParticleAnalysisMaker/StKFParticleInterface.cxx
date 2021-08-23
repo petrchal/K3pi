@@ -1323,7 +1323,7 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
       
     KFPTrack track;
 
-    if( !GetTrack(*dcaG, track, q, index) ) continue;
+    if( !GetTrack(*dcaG, track, q, id) ) continue;
     
     //cout<<endl; 
 #endif
