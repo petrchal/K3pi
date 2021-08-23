@@ -532,9 +532,11 @@ void KFParticleTopoReconstructor::SortTracks()
     }
   }
   
-  for(int iTrack=0; iTrack<fTracks[2].Size(); iTrack++)
+  std::cout<<"fTracks[2].Size()="<<fTracks[2].Size()<<" fTracks[6].Size()="<<fTracks[6].Size()<<std::endl;
+  std::cout<<"fTracks[3].Size()="<<fTracks[2].Size()<<" fTracks[7].Size()="<<fTracks[7].Size()<<std::endl;
+  if (fTracks[6].Size()>0) for(int iTrack=0; iTrack<fTracks[2].Size(); iTrack++)
     fTracks[6].SetPVIndex(fTracks[2].PVIndex()[iTrack], iTrack);
-  for(int iTrack=0; iTrack<fTracks[3].Size(); iTrack++)
+   if (fTracks[6].Size()>0) for(int iTrack=0; iTrack<fTracks[3].Size(); iTrack++)
     fTracks[7].SetPVIndex(fTracks[3].PVIndex()[iTrack], iTrack);
   
   fChiToPrimVtx[0].resize(fTracks[0].Size(), -1);
