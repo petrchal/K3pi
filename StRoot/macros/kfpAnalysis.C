@@ -27,9 +27,9 @@ void kfpAnalysis(
   if (isPico) kfpAnalysis->AnalysePicoDst();
     else kfpAnalysis->AnalyseMuDst();
 
-  //kfpAnalysis->RunKaonAnalysis();
-  //TString fname="kaon_";fname+=output;
-  //kfpAnalysis->SetKaonFile(fname);
+  kfpAnalysis->RunKaonAnalysis();
+  TString fname="kaon_";fname+=output;
+  kfpAnalysis->SetKaonFile(fname);
 
   if (isSim) kfpAnalysis->ProcessSignal();  //enable for simulations
 
@@ -76,7 +76,7 @@ void kfpAnalysis(
   StKFParticleInterface::instance()->CleanLowPVTrackEvents();  
   
   StKFParticleInterface::instance()->SetSoftKaonPIDMode();
-  //if (noPID) StKFParticleInterface::instance()->SetAllIsKaonPIDMode();
+  if (noPID) StKFParticleInterface::instance()->SetAllIsKaonPIDMode();
   StKFParticleInterface::instance()->SetSoftTofPidMode();
 
   
