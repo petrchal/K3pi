@@ -33,6 +33,11 @@
 //--- StRefMult class ---
 #include "StRefMultCorr/StRefMultCorr.h"
 #include "StRefMultCorr/CentralityMaker.h"
+//hit topology and position
+#include "StEvent/StTrackTopologyMap.cxx"
+#include "StDetectorDbMaker/St_tpcPadConfigC.h"
+#include "StDetectorDbMaker/St_tpcPadPlanesC.h"
+#include "StDetectorDbMaker/St_itpcPadPlanesC.h"
 
 
 ClassImp(StKFParticleAnalysisMaker);
@@ -1015,10 +1020,43 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
                daughter.nhits=picotrack->nHitsFit(); 
                daughter.nhits_dEdx=picotrack->nHitsDedx(); 
                daughter.nhits_pos=picotrack->nHitsPoss(); 
+               daughter.dEdx=picotrack->dEdx();
+               //last point radius - workaround from topology map
+               /// Toplogy Map data0 and data1. See StEvent/StTrackTopologyMap.cxx
              // daughter.lastPointR=picotrack->lastPoint().perp(); //from PV to last hist
                daughter.lastPointR=0;
-               daughter.dEdx=picotrack->dEdx();
-             }
+            
+               #if !defined (__TFG__VERSION__)
+               StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(0),picotrack->iTpcTopologyMap());
+               #else
+               StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(0),0);
+               #endif  
+               int lastTpcRow=46;
+               if (map.hasHitInDetector(kTpcId)){
+                 do {lastTpcRow--;} while ( lastTpcRow==0 || map.hasHitInRow(kTpcId, lastTpcRow));
+                 cout<<"last tpc row="<<lastTpcRow;
+                 if (lastTpcRow>0) {
+                  if (lastTpcRow<=13) daughter.lastPointR=St_tpcPadPlanesC::instance()->innerRowRadii(0)[lastTpcRow-1];
+                  else daughter.lastPointR=St_tpcPadPlanesC::instance()->outerRowRadii(0)[lastTpcRow-14];
+                }
+              }//hits in TPC
+               //now iTPC
+              if (map.hasHitInDetector(kiTpcId)){
+                float Ri=0;
+                int lastiTpcRow=41;
+                if (map.hasHitInDetector(kiTpcId)){
+                  do {lastiTpcRow--;}while ( lastiTpcRow==0 || map.hasHitInRow(kiTpcId, lastiTpcRow));
+                  cout<<"last itpc row="<<lastiTpcRow;
+                  if (lastiTpcRow>0) Ri=St_itpcPadPlanesC::instance()->innerRowRadii(0)[lastiTpcRow-1];
+                  if (Ri>daughter.lastPointR) daughter.lastPointR=Ri;
+                }
+               }//iTPC hits
+
+               
+               cout<<" R="<<daughter.lastPointR<<endl;
+
+               //St_tpcPadConfigC::instance()->
+             }//picoDst
               else {
                 mutrack = (StMuTrack *) fMuDst->globalTracks(iDataTrack); 
                 daughter.nhits=mutrack->nHitsFit(); 
@@ -1132,10 +1170,38 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
           daughter.nhits=picotrack->nHitsFit(); 
           daughter.nhits_dEdx=picotrack->nHitsDedx();
           daughter.nhits_pos=picotrack->nHitsPoss(); 
-          //daughter.lastPointR=picotrack->lastPoint().perp(); //from PV to last hist
-          daughter.lastPointR=0; //from PV to last hist
           daughter.dEdx=picotrack->dEdx(); 
         
+          //daughter.lastPointR=picotrack->lastPoint().perp(); //from PV to last hist
+          daughter.lastPointR=0; //from PV to last hist
+          #if !defined (__TFG__VERSION__)
+          StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(0),picotrack->iTpcTopologyMap());
+          #else
+          StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(0),0);
+          #endif  
+          int lastTpcRow=46;
+          if (map.hasHitInDetector(kTpcId)){
+           do {lastTpcRow--;} while ( lastTpcRow==0 || map.hasHitInRow(kTpcId, lastTpcRow));
+           cout<<"last tpc row="<<lastTpcRow;
+           if (lastTpcRow>0) {
+            if (lastTpcRow<=13) daughter.lastPointR=St_tpcPadPlanesC::instance()->innerRowRadii(0)[lastTpcRow-1];
+            else daughter.lastPointR=St_tpcPadPlanesC::instance()->outerRowRadii(0)[lastTpcRow-14];
+            }
+           }//hits in TPC
+               //now iTPC
+          if (map.hasHitInDetector(kiTpcId)){
+            float Ri=0;
+            int lastiTpcRow=41;
+            if (map.hasHitInDetector(kiTpcId)){
+              do {lastiTpcRow--;}while ( lastiTpcRow==0 || map.hasHitInRow(kiTpcId, lastiTpcRow));
+              cout<<"last itpc row="<<lastiTpcRow;
+              if (lastiTpcRow>0) Ri=St_itpcPadPlanesC::instance()->innerRowRadii(0)[lastiTpcRow-1];
+              if (Ri>daughter.lastPointR) daughter.lastPointR=Ri;
+            }
+           }//iTPC hits
+           cout<<" R="<<daughter.lastPointR<<endl;
+
+
            StPicoPhysicalHelix helix = picotrack->helix(fPicoDst->event()->bField()*kilogauss);
            double pathlength = helix.pathLength(decayVtx_, true ); // false- do not scan periods
            //daughter.pdg=pathlength;// ok, that's dirty...
