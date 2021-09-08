@@ -5,6 +5,7 @@ void kfpAnalysis(
      Int_t N = 1e9, 
      char isSim=false, 
      char isPico=false, 
+     char isFXT=false, 
      char noPID=true, 
      const Char_t *input = ,
      const Char_t *output,
@@ -26,7 +27,8 @@ void kfpAnalysis(
   StKFParticleAnalysisMaker* kfpAnalysis = (StKFParticleAnalysisMaker*) StMaker::GetTopChain()->Maker("KFParticleAnalysis");
   if (isPico) kfpAnalysis->AnalysePicoDst();
     else kfpAnalysis->AnalyseMuDst();
-
+  if (isFXT) kfpAnalysis->Fixedtarget();
+ 
   kfpAnalysis->RunKaonAnalysis();
   TString fname="kaon_";fname+=output;
   kfpAnalysis->SetKaonFile(fname);

@@ -36,7 +36,7 @@ StKFParticleInterface::StKFParticleInterface():
   fKFParticleTopoReconstructor(0), fParticles(0), fParticlesPdg(0), fNHftHits(0), fTrackIdToI(0),
   fCollectTrackHistograms(false), fCollectPIDHistograms(false),
   fStrictTofPID(true), fCleanKaonsWitTof(true), fAllIsKaonPID(false),fdEdXMode(1), fTriggerMode(false),
-  fChiPrimaryCut(18.6), fChiPrimaryMaxCut(2e4), fCleanLowPVTrackEvents(false), fUseHFTTracksOnly(false)
+  fChiPrimaryCut(18.6), fChiPrimaryMaxCut(2e4), fIsFixedTarget(false),fCleanLowPVTrackEvents(false), fUseHFTTracksOnly(false)
 {
   fKFParticleTopoReconstructor = new KFParticleTopoReconstructor();
   fgStKFParticleInterface = this;
@@ -1180,19 +1180,20 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
   
   if( fCleanLowPVTrackEvents && ( 10*nPrimary < (nUsedTracks - nPrimary) ) ) return 0;  
   if( fCleanLowPVTrackEvents && sqrt(dx*dx + dy*dy) > 0.45 ) return 0;
-  //TODO FXT
-#if 0
-  if( fCleanLowPVTrackEvents && !(primaryVertex.Z() > 196. && primaryVertex.Z() < 204.) ) return 0;
-  if( fCleanLowPVTrackEvents && !(primaryVertex.X() > -2.5 && primaryVertex.X() < 2.  ) ) return 0;
-  if( fCleanLowPVTrackEvents && !(primaryVertex.Y() > -4.  && primaryVertex.Y() < 0.  ) ) return 0;
   
-//   if( fCleanLowPVTrackEvents && ( (nUsedTracks - nPrimary) > (50. + 0.75*nPrimary) ) ) return 0;
-  if( fCleanLowPVTrackEvents && ( (nUsedTracks - nPrimary) > 150 ) ) return 0;
-#else
-  //TODO collider
-  if( fCleanLowPVTrackEvents && primaryVertex.GetR() > 2.5 ) return 0;
-//   if( fCleanLowPVTrackEvents && fabs(primaryVertex.Z()) > 75. ) return 0;
-#endif
+  if (fIsFixedTarget){
+    if( fCleanLowPVTrackEvents && !(primaryVertex.Z() > 196. && primaryVertex.Z() < 204.) ) return 0;
+    if( fCleanLowPVTrackEvents && !(primaryVertex.X() > -2.5 && primaryVertex.X() < 2.  ) ) return 0;
+    if( fCleanLowPVTrackEvents && !(primaryVertex.Y() > -4.  && primaryVertex.Y() < 0.  ) ) return 0;
+
+  //   if( fCleanLowPVTrackEvents && ( (nUsedTracks - nPrimary) > (50. + 0.75*nPrimary) ) ) return 0;
+    if( fCleanLowPVTrackEvents && ( (nUsedTracks - nPrimary) > 150 ) ) return 0;
+  }
+  else
+    { //collider
+      if( fCleanLowPVTrackEvents && primaryVertex.GetR() > 2.5 ) return 0;
+   // if( fCleanLowPVTrackEvents && fabs(primaryVertex.Z()) > 75. ) return 0;
+    }
   
   const Double_t field = picoEvent->bField();  
   SetField(field);
@@ -1439,19 +1440,19 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
   //cout<<"chp0.1"<<endl;
   if( fCleanLowPVTrackEvents && sqrt(dx*dx + dy*dy) > 0.45 ) return 0;
   //cout<<"chp1"<<endl;
-  //TODO FXT
-#if 0
-  if( fCleanLowPVTrackEvents && !(primaryVertex.Z() > 196. && primaryVertex.Z() < 204.) ) return 0;
-  if( fCleanLowPVTrackEvents && !(primaryVertex.X() > -2.5 && primaryVertex.X() < 2.  ) ) return 0;
-  if( fCleanLowPVTrackEvents && !(primaryVertex.Y() > -4.  && primaryVertex.Y() < 0.  ) ) return 0;
-  
-//   if( fCleanLowPVTrackEvents && ( (nUsedTracks - nPrimary) > (50. + 0.75*nPrimary) ) ) return 0;
-  if( fCleanLowPVTrackEvents && ( (nUsedTracks - nPrimary) > 150 ) ) return 0;
-#else
-  //TODO collider
-  if( fCleanLowPVTrackEvents && primaryVertex.GetR() > 2.5 ) return 0;
-//   if( fCleanLowPVTrackEvents && fabs(primaryVertex.Z()) > 75. ) return 0;
-#endif
+  if (fIsFixedTarget){
+    if( fCleanLowPVTrackEvents && !(primaryVertex.Z() > 196. && primaryVertex.Z() < 204.) ) return 0;
+    if( fCleanLowPVTrackEvents && !(primaryVertex.X() > -2.5 && primaryVertex.X() < 2.  ) ) return 0;
+    if( fCleanLowPVTrackEvents && !(primaryVertex.Y() > -4.  && primaryVertex.Y() < 0.  ) ) return 0;
+   //   if( fCleanLowPVTrackEvents && ( (nUsedTracks - nPrimary) > (50. + 0.75*nPrimary) ) ) return 0;
+    if( fCleanLowPVTrackEvents && ( (nUsedTracks - nPrimary) > 150 ) ) return 0;
+  }
+  else
+  {// collider
+    if( fCleanLowPVTrackEvents && primaryVertex.GetR() > 2.5 ) return 0;
+  //   if( fCleanLowPVTrackEvents && fabs(primaryVertex.Z()) > 75. ) return 0;
+  }
+
  // cout<<"chp2"<<endl;
   const Double_t field = muDst->event()->magneticField();
   SetField(field);
