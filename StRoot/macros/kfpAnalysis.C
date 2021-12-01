@@ -27,7 +27,6 @@ void kfpAnalysis(
   StKFParticleAnalysisMaker* kfpAnalysis = (StKFParticleAnalysisMaker*) StMaker::GetTopChain()->Maker("KFParticleAnalysis");
   if (isPico) kfpAnalysis->AnalysePicoDst();
     else kfpAnalysis->AnalyseMuDst();
-  if (isFXT) kfpAnalysis->Fixedtarget();
  
   kfpAnalysis->RunKaonAnalysis();
   TString fname="kaon_";fname+=output;
@@ -76,6 +75,7 @@ void kfpAnalysis(
   
  
   StKFParticleInterface::instance()->CleanLowPVTrackEvents();  
+  if (isFXT) StKFParticleInterface::instance()->FixedTarget();
   
   StKFParticleInterface::instance()->SetSoftKaonPIDMode();
   if (noPID) StKFParticleInterface::instance()->SetAllIsKaonPIDMode();

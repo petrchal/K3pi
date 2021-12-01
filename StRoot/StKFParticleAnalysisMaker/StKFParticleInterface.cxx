@@ -1020,7 +1020,8 @@ void StKFParticleInterface::ResizeTrackPidVectors(const int nTracks)
 
 bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& triggeredTracks)
 {
-   triggeredTracks.resize(0);
+  cout<<"StKFParticleInterface::ProcessEvent - picoDst"<<endl;
+  triggeredTracks.resize(0);
   
   //read PV from pico Event
   KFVertex primaryVertex;
@@ -1062,7 +1063,7 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
     if (! gTrack->charge())  continue;
     //if (  gTrack->nHitsFit() < 15) continue;
     if (  gTrack->nHitsFit() < 10) continue; //changed by Petr
-    if (  gTrack->dEdxError() < 0.04 || gTrack->dEdxError() > 0.12 ) continue;
+    if (  gTrack->dEdxError() < 0.04 || gTrack->dEdxError() > 0.12 ) continue; 
     const int id = gTrack->id();
     if(id >= fTrackIdToI.size()) fTrackIdToI.resize(id+1);
     fTrackIdToI[id] = iTrack;
@@ -1219,7 +1220,7 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
 
 bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTracks, vector<int>& mcIndices, bool processSignal)
 {  
-  cout<<"StKFParticleInterface::ProcessEvent"<<endl;
+  cout<<"StKFParticleInterface::ProcessEvent - MuDst"<<endl;
   mcTracks.resize(muDst->numberOfMcTracks());
   for (unsigned int iMCTrack=0; iMCTrack<muDst->numberOfMcTracks(); iMCTrack++) 
   {
@@ -1237,12 +1238,12 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
   float bestRank=-1000000;
   int bestPV=-100000;
   double dx = 0., dy = 0., dz = 0.;
-  //cout<<" mu - # primary vertices="<<muDst->numberOfPrimaryVertices()<<endl;
+  cout<<" mu - # primary vertices="<<muDst->numberOfPrimaryVertices()<<endl;
   for(unsigned int iPV=0; iPV<muDst->numberOfPrimaryVertices(); iPV++) 
   {
     StMuPrimaryVertex *Vtx = muDst->primaryVertex(iPV);
     if(!Vtx) continue;
-    //cout<<" rank for i="<<iPV<<" is "<<Vtx->ranking()<<endl;
+    cout<<" rank for i="<<iPV<<" is "<<Vtx->ranking()<<endl;
     //cout<<*Vtx<<endl;
     if (bestRank < Vtx->ranking()) {
       bestRank = Vtx->ranking();
@@ -1262,12 +1263,12 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
     primaryVertex = KFVertex(kfVertex);
     primaryVertex.SetId(bestPV); 
   } 
-   //cout<<"  bestPV="<<bestPV<<endl;
-   //cout<<primaryVertex<<endl;
+   cout<<"  bestPV="<<bestPV<<endl;
+   cout<<primaryVertex<<endl;
 //   if(!IsGoodPV(primaryVertex)) return 0;
 
   Int_t nGlobalTracks = muDst->numberOfGlobalTracks();
- // cout<<" muDst->numberOfGlobalTracks()="<< muDst->numberOfGlobalTracks()<<endl;
+  cout<<" muDst->numberOfGlobalTracks()="<< muDst->numberOfGlobalTracks()<<endl;
   fParticles.resize(nGlobalTracks*10);
 #ifdef __kfpAtFirstHit__
   fParticlesAtLastHit.resize(nGlobalTracks*10);
