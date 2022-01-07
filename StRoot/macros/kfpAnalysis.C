@@ -9,7 +9,7 @@ void kfpAnalysis(
      char noPID=true, 
      const Char_t *input = ,
      const Char_t *output,
-     const Char_t *triggerSet = "y2019"
+     const Char_t *triggerSet //force user to set it ...  = "y2019"
      ) {
 #if !defined(__CINT__)
   std::cout << "This code cannot be compiled" << std::endl;
