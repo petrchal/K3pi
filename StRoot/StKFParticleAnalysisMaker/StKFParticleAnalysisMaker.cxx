@@ -61,7 +61,7 @@ void TDaughter::Clear(){
 void TK3pi::Clear(){
      runId=-1;eventId=-1;
      Vx=0;Vy=0;Vz=0;
-     mother_PID=-1; mother_isMc=0;
+     mother_PID=-1; mother_isMc=-1;
      // decay position 
      decay_Vr=0; decay_Vx=0; decay_Vy=0; decay_Vz=0;
     //momentum at the decay vertex from KFP
@@ -990,8 +990,12 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
 
             }
 
-              fK.mother_isMc=fK.mother_isMc && (daughter.idTruth>0)&&(daughter.idTruth<10000); //above 10000 it comes from real data
+              cout<<" fK.mother_isMc="<<fK.mother_isMc<<endl;
+              cout<<" iD="<<iD<<" .. daughter.idTruth="<<daughter.idTruth<<endl;
               
+              fK.mother_isMc=fK.mother_isMc && (daughter.idTruth>0)&&(daughter.idTruth<10000); //above 10000 it comes from real data
+              cout<<" fK.mother_isMc="<<fK.mother_isMc<<endl;
+             
               //DCA's - mainly useful for mother track - iD==3
               //a) to decay Vtx: from KFP, from MuTrack
                  //from KFP
@@ -1146,7 +1150,8 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
       fK.decay_Vy=particle.GetY();
       fK.decay_Vz=particle.GetZ();
       fK.decay_Vr=particle.GetR();
-      if (fK.decay_Vr<50) continue; // skip decays out of TPC
+      cout<<"fK.decay_Vr="<<fK.decay_Vr<<endl;
+      if (fK.decay_Vr<50){ cout<<" ..skipping"<<endl; continue;} // skip decays out of TPC
 
      
          //momentum at decay point
