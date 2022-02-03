@@ -1040,6 +1040,7 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
   double dz = picoPVError.z();
   primVtx_tmp.SetCovarianceMatrix( dx*dx, 0, dy*dy, 0, 0, dz*dz );
   primaryVertex = KFVertex(primVtx_tmp);
+
 //   if(!IsGoodPV(primaryVertex)) return 0;
   
   Int_t nGlobalTracks = picoDst->numberOfTracks( );
@@ -1063,7 +1064,10 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
     if (! gTrack->charge())  continue;
     //if (  gTrack->nHitsFit() < 15) continue;
     if (  gTrack->nHitsFit() < 10) continue; //changed by Petr
-    if (  gTrack->dEdxError() < 0.04 || gTrack->dEdxError() > 0.12 ) continue; 
+
+    // removed - Petr ..since dEdx is not simulated well ... this should be done offline
+    //if (  gTrack->dEdxError() < 0.04 || gTrack->dEdxError() > 0.12 ) continue; 
+
     const int id = gTrack->id();
     if(id >= fTrackIdToI.size()) fTrackIdToI.resize(id+1);
     fTrackIdToI[id] = iTrack;
@@ -1079,7 +1083,7 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
     
     if(fCollectTrackHistograms) fTrackHistograms[0]->Fill(nHftHitsInTrack);
     
-//     if(fUseHFTTracksOnly && nHftHitsInTrack < 3) continue;
+    // if(fUseHFTTracksOnly && nHftHitsInTrack < 3) continue;
     if(fUseHFTTracksOnly && !gTrack->hasIstHit()) continue;
     
     StPicoTrackCovMatrix *cov = picoDst->trackCovMatrix(iTrack);
@@ -1218,9 +1222,13 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
   return 1;
 }
 
-bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTracks, vector<int>& mcIndices, bool processSignal)
+bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTracks, vector<int>& mcIndices,
+ StKFParticleAnalysisMaker::cProcessSignal processSignal)
 {  
-  cout<<"StKFParticleInterface::ProcessEvent - MuDst"<<endl;
+  cout<<"StKFParticleInterface::ProcessEvent - MuDst, processSignal="<<processSignal<<endl;
+  cout<<" muDst->numberOfGlobalTracks()="<< muDst->numberOfGlobalTracks()<<endl;
+  cout<<" muDst->numberOfMcTracks()="<< muDst->numberOfMcTracks()<<endl;
+ 
   mcTracks.resize(muDst->numberOfMcTracks());
   for (unsigned int iMCTrack=0; iMCTrack<muDst->numberOfMcTracks(); iMCTrack++) 
   {
@@ -1264,11 +1272,10 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
     primaryVertex.SetId(bestPV); 
   } 
    cout<<"  bestPV="<<bestPV<<endl;
-   cout<<primaryVertex<<endl;
+   cout<<"   "<<primaryVertex<<endl;
 //   if(!IsGoodPV(primaryVertex)) return 0;
 
   Int_t nGlobalTracks = muDst->numberOfGlobalTracks();
-  cout<<" muDst->numberOfGlobalTracks()="<< muDst->numberOfGlobalTracks()<<endl;
   fParticles.resize(nGlobalTracks*10);
 #ifdef __kfpAtFirstHit__
   fParticlesAtLastHit.resize(nGlobalTracks*10);
@@ -1290,7 +1297,9 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
     if (  gTrack->flag() > 1000) continue;  // pile up track in TPC
     //if (  gTrack->nHitsFit() < 15) continue;
     if (  gTrack->nHitsFit() < 10) continue; //changed by Petr
-    if (  gTrack->probPidTraits().dEdxErrorFit() < 0.04 || gTrack->probPidTraits().dEdxErrorFit() > 0.12 ) continue;
+
+    // removed - Petr ..since dEdx is not simulated well ... this should be done offline
+    //if (  gTrack->probPidTraits().dEdxErrorFit() < 0.04 || gTrack->probPidTraits().dEdxErrorFit() > 0.12 ) continue;
     
     int nHftHitsInTrack = gTrack->nHitsFit(kIstId) + gTrack->nHitsFit(kSsdId) + gTrack->nHitsFit(kPxlId);
     if(fCollectTrackHistograms) fTrackHistograms[0]->Fill(nHftHitsInTrack);
@@ -1301,12 +1310,15 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
     fTrackIdToI[id] = iTrack;
 
     int mcIndex = gTrack->idTruth()-1;
+    //This should be equivalne to check IdTruth<10000, above 10000 are real tracks
     if(mcIndex >= int(mcTracks.size()))
       mcIndex = -1;
-    if(mcIndex > -1) {
-      if(!processSignal) continue;
+
+    if(mcIndex > -1) { //mc(matched) tracks
+      if(processSignal==StKFParticleAnalysisMaker::kRealTracksOnly) continue;
     }
-    else if(processSignal) continue;
+    else //real (not matched) track
+     if(processSignal==StKFParticleAnalysisMaker::kMcTracksOnly) continue; 
     
     Int_t q = 1; if (gTrack->charge() < 0) q = -1;
     //cout<<" iMuDst="<<iTrack<<" id="<<id<<" mu_pt="<<gTrack->pt()<<endl;
@@ -1418,7 +1430,8 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
     
     nUsedTracks++;
   }
-  //cout<<"  nUsedTracks="<<nUsedTracks<<endl;
+  cout<<"  nUsedTracks="<<nUsedTracks<<endl;
+  cout<<"  nPartSaved="<<nPartSaved<<endl;
 
   fParticles.resize(nPartSaved);
 #ifdef __kfpAtFirstHit__

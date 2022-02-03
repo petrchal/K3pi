@@ -3,7 +3,7 @@
 */
 void kfpAnalysis(
      Int_t N = 1e9, 
-     char isSim=false, 
+     char TrkType=0,  //processignal flag: {kAllTracks=0,kMcTracksOnly=1,kRealTracksOnly=2;
      char isPico=false, 
      char isFXT=false, 
      char noPID=true, 
@@ -32,7 +32,7 @@ void kfpAnalysis(
   TString fname="kaon_";fname+=output;
   kfpAnalysis->SetKaonFile(fname);
 
-  if (isSim) kfpAnalysis->ProcessSignal();  //enable for simulations
+  kfpAnalysis->SetProcessSignal(TrkType);  //enable for simulations
 
 //   kfpAnalysis->CollectPIDHistograms();
   kfpAnalysis->CollectTrackHistograms();

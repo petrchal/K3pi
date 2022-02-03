@@ -6,6 +6,7 @@
 #include "KFParticle.h"
 #include "TObject.h"
 #include "StMuDSTMaker/COMMON/StMuTrack.h"
+#include "StKFParticleAnalysisMaker.h"
 
 class KFParticleTopoReconstructor;
 class KFParticleFinder;
@@ -72,7 +73,8 @@ class StKFParticleInterface: public TObject
   void SetPrimaryProbCut(float prob);
   
   bool ProcessEvent(StPicoDst* picoDst, std::vector<int>& goodTracks);
-  bool ProcessEvent(StMuDst* muDst, std::vector<KFMCTrack>& mcTracks, std::vector<int>& mcIndices, bool processSignal);
+  bool ProcessEvent(StMuDst* muDst, std::vector<KFMCTrack>& mcTracks, std::vector<int>& mcIndices, 
+       StKFParticleAnalysisMaker::cProcessSignal processSignal);
   bool OpenCharmTrigger();
   void OpenCharmTriggerCompression(int nTracksTriggered, int nTracksInEvent, bool triggerDMesons);
   
