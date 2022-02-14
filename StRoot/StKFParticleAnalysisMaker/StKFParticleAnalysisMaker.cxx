@@ -12,6 +12,7 @@
 #include "KFParticle.h"
 #include "KFParticleSIMD.h"
 #include "KFPTrack.h"
+#include "K3pi.h"
 #include "KFParticleTopoReconstructor.h"
 #include "KFPartEfficiencies.h"
 #include "StKFParticleInterface.h"
@@ -41,38 +42,6 @@
 
 
 ClassImp(StKFParticleAnalysisMaker);
-
-
-ClassImp(TDaughter)
-ClassImp(TK3pi)
-
-
-void TDaughter::Clear(){
-    id=-1,index=-1,charge=0,
-    nhits=-1, nhits_dEdx=-1,nhits_pos=-1,dEdx=0,lastPointR=-1,
-    p=0,pt=0,eta=0,phi=0, px=0,py=0,pz=0,
-    decay_p=0,decay_pt=0,decay_eta=0,decay_phi=0, decay_px=0,decay_py=0,decay_pz=0, phi_wrt_Vr=-2;
-    DecayDca_KF=10000,DecayDca_mu=10000,PvtxDca_KF=10000,PvtxDca_official=10000,
-    PvtxDca_mu=10000,isBest=-1,dp_Decay=-10000,dp_decay_KF=-10000,dp_PVX=-10000,
-    helix_R=-1, helix_Cr=-1, helix_lowR=0,helix_hiR=0,
-    decay_dl=-10000,
-    pdg=0,idTruth=-1,qaTruth=-1;
-}
-
-void TK3pi::Clear(){
-     runId=-1;eventId=-1;
-     Vx=0;Vy=0;Vz=0;
-     mother_PID=-1; mother_isMc=-1;
-     // decay position 
-     decay_Vr=0; decay_Vx=0; decay_Vy=0; decay_Vz=0;
-    //momentum at the decay vertex from KFP
-     mother_pt=0;     mother_px=0;     mother_py=0;     mother_pz=0;    mother_eta=0;      
-     mother_phi=0; 
-     //recalculated at PVTX
-     mother_pt_PVX=0; mother_px_PVX=0; mother_py_PVX=0; mother_pz_PVX=0; mother_eta_PVX=0; mother_phi_PVX=0;
-     mother_m=0;  mother_PV_l=0; mother_PV_dl=0;
-   for (int i=0;i<5;i++)daughter(i).Clear();
-}
 
 //________________________________________________________________________________
 StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker(name), fNTrackTMVACuts(0), fIsPicoAnalysis(true), 
@@ -348,8 +317,7 @@ Int_t StKFParticleAnalysisMaker::Make()
   int maxGBTrackIndex = -1;
   if(fIsPicoAnalysis)
   {
-    for(unsigned int iTrack = 0; iTrack < fPicoDst->numberOfTracks(); iTrack++) 
-    {
+    for(unsigned int iTrack = 0; iTrack < fPicoDst->numberOfTracks(); iTrack++){
       StPicoTrack *gTrack = fPicoDst->track(iTrack);
       if (! gTrack) continue;
       int index = gTrack->id();
@@ -357,10 +325,9 @@ Int_t StKFParticleAnalysisMaker::Make()
         maxGBTrackIndex = index;
     }
   }
-  else
+  else //muDst 
   {
-    for(unsigned int iTrack = 0; iTrack < fMuDst->numberOfGlobalTracks(); iTrack++) 
-    {
+    for(unsigned int iTrack = 0; iTrack < fMuDst->numberOfGlobalTracks(); iTrack++){
       StMuTrack *gTrack = fMuDst->globalTracks(iTrack);
       if (! gTrack) continue;
       int index = gTrack->id();
@@ -392,13 +359,12 @@ Int_t StKFParticleAnalysisMaker::Make()
   
 
   //get centralt and corrected refmult
-  if(isGoodEvent)
-  {
-     //get centralt and corrected refmult
-     int centralityBin = -1;
-    float centralityWeight = 0.;
-    
-    if(fRunCentralityAnalysis)
+  if(isGoodEvent) return kStOk;
+  
+  //get centralt and corrected refmult
+ 
+ float centralityWeight = 0.; 
+ if(fRunCentralityAnalysis)
     {
       fRefmultCorrUtil->init(fPicoDst->event()->runId());
       if(! (fRefmultCorrUtil->isBadRun(fPicoDst->event()->runId())) )
@@ -407,50 +373,7 @@ Int_t StKFParticleAnalysisMaker::Make()
         centralityBin = fRefmultCorrUtil->getCentralityBin9();
         centralityWeight = fRefmultCorrUtil->getWeight();
       }
-//       refmultCor = fRefmultCorrUtil->getRefMultCorr();
-    } //fRunCentralityAnalysis
-    
-    if(fTMVAselection)
-    {
-      for(int iParticle=0; iParticle<fStKFParticlePerformanceInterface->GetNReconstructedParticles(); iParticle++)
-      {
-        KFParticle particle = fStKFParticleInterface->GetParticles()[iParticle];
-              
-        for(int iReader=0; iReader<fNNTuples; iReader++)
-        {
-          if( abs(particle.GetPDG()) == fNTuplePDG[iReader] )
-          {
-            GetParticleParameters(iReader, particle);
-            
-            const int iTMVACentralityBin = GetTMVACentralityBin(iReader, centralityBin);
-            const int iTMVAPtBin = GetTMVAPtBin(iReader, particle.GetPt());
-            
-            if(iTMVACentralityBin<0 || iTMVAPtBin<0) 
-            {
-              fStKFParticleInterface->RemoveParticle(iParticle);
-              continue;
-            }
-            
-            if(fTMVAReader[iReader][iTMVACentralityBin][iTMVAPtBin]->EvaluateMVA("BDT") < fTMVACut[iReader][iTMVACentralityBin][iTMVAPtBin])
-              fStKFParticleInterface->RemoveParticle(iParticle);
-            
-            if(fAnalyseDsPhiPi && abs(fStKFParticleInterface->GetParticles()[iParticle].GetPDG()) == 431)
-            {              
-              KFParticle phi;
-              if(particle.GetPDG() == 431)
-                phi += fStKFParticleInterface->GetParticles()[particle.DaughterIds()[0]];
-              else
-                phi += fStKFParticleInterface->GetParticles()[particle.DaughterIds()[1]];
-              phi += fStKFParticleInterface->GetParticles()[particle.DaughterIds()[2]];
-              float mass = 0.f, dmass = 0.f;
-              phi.GetMass(mass, dmass);
-              if( fabs(mass - 1.01946) > 0.015)
-                fStKFParticleInterface->RemoveParticle(iParticle);
-            }
-          }
-        }
-      }      
-    } //TMWA
+
 
 #if 1
     //clean clusters
@@ -724,7 +647,7 @@ Int_t StKFParticleAnalysisMaker::Make()
     }
    if(fKaonAnalysis) Fill_KaonNtuples();
   
-  } //is good event
+  
   
   return kStOK;
 }

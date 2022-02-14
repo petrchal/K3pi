@@ -15,6 +15,7 @@
 #include "TClonesArray.h"
 
 #include "KFParticle.h"
+#include "K3pi.h"
 
 class StKFParticleInterface;
 class StKFParticlePerformanceInterface;
@@ -27,67 +28,6 @@ class TChain;
 class TTree;
 class StRefMultCorr;
 
-class TDaughter : public TObject {
-   public:
-    TDaughter(){Clear();}
-    void Clear();
-    //TODO pridat an naboj a pt projekci...
-    //track properties
-    Float_t id=0,index=0,charge=0,
-    nhits=0, nhits_dEdx=0,nhits_pos=0,dEdx=0,lastPointR=0,
-    //reconstructed
-    p=0,pt=0,eta=0,phi=0, px=0,py=0,pz=0,
-    //at decay point
-    decay_p=0,decay_pt=0,decay_eta=0,decay_phi=0, decay_px=0,decay_py=0,decay_pz=0,
-    phi_wrt_Vr, //decay angle in respect to decay position
-     //DCA and matching
-     DecayDca_KF=0,DecayDca_mu=0,PvtxDca_KF=0,PvtxDca_official=0,
-     PvtxDca_mu=0,isBest=0,dp_Decay=0,dp_decay_KF=0,dp_PVX=0,
-     //information from helix 
-     helix_R=-1, helix_Cr=-1, helix_lowR=0,helix_hiR=0, //radius and distance of centre from beam in transverse plane
-     //from KFParticle
-     decay_dl=0,
-     //others
-     pdg=0,idTruth=-5,qaTruth=-1;
-
-   ClassDef(TDaughter,1) 
-   };
-
-class TK3pi : public TObject {
-   public:
-    TK3pi():d("TDaughter", 5){
-      for (int i=0;i<5;i++){
-       new (d[i]) TDaughter;
-       daughter(i).Clear();
-     }
-    }
-    void Clear();
-    TDaughter& daughter(int i){return *((TDaughter*)(d[i]));}
-    TDaughter* pdaughter(int i){return (TDaughter*)d[i];}
-    int matchedKF=0;
-    int matchedGeom=0;
-
-    float runId,eventId,
-     //primary vertex
-     Vx,Vy,Vz,
-
-     mother_PID, mother_isMc,
-     // decay position 
-     decay_Vr, decay_Vx, decay_Vy, decay_Vz,
-    //momentum at the decay vertex from KFP
-     mother_pt,     mother_px,     mother_py,     mother_pz,    mother_eta,      mother_phi, 
-     //recalculated at PVTX
-     mother_pt_PVX, mother_px_PVX, mother_py_PVX, mother_pz_PVX, mother_eta_PVX, mother_phi_PVX,
-     mother_m,  mother_PV_l, mother_PV_dl;
-
-    //first three are decay product
-    //[3] - matched by KFP
-    //[4] - matched by geometrical cuts
-    TClonesArray d;
-    //TDaughter d[5]; 
-
-    ClassDef(TK3pi,1) 
-   };
 
 
 class StKFParticleAnalysisMaker : public StMaker {
