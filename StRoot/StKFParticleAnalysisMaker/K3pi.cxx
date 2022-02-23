@@ -4,6 +4,14 @@
 #include <list>
 #include <iterator>
 
+//--- Mu classes ---
+#include "StMuDSTMaker/COMMON/StMuDst.h"
+#include "StMuDSTMaker/COMMON/StMuTrack.h"
+#//--- pico classes ---
+#include "StPicoEvent/StPicoDst.h"
+#include "StPicoEvent/StPicoEvent.h"
+#include "StPicoEvent/StPicoTrack.h"
+
 ClassImp(TDaughter)
 ClassImp(TEvInfo)
 ClassImp(TK3pi)
@@ -21,9 +29,15 @@ void TDaughter::Clear(){
     pdg=0,idTruth=-1,qaTruth=-1;
 }
 
+//======================================
+TK3pi::TK3pi():TObject(),Evt(),d("TDaughter", 5){
+      for (int i=0;i<5;i++){
+       new (d[i]) TDaughter;
+       daughter(i).Clear();
+     }
+    }
+
 void TK3pi::Clear(){
-     runId=-1;eventId=-1;
-     Vx=0;Vy=0;Vz=0;
      mother_PID=-1; mother_isMc=-1;
      // decay position 
      decay_Vr=0; decay_Vx=0; decay_Vy=0; decay_Vz=0;
@@ -32,14 +46,19 @@ void TK3pi::Clear(){
      mother_phi=0; 
      //recalculated at PVTX
      mother_pt_PVX=0; mother_px_PVX=0; mother_py_PVX=0; mother_pz_PVX=0; mother_eta_PVX=0; mother_phi_PVX=0;
-     mother_m=0;  mother_PV_l=0; mother_PV_dl=0;
+     mother_m=-1;  mother_PV_chi2=-1, mother_PV_l=-1; mother_PV_dl=-1;
    for (int i=0;i<5;i++)daughter(i).Clear();
 }
+
+
+ //=================================================
+
 
 void TEvInfo::Clear(){
     if( !triggerIds.empty() ) {
          triggerIds.clear();
      }
+     runId=-1;eventId=-1;
      Vx=0;Vy=0;Vz=0;vzVpd=0;
      ZDCx=-1,BBCx=-1;
 
@@ -63,4 +82,35 @@ bool TEvInfo::isTrigger(std::vector<unsigned int> &trigs){
                           std::back_inserter(v_intersection));
 
     return (v_intersection.size()>0);
+}
+
+bool TEvInfo::Fill(StMuDst *dst, KFParticle &primVtx){
+    Clear();
+    runId   = dst->event()->runId();
+    eventId = dst->event()->eventId(); 
+    Vx=primVtx.GetX();
+    Vy=primVtx.GetY();
+    Vz=primVtx.GetZ();
+    assert(0);
+    /*
+    Int_t runId,eventId;
+   
+     Float_t Vx,Vy,Vz,vzVpd,
+     ZDCx,BBCx; // coincidence rates  
+     //same as in picoDST
+     int refMult; //via tracks (-0.5<eta<0.5)
+     int gRefMult;//global tracks in |eta|<0.5
+  private:
+     std::vector<unsigned int> triggerIds;
+     */
+}
+
+bool TEvInfo::Fill(StPicoDst *dst, KFParticle &primVtx){
+    Clear();
+    Vx=primVtx.GetX();
+    Vy=primVtx.GetY();
+    Vz=primVtx.GetZ();
+    runId   = dst->event()->runId();
+    eventId = dst->event()->eventId();
+    assert(0);
 }

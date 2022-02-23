@@ -26,14 +26,7 @@
 //--- Mu classes ---
 #include "StMuDSTMaker/COMMON/StMuDst.h"
 #include "StMuDSTMaker/COMMON/StMuTrack.h"
-//--- TMVA classes ---
-#include "TMVA/GeneticAlgorithm.h"
-#include "TMVA/GeneticFitter.h"
-#include "TMVA/IFitterTarget.h"
-#include "TMVA/Factory.h"
-//--- StRefMult class ---
-#include "StRefMultCorr/StRefMultCorr.h"
-#include "StRefMultCorr/CentralityMaker.h"
+
 //hit topology and position
 #include "StEvent/StTrackTopologyMap.h"
 #include "StDetectorDbMaker/St_tpcPadConfigC.h"
@@ -44,76 +37,13 @@
 ClassImp(StKFParticleAnalysisMaker);
 
 //________________________________________________________________________________
-StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker(name), fNTrackTMVACuts(0), fIsPicoAnalysis(true), 
-  fStoreTmvaNTuples(false), fProcessSignal(kAllTracks), fCollectTrackHistograms(false), fCollectPIDHistograms(false),fTMVAselection(false), 
-  fRunCentralityAnalysis(0), fRefmultCorrUtil(0), fCentralityFile(""), fAnalyseDsPhiPi(false), fDecays(0), fIsProduce3DEfficiencyFile(false), f3DEfficiencyFile(""), 
+StKFParticleAnalysisMaker::StKFParticleAnalysisMaker(const char *name) : StMaker(name),  fIsPicoAnalysis(true), 
+  fProcessSignal(kAllTracks), fCollectTrackHistograms(false), fCollectPIDHistograms(false),
+  fDecays(0), fIsProduce3DEfficiencyFile(false), f3DEfficiencyFile(""), 
   fStoreCandidates(false), fPartcileCandidate(), fIsStoreCandidate(KFPartEfficiencies::nParticles, false), fCandidateFile(nullptr), fCandidatesTree(nullptr),
   fKaonAnalysis(false), fKaonFileName("kaons.root"){
   memset(mBeg,0,mEnd-mBeg+1);
   
-
-  //this is part used for optimization of charm reconstruction .. can be ignored, but could in future be reused for K->3pi optimization
-  fNTuplePDG[0] = 421;
-  fNTuplePDG[1] = 411;
-  fNTuplePDG[2] = 431;
-  fNTuplePDG[3] = 4122;
-  fNTuplePDG[4] = 426;
-  fNTuplePDG[5] = 429;
-  fNTuplePDG[6] = 521;
-  fNTuplePDG[7] = 511;
-  
-  fNtupleNames[0] = "D0"; 
-  fNtupleNames[1] = "DPlus"; 
-  fNtupleNames[2] = "Ds"; 
-  fNtupleNames[3] = "Lc";
-  fNtupleNames[4] = "D0KK";
-  fNtupleNames[5] = "D04";
-  fNtupleNames[6] = "BPlus";
-  fNtupleNames[7] = "B0";
-  
-  vector<TString> trackCutNames;
-  trackCutNames.push_back("pt_");
-  trackCutNames.push_back("chi2Primary_");
-  trackCutNames.push_back("dEdXPi_");
-  trackCutNames.push_back("dEdXK_");
-  trackCutNames.push_back("dEdXP_");
-  trackCutNames.push_back("ToFPi_");
-  trackCutNames.push_back("ToFK_");
-  trackCutNames.push_back("ToFP_");
-  fNTrackTMVACuts = trackCutNames.size();
-  
-  fDaughterNames[0].push_back("K");     fDaughterNames[0].push_back("Pi");                                                                              //D0 -> Kpi
-  fDaughterNames[1].push_back("K");     fDaughterNames[1].push_back("Pi1");    fDaughterNames[1].push_back("Pi2");                                      //D+ -> Kpipi
-  fDaughterNames[2].push_back("KPlus"); fDaughterNames[2].push_back("KMinus"); fDaughterNames[2].push_back("Pi");                                       //Ds -> KKpi
-  fDaughterNames[3].push_back("K");     fDaughterNames[3].push_back("Pi");     fDaughterNames[3].push_back("P");                                        //Lc -> pKpi
-  fDaughterNames[4].push_back("KPlus"); fDaughterNames[4].push_back("KMinus");                                                                          //D0 -> KK
-  fDaughterNames[5].push_back("K");     fDaughterNames[5].push_back("Pi1");    fDaughterNames[5].push_back("Pi2");  fDaughterNames[5].push_back("Pi3"); //D0 -> Kpipipi
-  fDaughterNames[6].push_back("PiD");   fDaughterNames[6].push_back("KD");     fDaughterNames[6].push_back("Pi");                                       //B+ -> D0_bpi
-  fDaughterNames[7].push_back("Pi1D");  fDaughterNames[7].push_back("KD");     fDaughterNames[7].push_back("Pi2D"); fDaughterNames[7].push_back("Pi");  //B0 -> D-pi+
-
-  for(int iDecay=0; iDecay<fNNTuples; iDecay++)
-  {
-    for(unsigned int iDaughter=0; iDaughter<fDaughterNames[iDecay].size(); iDaughter++)
-    {
-      for(int iTrackTMVACut=0; iTrackTMVACut<fNTrackTMVACuts; iTrackTMVACut++)
-      {
-        if(iDaughter==0 && iTrackTMVACut==0)
-          fNtupleCutNames[iDecay] = trackCutNames[iTrackTMVACut];  
-        else
-          fNtupleCutNames[iDecay] += trackCutNames[iTrackTMVACut];
-        fNtupleCutNames[iDecay] += fDaughterNames[iDecay][iDaughter];
-        fNtupleCutNames[iDecay] += ":";
-      }
-    }
-    if(iDecay<6)
-      fNtupleCutNames[iDecay] += "Chi2NDF:LdL:Chi2Topo:refMult";
-    else if(iDecay>=6 && iDecay<8)
-    {
-      fNtupleCutNames[iDecay] += "Chi2NDF_D:LdL_D:Chi2Topo_D:Chi2NDF:LdL:Chi2Topo:refMult";
-    } 
-    
-    SetTMVABins(iDecay);
-  }
 }
 //________________________________________________________________________________
 StKFParticleAnalysisMaker::~StKFParticleAnalysisMaker() 
@@ -135,67 +65,8 @@ Int_t StKFParticleAnalysisMaker::Init()
     if(fCollectPIDHistograms)
       fStKFParticleInterface->CollectPIDHistograms();
   }
-  
-  if(fTMVAselection || fStoreTmvaNTuples)
-  {
-    for(int iReader=0; iReader<fNNTuples; iReader++)
-    {
-      TString cutName;
-      int firstSymbolOfCutName = 0;
-      
-      int nCuts = 0;
-      while(fNtupleCutNames[iReader].Tokenize(cutName,firstSymbolOfCutName,":"))
-        nCuts++;
-      fTMVAParticleParameters[iReader].resize(nCuts);
-    }
-  }
-  
-  if(fTMVAselection)
-  {
-    for(int iReader=0; iReader<fNNTuples; iReader++)
-    {
-      const int nCentralityBins = fTMVACentralityBins[iReader].size() - 1;
-      const int nPtBins = fTMVAPtBins[iReader].size() - 1;
-      
-      for(int iCentralityBin=0; iCentralityBin<nCentralityBins; iCentralityBin++)
-      {
-        for(int iPtBin=0; iPtBin<nPtBins; iPtBin++)
-        {
-          fTMVAReader[iReader][iCentralityBin][iPtBin] = new TMVA::Reader("Silent");
 
-          TString cutName;
-          int firstSymbolOfCutName = 0;      
-          unsigned int iCut = 0;
-          while(fNtupleCutNames[iReader].Tokenize(cutName,firstSymbolOfCutName,":"))
-          {
-            fTMVAReader[iReader][iCentralityBin][iPtBin] -> AddVariable( cutName.Data(), &fTMVAParticleParameters[iReader][iCut] );
-            iCut++;
-            if(iCut == (fTMVAParticleParameters[iReader].size()-1)) break;
-          }
-          
-          fTMVAReader[iReader][iCentralityBin][iPtBin] -> BookMVA("BDT", fTMVACutFile[iReader][iCentralityBin][iPtBin].Data());
-        }
-      }
-    }
-  }
-      
-  //Create file with NTuples for cut optimization
-  if(fStoreTmvaNTuples)
-  {  
-    TFile* curFile = gFile;
-    TDirectory* curDirectory = gDirectory;
-    for(int iNtuple=0; iNtuple<fNNTuples; iNtuple++)
-    {
-      TString SignalPrefix = "_Signal";
-      if(fProcessSignal==kRealTracksOnly) SignalPrefix = "_BG";
-      TString currentNTupleFileName = fNtupleNames[iNtuple]+SignalPrefix+TString(".root");
-      fNTupleFile[iNtuple] = new TFile(currentNTupleFileName.Data(),"RECREATE");
-      fCutsNTuple[iNtuple] = new TNtuple(fNtupleNames[iNtuple].Data(), fNtupleNames[iNtuple].Data(), fNtupleCutNames[iNtuple].Data());
-    }
-    gFile = curFile;
-    gDirectory = curDirectory;
-  }
-  
+    
   if(fStoreCandidates)
   {
     TFile* curFile = gFile;
@@ -210,9 +81,6 @@ Int_t StKFParticleAnalysisMaker::Init()
     gDirectory = curDirectory;
   }
 
-  fRefmultCorrUtil = CentralityMaker::instance()->getgRefMultCorr_P16id();
-  fRefmultCorrUtil->setVzForWeight(6, -6.0, 6.0);
-  fRefmultCorrUtil->readScaleForWeight("/gpfs01/star/pwg/pfederic/qVectors/StRoot/StRefMultCorr/macros/weight_grefmult_VpdnoVtx_Vpd5_Run16.txt"); //for new StRefMultCorr, Run16, SL16j
   
   
 
@@ -358,30 +226,15 @@ Int_t StKFParticleAnalysisMaker::Make()
   //collect histograms
   
 
-  //get centralt and corrected refmult
   if(isGoodEvent) return kStOk;
   
-  //get centralt and corrected refmult
  
- float centralityWeight = 0.; 
- if(fRunCentralityAnalysis)
-    {
-      fRefmultCorrUtil->init(fPicoDst->event()->runId());
-      if(! (fRefmultCorrUtil->isBadRun(fPicoDst->event()->runId())) )
-      {
-        fRefmultCorrUtil->initEvent(fPicoDst->event()->grefMult(), fPicoDst->event()->primaryVertex().z(), fPicoDst->event()->ZDCx()) ;
-        centralityBin = fRefmultCorrUtil->getCentralityBin9();
-        centralityWeight = fRefmultCorrUtil->getWeight();
-      }
-
-
 #if 1
     //clean clusters
     int nTracks = 0;
 
     std::vector<bool> isValidTrack(maxGBTrackIndex+1);
-    for(int iTrack=0; iTrack<maxGBTrackIndex+1; iTrack++)
-      isValidTrack[iTrack] = true;
+    for(int iTrack=0; iTrack<maxGBTrackIndex+1; iTrack++) isValidTrack[iTrack] = true;
 
     for(int iParticle=0; iParticle<fStKFParticlePerformanceInterface->GetNReconstructedParticles(); iParticle++) {
       const KFParticle particle = fStKFParticleInterface->GetParticles()[iParticle];
@@ -440,7 +293,7 @@ Int_t StKFParticleAnalysisMaker::Make()
             cluster = clusterTmp;
             trackIds.push_back(track.DaughterIds()[0]);
           }
-        }
+        }  //iTrack
         
         if(cluster.NDaughters() > 5) {
           
@@ -452,8 +305,9 @@ Int_t StKFParticleAnalysisMaker::Make()
           for(unsigned int iTrackId=0; iTrackId<trackIds.size(); iTrackId++)
             isValidTrack[trackIds[iTrackId]] = false;
         }
-      }
-    }
+      } //PDG cut 3001<pDG<=3029
+    } //clean clusters iParticle loop over reconstructed particles
+
 #if 1 //FIXME
     for(int iParticle=nTracks; iParticle<fStKFParticlePerformanceInterface->GetNReconstructedParticles(); iParticle++) {
       const KFParticle particle = fStKFParticleInterface->GetParticles()[iParticle];
@@ -556,35 +410,9 @@ Int_t StKFParticleAnalysisMaker::Make()
 //           continue;
 //         }
       }
-    }
+    }  //clean primary lambdas
 #endif
 
-    //clean H3L, H4L, Ln, Lnn
-    for(int iParticle=0; iParticle<fStKFParticlePerformanceInterface->GetNReconstructedParticles(); iParticle++)
-    {
-      KFParticle particle = fStKFParticleInterface->GetParticles()[iParticle];
-//       if( abs(particle.GetPDG())==3003 || abs(particle.GetPDG())==3103 || abs(particle.GetPDG())==3004 || abs(particle.GetPDG())==3005)
-      if((abs(particle.GetPDG()) > 3002) && (abs(particle.GetPDG()) < 3200))
-      {        
-        for(int iD=0; iD<particle.NDaughters(); iD++)
-        {
-          const int daughterId = particle.DaughterIds()[iD];
-          const KFParticle daughter = fStKFParticleInterface->GetParticles()[daughterId];
-          if(abs(daughter.GetPDG())==211 && daughter.GetP() > 0.7)
-            fStKFParticleInterface->RemoveParticle(iParticle);
-          if(abs(daughter.GetPDG())!=211 && daughter.GetP() < 0.5) //TODO remove me
-            fStKFParticleInterface->RemoveParticle(iParticle);
-        }
-        
-//         float l = sqrt(particle.X()*particle.X() + particle.Y()*particle.Y() + particle.Z()*particle.Z());
-//         float r = sqrt(particle.X()*particle.X() + particle.Y()*particle.Y());
-//         if(r > 50)// || (r>2.5 && r<3.6) || (r>7.5&&r<8.8))
-//           fStKFParticleInterface->RemoveParticle(iParticle);
-      }
-
-
-      
-    }
     
     if(fStoreCandidates) {
       KFPartEfficiencies parteff;
@@ -616,7 +444,8 @@ Int_t StKFParticleAnalysisMaker::Make()
     
    
     
-    centralityWeight = 1;
+    int centralityWeight = 1;
+    int centralityBin= 1;
     
     fStKFParticlePerformanceInterface->SetMCTracks(mcTracks);
     fStKFParticlePerformanceInterface->SetMCIndexes(mcIndices);    
@@ -626,25 +455,7 @@ Int_t StKFParticleAnalysisMaker::Make()
     fStKFParticlePerformanceInterface->SetPrintEffFrequency(nevent);
     fStKFParticlePerformanceInterface->PerformanceAnalysis();
     
-    if(fStoreTmvaNTuples)
-    {
-      for(int iParticle=0; iParticle<fStKFParticlePerformanceInterface->GetNReconstructedParticles(); iParticle++)
-      {
-        KFParticle particle;
-        bool isMCParticle = fStKFParticlePerformanceInterface->GetParticle(particle, iParticle);
-              
-        if( !( (fProcessSignal==kRealTracksOnly && isMCParticle) || (fProcessSignal==kMcTracksOnly && !isMCParticle) ) ) continue;
-                  
-        for(int iNTuple=0; iNTuple<fNNTuples; iNTuple++)
-        {
-          if( particle.GetPDG() == fNTuplePDG[iNTuple] )
-          {
-            GetParticleParameters(iNTuple, particle);
-            fCutsNTuple[iNTuple]->Fill(fTMVAParticleParameters[iNTuple].data());
-          }
-        }
-      }
-    }
+   
    if(fKaonAnalysis) Fill_KaonNtuples();
   
   
@@ -777,7 +588,7 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
                 //from KFP
                  daughter.PvtxDca_KF = daugh.GetDistanceFromVertex(topoRec->GetPrimVertex());
                 //from picoTrack                
-                 TVector3 pVtx_(fK.Vx, fK.Vy, fK.Vz);
+                 TVector3 pVtx_=fK.EvInfo().primVtx_TVec();
                  pathlength = helix.pathLength(pVtx_, true );
                  daughter.PvtxDca_mu=helix.distance(pVtx_);//(helix.at(pathlength)-pVtx).mag();
                  tmp= helix.momentumAt(pathlength,fPicoDst->event()->bField()*kilogauss);
@@ -810,7 +621,7 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
                 //from KFP
                  daughter.PvtxDca_KF = daugh.GetDistanceFromVertex(topoRec->GetPrimVertex());
                 //from MuTrack 
-                 StThreeVectorD pVtx(fK.Vx, fK.Vy, fK.Vz);
+                 StThreeVectorD pVtx=fK.EvInfo().primVtx_StVec();
                  pathlength = helix.pathLength(pVtx, true );
                  daughter.PvtxDca_mu=(helix.at(pathlength)-pVtx).mag();
               //daughter.PvtxDca_mu=helix.distance(pVtx); o
@@ -843,15 +654,14 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
 
 void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
   cout<<"StKFParticleAnalysisMaker::Fill_KaonNtuples() fIsPicoAnalysis="<<fIsPicoAnalysis<<endl;
- //typedef struct{Float_t id=0,index=0,p=0,pt=0,eta=0,phi=0, px=0,py=0,pz=0,dp_Decay=0,dp_PVX=0,nhits=0, nhits_dEdx=0,nhits_pos=0, 
-  //lastPointR=0,pdg=0,idTruth=-5,qaTruth=-1,DecayDca_KF=0,DecayDca_mu=0,PvtxDca_KF=0,PvtxDca_official=0,PvtxDca_mu=0,dEdx=0,isBest=0;} _daughter;
+ 
   const int nPIDS=4;
   int particlesPDG[nPIDS] = {100321, 200321,-100321, -200321}; //K->3pi with found K (200321), K->3pi only (100321)
   int nDaughters[nPIDS] = {3, 4, 3, 4};
 
 //Note There can be mutiple primary vertexes. I should take only the  one that was intarfaced to KFP
 // the 3pi should actually point "somewhere" around this vertex - I do not want potential kaons from other vertexes
-// and then macth the primary kaon
+// and then match the primary kaon
 
  const KFParticleTopoReconstructor *topoRec=fStKFParticleInterface->GetTopoReconstructor();
  // cout<<" Primary vertices:"<<endl<<"in KF: "<<topoRec->NPrimaryVertices()<< " , ID="<<topoRec->GetPrimVertex().Id()<<endl;
@@ -863,24 +673,20 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
     cout<<"iParticle="<<iParticle<<" ID="<<fStKFParticleInterface->GetParticles()[iParticle].Id()<<endl;
   }  
 */
-//primary vertex
-  Float_t Vz=topoRec->GetPrimVertex().GetZ();
-  Float_t Vx=topoRec->GetPrimVertex().GetX();
-  Float_t Vy=topoRec->GetPrimVertex().GetY();
-  
 
+  //primary vertex
+  KFParticle primVtx=topoRec->GetPrimVertex();
+ 
   for(unsigned int iParticle=0; iParticle<npt; iParticle++) {
     //cout<<"i="<<iParticle<<" KFP_iD="<<fStKFParticleInterface->GetParticles()[iParticle].Id()
     //<<" PDG="<<fStKFParticleInterface->GetParticles()[iParticle].GetPDG()<<" pt="<<
     //fStKFParticleInterface->GetParticles()[iParticle].GetPt()<<endl;
     //cout<< fStKFParticleInterface->GetParticles()[iParticle]<<endl;
+  
     for(int iPDG = 0; iPDG < nPIDS; iPDG++){
+  
       if(fStKFParticleInterface->GetParticles()[iParticle].GetPDG() != particlesPDG[iPDG]) continue;
-      cout<<"found KFParticle PDG="<<fStKFParticleInterface->GetParticles()[iParticle].GetPDG()<<endl;
-
-      fK.Clear();
-      fK.Vx=Vx;fK.Vy=Vy;fK.Vz=Vz;
-
+      cout<<"found 3pi from KFParticle PDG="<<fStKFParticleInterface->GetParticles()[iParticle].GetPDG()<<endl;
 
       KFParticle particle = fStKFParticleInterface->GetParticles()[iParticle];
 
@@ -889,17 +695,15 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
         return false;
       }
 
-      //fill mother info
-      if(fIsPicoAnalysis) 
-      {
-        fK.runId   = fPicoDst->event()->runId();
-        fK.eventId = fPicoDst->event()->eventId();
-      }
-      else
-      {
-        fK.runId   = fMuDst->event()->runId();
-        fK.eventId = fMuDst->event()->eventId();
-      }
+      //start fillig
+      fK.Clear();
+
+      //fill event info
+      if(fIsPicoAnalysis) fK.EvInfo().Fill(fPicoDst,primVtx); else fK.EvInfo().Fill(fMuDst,primVtx);   
+
+      //fill mother (3pi vertex)  info
+      // skip decays out of TPC --- save disk space
+      if (particle.GetR()<50){ cout<<" ..skipping K.decay_Vr="<<fK.decay_Vr<<endl; continue;} 
 
 
       fK.mother_PID=particle.GetPDG();
@@ -911,10 +715,9 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
       fK.decay_Vz=particle.GetZ();
       fK.decay_Vr=particle.GetR();
       cout<<"fK.decay_Vr="<<fK.decay_Vr<<endl;
-      if (fK.decay_Vr<50){ cout<<" ..skipping"<<endl; continue;} // skip decays out of TPC
-
      
-         //momentum at decay point
+     
+      //momentum at decay point
       fK.mother_pt = particle.GetPt();
       fK.mother_px = particle.GetPx();
       fK.mother_py = particle.GetPy();
@@ -922,9 +725,9 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
       fK.mother_eta = particle.GetEta();
       fK.mother_phi = particle.GetPhi();          
 
-        // move to primary vertex
-      particle.TransportToPoint(topoRec->GetPrimVertex().Parameters());
-        //momentum at primary vertex
+      // move to primary vertex
+      particle.TransportToPoint(primVtx.Parameters());
+      //momentum at primary vertex
       fK.mother_px_PVX = particle.GetPx();
       fK.mother_py_PVX = particle.GetPy();
       fK.mother_pz_PVX = particle.GetPz();
@@ -932,22 +735,44 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
       fK.mother_eta_PVX = particle.GetEta();
       fK.mother_phi_PVX = particle.GetPhi();
       
-      fK.mother_isMc=1;
-        //TODO!!
-        //distance to PV - usefull to see if it comes from the primary vertex...I coudl have seom decays of secondary kaons
+
+       
+         //distance to PV - usefull to see if it comes from the primary vertex...I coudl have seom decays of secondary kaons
         //float_v lCandidate, dlCandidate;
          //KFParticleSIMD part(particle);
         //KFParticleSIMD pvt(topoRec->GetPrimVertex());
         //daugh.GetDistanceToVertexLine(pvt, lCandidate, dlCandidate);
-
-      fK.mother_PV_l=particle.GetDistanceFromVertex(topoRec->GetPrimVertex());
-      fK.mother_PV_dl=particle.GetDeviationFromVertex(topoRec->GetPrimVertex());
-
+/*
+  const float chiPrimPPi = ppi.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
+        
+        const float chiPrimCutPPi = ((particle.GetPDG()==3012) || (particle.GetPDG()==3013)) ? 18.f : 8.f;
+        
+        if(chiPrimPPi < chiPrimCutPPi) {
+          fStKFParticleInterface->RemoveParticle(iParticle);
+          continue;
+        }
+        
+        KFParticle lambdaFragment;
+        lambdaFragment += fragment;
+        lambdaFragment += ppi;
+        
+        float l, dl;
+        lambdaFragment.GetDistanceToVertexLine(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex(), l, dl);
+//         if((l/dl < 3) && (ppi.GetChi2()/float(ppi.GetNDF() < 10))) {
+//           fStKFParti
+*/
+     // fK.mother_PV_chi2 =particle.GetDeviationFromVertex(primVtx);
+      float l, dl;
+      particle.GetDistanceToVertexLine(primVtx,l,dl);
+      fK.mother_PV_l=l; fK.mother_PV_dl=dl; 
+      //wrong... fK.mother_PV_l=particle.GetDistanceFromVertex(primVtx);
+     
      //fill daughters
+     fK.mother_isMc=1; //will changed by FillDaughters
      if (!FillKFDaughters(particle)) continue;
 
      
-      // matching of tracks from MuDST to the found decay vertex
+     // matching of tracks from MuDST to the found decay vertex
     
      if(fabs(fStKFParticleInterface->GetParticles()[iParticle].GetPDG())!=100321) goto FILL_TREE;// run only decay vertices
  
@@ -1026,7 +851,7 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
 
           //pathlength = helix.pathLength(pVtx, true );
           //daughter.PvtxDca_mu=(helix.at(pathlength)-pVtx).mag();
-          TVector3 pVtx_(fK.Vx, fK.Vy, fK.Vz);
+          TVector3 pVtx_(fK.EvInfo().Vx, fK.EvInfo().Vy, fK.EvInfo().Vz);
           daughter.PvtxDca_mu=helix.distance(pVtx_); 
              //daughter.DecayDca_mu=fabs(helix.geometricSignedDistance(v));
           tmp= helix.momentumAt(pathlength,fPicoDst->event()->bField()*kilogauss);
@@ -1188,7 +1013,7 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
         
           //pathlength = helix.pathLength(pVtx, true );
           //daughter.PvtxDca_mu=(helix.at(pathlength)-pVtx).mag();
-          StThreeVectorD pVtx(fK.Vx, fK.Vy, fK.Vz);
+          StThreeVectorD pVtx(fK.EvInfo().Vx, fK.EvInfo().Vy, fK.EvInfo().Vz);
           daughter.PvtxDca_mu=helix.distance(pVtx); 
              //daughter.DecayDca_mu=fabs(helix.geometricSignedDistance(v));
           StThreeVectorD daughter_p_PVX= helix.momentumAt(pathlength,fMuDst->event()->runInfo().magneticField()*kilogauss);
@@ -1269,16 +1094,7 @@ void StKFParticleAnalysisMaker::GetDaughterParameters(const int iReader, int& iD
 {
   if(particle.NDaughters() == 1)
   {
-    fTMVAParticleParameters[iReader][iDaughterTrack*fNTrackTMVACuts]   = particle.GetPt();
-    fTMVAParticleParameters[iReader][iDaughterTrack*fNTrackTMVACuts+1] = particle.GetDeviationFromVertex(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
-    int trackId = particle.DaughterIds()[0];
-    fTMVAParticleParameters[iReader][iDaughterTrack*fNTrackTMVACuts+2]   = fStKFParticleInterface->GetdEdXNSigmaPion(trackId);
-    fTMVAParticleParameters[iReader][iDaughterTrack*fNTrackTMVACuts+3]   = fStKFParticleInterface->GetdEdXNSigmaKaon(trackId);
-    fTMVAParticleParameters[iReader][iDaughterTrack*fNTrackTMVACuts+4]   = fStKFParticleInterface->GetdEdXNSigmaProton(trackId);
-    fTMVAParticleParameters[iReader][iDaughterTrack*fNTrackTMVACuts+5]   = fStKFParticleInterface->GetTofNSigmaPion(trackId);
-    fTMVAParticleParameters[iReader][iDaughterTrack*fNTrackTMVACuts+6]   = fStKFParticleInterface->GetTofNSigmaKaon(trackId);
-    fTMVAParticleParameters[iReader][iDaughterTrack*fNTrackTMVACuts+7]   = fStKFParticleInterface->GetTofNSigmaProton(trackId);
-    
+     int trackId = particle.DaughterIds()[0];   
     iDaughterTrack++;
   }
   else if(particle.NDaughters() > 1)
@@ -1304,22 +1120,18 @@ void StKFParticleAnalysisMaker::GetDaughterParameters(const int iReader, int& iD
       GetDaughterParameters(iReader, iDaughterTrack, iDaughterParticle, daughter);
     }
     
-    fTMVAParticleParameters[iReader][fDaughterNames[iReader].size()*fNTrackTMVACuts + iDaughterParticle*3] = particle.Chi2()/particle.NDF();  
     
     KFParticleSIMD tempSIMDParticle(particle);
     float_v l,dl;
     KFParticleSIMD pv(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
     tempSIMDParticle.GetDistanceToVertexLine(pv, l, dl);
-    fTMVAParticleParameters[iReader][fDaughterNames[iReader].size()*fNTrackTMVACuts + iDaughterParticle*3 + 1] = l[0]/dl[0];
     
     tempSIMDParticle.SetProductionVertex(pv);
-    fTMVAParticleParameters[iReader][fDaughterNames[iReader].size()*fNTrackTMVACuts + iDaughterParticle*3 + 2] = 
-      double(tempSIMDParticle.Chi2()[0])/double(tempSIMDParticle.NDF()[0]);
-    
     iDaughterParticle++;
   }
 }
 
+/*
 void StKFParticleAnalysisMaker::GetParticleParameters(const int iReader, KFParticle& particle)
 {
   bool isBMeson = abs(particle.GetPDG()) == 511 || abs(particle.GetPDG()) == 521;
@@ -1349,22 +1161,10 @@ void StKFParticleAnalysisMaker::GetParticleParameters(const int iReader, KFParti
   else
     fTMVAParticleParameters[iReader][nDaughterParticleCut + 3] = fMuDst->event()->refMult();
 }
-
+*/
 Int_t StKFParticleAnalysisMaker::Finish() 
 {
-  if(fStoreTmvaNTuples)
-  {
-    TFile* curFile = gFile;
-    TDirectory* curDirectory = gDirectory;
-    for(int iNtuple=0; iNtuple<fNNTuples; iNtuple++)
-    {
-      fNTupleFile[iNtuple]->cd();
-      fCutsNTuple[iNtuple]->Write();
-    }
-    gFile = curFile;
-    gDirectory = curDirectory;
-  }
-
+  
   if (fKaonFile) {
     fKaonFile->cd();
     fKaonTree->Write();
@@ -1389,57 +1189,6 @@ long StKFParticleAnalysisMaker::GetUniqueEventId(const int iRun, const int iEven
   return id*(iRun%1000) + iEvent;
 }
 
-int StKFParticleAnalysisMaker::GetTMVACentralityBin(int iReader, int centrality)
-{
-  for(unsigned int iBin=0; iBin<fTMVACentralityBins[iReader].size()-1; iBin++)
-    if(centrality >= fTMVACentralityBins[iReader][iBin] && centrality < fTMVACentralityBins[iReader][iBin+1])
-      return iBin;
-  return -1;
-}
-
-int StKFParticleAnalysisMaker::GetTMVAPtBin(int iReader, double pt)
-{
-  for(unsigned int iBin=0; iBin<fTMVAPtBins[iReader].size()-1; iBin++)
-    if(pt >= fTMVAPtBins[iReader][iBin] && pt < fTMVAPtBins[iReader][iBin+1])
-      return iBin;
-  return -1;
-}
-
-void StKFParticleAnalysisMaker::SetTMVACentralityBins(int iReader, TString bins)
-{
-  fTMVACentralityBins[iReader].clear();
-  TString value; int firstSymbol = 0;      
-  while(bins.Tokenize(value,firstSymbol,":"))
-    fTMVACentralityBins[iReader].push_back(value.Atoi());
-}
-
-void StKFParticleAnalysisMaker::SetTMVAPtBins(int iReader, TString bins)
-{
-  fTMVAPtBins[iReader].clear();
-  TString value; int firstSymbol = 0;      
-  while(bins.Tokenize(value,firstSymbol,":"))
-    fTMVAPtBins[iReader].push_back(value.Atof());
-}
-
-void StKFParticleAnalysisMaker::SetTMVABins(int iReader, TString centralityBins, TString ptBins)
-{
-  SetTMVACentralityBins(iReader, centralityBins);
-  SetTMVAPtBins(iReader, ptBins);
-  
-  const int nCentralityBins = fTMVACentralityBins[iReader].size() - 1;
-  const int nPtBins = fTMVAPtBins[iReader].size() - 1;
-  
-  fTMVACutFile[iReader].resize(nCentralityBins);
-  fTMVACut[iReader].resize(nCentralityBins);
-  fTMVAReader[iReader].resize(nCentralityBins);
-  
-  for(int iCentralityBin=0; iCentralityBin<nCentralityBins; iCentralityBin++)
-  {
-    fTMVACutFile[iReader][iCentralityBin].resize(nPtBins);
-    fTMVACut[iReader][iCentralityBin].resize(nPtBins);
-    fTMVAReader[iReader][iCentralityBin].resize(nPtBins);
-  }
-}
 
 void StKFParticleAnalysisMaker::AddDecayToReconstructionList( int iDecay ) { fDecays.push_back(iDecay); }
 

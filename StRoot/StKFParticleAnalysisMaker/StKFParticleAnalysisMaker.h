@@ -26,7 +26,6 @@ class TNtuple;
 class TFile;
 class TChain;
 class TTree;
-class StRefMultCorr;
 
 
 
@@ -52,36 +51,13 @@ class StKFParticleAnalysisMaker : public StMaker {
   //note: MC means mathced to MC tracks ... with propper TruthId
   //note: real ... without matching to MC tracks
   //so this does not adress ghosting, etc...
-
   void SetProcessSignal(cProcessSignal v) { fProcessSignal = v; }
-  void StoreTMVANtuples() { fStoreTmvaNTuples = true; }
   void CollectTrackHistograms() { fCollectTrackHistograms = true; }
   void CollectPIDHistograms() { fCollectPIDHistograms = true; }
-  void UseTMVA() { fTMVAselection = true; }
-  void SetTMVABinsD0   (TString centralityBins, TString ptBins) { SetTMVABins(0, centralityBins, ptBins); }
-  void SetTMVABinsDPlus(TString centralityBins, TString ptBins) { SetTMVABins(1, centralityBins, ptBins); }
-  void SetTMVABinsDs   (TString centralityBins, TString ptBins) { SetTMVABins(2, centralityBins, ptBins); }
-  void SetTMVABinsLc   (TString centralityBins, TString ptBins) { SetTMVABins(3, centralityBins, ptBins); }
-  void SetTMVABinsD0KK (TString centralityBins, TString ptBins) { SetTMVABins(4, centralityBins, ptBins); }
-  void SetTMVABinsD04  (TString centralityBins, TString ptBins) { SetTMVABins(5, centralityBins, ptBins); }
-  void SetTMVABinsBPlus(TString centralityBins, TString ptBins) { SetTMVABins(6, centralityBins, ptBins); }
-  void SetTMVABinsB0   (TString centralityBins, TString ptBins) { SetTMVABins(7, centralityBins, ptBins); }
-  void SetTMVAcutsD0   (TString file, double cut, int iCentralityBin = 0, int iPtBin = 0) { fTMVACutFile[0][iCentralityBin][iPtBin] = file; fTMVACut[0][iCentralityBin][iPtBin] = cut; }
-  void SetTMVAcutsDPlus(TString file, double cut, int iCentralityBin = 0, int iPtBin = 0) { fTMVACutFile[1][iCentralityBin][iPtBin] = file; fTMVACut[1][iCentralityBin][iPtBin] = cut; }
-  void SetTMVAcutsDs   (TString file, double cut, int iCentralityBin = 0, int iPtBin = 0) { fTMVACutFile[2][iCentralityBin][iPtBin] = file; fTMVACut[2][iCentralityBin][iPtBin] = cut; }
-  void SetTMVAcutsLc   (TString file, double cut, int iCentralityBin = 0, int iPtBin = 0) { fTMVACutFile[3][iCentralityBin][iPtBin] = file; fTMVACut[3][iCentralityBin][iPtBin] = cut; }
-  void SetTMVAcutsD0KK (TString file, double cut, int iCentralityBin = 0, int iPtBin = 0) { fTMVACutFile[4][iCentralityBin][iPtBin] = file; fTMVACut[4][iCentralityBin][iPtBin] = cut; }
-  void SetTMVAcutsD04  (TString file, double cut, int iCentralityBin = 0, int iPtBin = 0) { fTMVACutFile[5][iCentralityBin][iPtBin] = file; fTMVACut[5][iCentralityBin][iPtBin] = cut; }
-  void SetTMVAcutsBPlus(TString file, double cut, int iCentralityBin = 0, int iPtBin = 0) { fTMVACutFile[6][iCentralityBin][iPtBin] = file; fTMVACut[6][iCentralityBin][iPtBin] = cut; }
-  void SetTMVAcutsB0   (TString file, double cut, int iCentralityBin = 0, int iPtBin = 0) { fTMVACutFile[7][iCentralityBin][iPtBin] = file; fTMVACut[7][iCentralityBin][iPtBin] = cut; }
-   
+    
   void RunKaonAnalysis()         { fKaonAnalysis = true; }
   void SetKaonFile(TString file) { fKaonFileName = file;}
   
-  void RunCentralityAnalysis() { fRunCentralityAnalysis = true; }
-  void SetCentralityFile(TString file) { fCentralityFile = file; }
-  
-  void AnalyseDsPhiPi() { fAnalyseDsPhiPi = true; }
   
   void AddDecayToReconstructionList( int iDecay );
   
@@ -98,34 +74,12 @@ class StKFParticleAnalysisMaker : public StMaker {
   StPicoDst                        *fPicoDst;                          //!
   StKFParticleInterface            *fStKFParticleInterface;            //!
   StKFParticlePerformanceInterface *fStKFParticlePerformanceInterface; //!
-  TNtuple* fCutsNTuple[fNNTuples];
-  TFile* fNTupleFile[fNNTuples];
   int fNTuplePDG[fNNTuples];
-  TString fNtupleNames[fNNTuples];
-  TString fNtupleCutNames[fNNTuples];
-  std::vector<TString> fDaughterNames[fNNTuples];
-  vector< vector<TString> > fTMVACutFile[fNNTuples];
-  vector< vector<double> > fTMVACut[fNNTuples];
-  vector< vector<TMVA::Reader*> > fTMVAReader[fNNTuples];
-  std::vector<int> fTMVACentralityBins[fNNTuples];
-  std::vector<double> fTMVAPtBins[fNNTuples];
   Char_t                mEnd[1];        //!
-  std::vector<float> fTMVAParticleParameters[fNNTuples];
-  int fNTrackTMVACuts;
-
+  
   //general setup options - important
   Bool_t fIsPicoAnalysis; //run on picoDst or MuDst
   cProcessSignal fProcessSignal;  //use real or MC matched tacks
-  //tmwa related options
-  Bool_t fStoreTmvaNTuples;
-  Bool_t fCollectTrackHistograms;
-  Bool_t fCollectPIDHistograms;
-  Bool_t fTMVAselection;
-  
-  //Centrality
-  bool fRunCentralityAnalysis;
-  StRefMultCorr *fRefmultCorrUtil;
-  TString fCentralityFile; //not used so far
   
   //kaon analysis
   Bool_t fKaonAnalysis;
@@ -135,10 +89,11 @@ class StKFParticleAnalysisMaker : public StMaker {
   TTree* fKaonTree;
 
   
-  bool fAnalyseDsPhiPi;
-  std::vector<int> fDecays;
+   std::vector<int> fDecays;
 
-  
+  //interafce settings
+  Bool_t fCollectTrackHistograms;
+  Bool_t fCollectPIDHistograms;
   bool fIsProduce3DEfficiencyFile;
   TString f3DEfficiencyFile;
 
@@ -146,13 +101,7 @@ class StKFParticleAnalysisMaker : public StMaker {
   void GetParticleParameters(const int iReader, KFParticle& particle);
   long GetUniqueEventId(const int iRun, const int iEvent) const;
   
-  //charm TMWA
-  int GetTMVACentralityBin(int iReader, int centrality);
-  int GetTMVAPtBin(int iReader, double pt);
-  void SetTMVACentralityBins(int iReader, TString bins);
-  void SetTMVAPtBins(int iReader, TString bins);
-  void SetTMVABins(int iReader, TString centralityBins="-1:1000", TString ptBins="-1.:1000.");
-
+  
   //K->3p
   bool FillKFDaughters(KFParticle &particle);
   void Fill_KaonNtuples();

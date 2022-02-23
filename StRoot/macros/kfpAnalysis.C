@@ -37,22 +37,23 @@ void kfpAnalysis(
 //   kfpAnalysis->CollectPIDHistograms();
   kfpAnalysis->CollectTrackHistograms();
 
-  kfpAnalysis->AddDecayToReconstructionList( 310);
-  kfpAnalysis->AddDecayToReconstructionList( 100321);
+  kfpAnalysis->AddDecayToReconstructionList( 310); //Kshort
+  kfpAnalysis->AddDecayToReconstructionList( 100321); //K->3pi
   kfpAnalysis->AddDecayToReconstructionList(-100321);
   kfpAnalysis->AddDecayToReconstructionList( 200321);
   kfpAnalysis->AddDecayToReconstructionList(-200321);
-  kfpAnalysis->AddDecayToReconstructionList( 3122);
+  kfpAnalysis->AddDecayToReconstructionList( 3122); //lambda
   kfpAnalysis->AddDecayToReconstructionList(-3122);
-  kfpAnalysis->AddDecayToReconstructionList( 3312);
+  kfpAnalysis->AddDecayToReconstructionList( 3312);//xi
   kfpAnalysis->AddDecayToReconstructionList(-3312);
   kfpAnalysis->AddDecayToReconstructionList( 3334);
-  kfpAnalysis->AddDecayToReconstructionList(-3334);
+  kfpAnalysis->AddDecayToReconstructionList(-3334);//omega
   
-  kfpAnalysis->AddDecayToReconstructionList(   22);
-  kfpAnalysis->AddDecayToReconstructionList(  111);
-  kfpAnalysis->AddDecayToReconstructionList(  333);
-//   kfpAnalysis->AddDecayToReconstructionList(  313);
+  /*
+  kfpAnalysis->AddDecayToReconstructionList(   22); //gamma
+  kfpAnalysis->AddDecayToReconstructionList(  111); //pi0
+  kfpAnalysis->AddDecayToReconstructionList(  333); //phi
+//   kfpAnalysis->AddDecayToReconstructionList(  313); //K*
 //   kfpAnalysis->AddDecayToReconstructionList( -313);
 //   kfpAnalysis->AddDecayToReconstructionList(  323);
 //   kfpAnalysis->AddDecayToReconstructionList( -323);
@@ -69,7 +70,7 @@ void kfpAnalysis(
   kfpAnalysis->AddDecayToReconstructionList( 3007);
   kfpAnalysis->AddDecayToReconstructionList( 3012);
   kfpAnalysis->AddDecayToReconstructionList( 3013);
-
+*/
   
   ((StBFChain *) StMaker::GetTopChain())->Init();
   
@@ -87,22 +88,28 @@ void kfpAnalysis(
   StKFParticleInterface::instance()->SetMaxDistanceBetweenParticlesCut(1);
   StKFParticleInterface::instance()->SetLCut(0.3f);
 
-  
+  /*  
   StKFParticleInterface::instance()->SetChiPrimaryCut2D(0);
   StKFParticleInterface::instance()->SetChi2Cut2D(3);
   StKFParticleInterface::instance()->SetLdLCut2D(5);
-  
-  
-  
+  */
+  StKFParticleInterface::instance()->SetChiPrimaryCut2D(0);
+  StKFParticleInterface::instance()->SetChi2Cut2D(0);
+  StKFParticleInterface::instance()->SetLdLCut2D(0);
+
+  //these should be important for 3pi 
   StKFParticleInterface::instance()->SetChi2CutXiOmega(30);
   StKFParticleInterface::instance()->SetChi2TopoCutXiOmega(30);
   StKFParticleInterface::instance()->SetLdLCutXiOmega(50);  
   
+  /*
   StKFParticleInterface::instance()->SetChi2CutCharmManybodyDecays(3);
   StKFParticleInterface::instance()->SetChi2TopoCutCharmManybodyDecays(3);
   StKFParticleInterface::instance()->SetLdLCutCharmManybodyDecays(5);
-
-  
+*/
+  StKFParticleInterface::instance()->SetChi2CutCharmManybodyDecays(0);
+  StKFParticleInterface::instance()->SetChi2TopoCutCharmManybodyDecays(0);
+  StKFParticleInterface::instance()->SetLdLCutCharmManybodyDecays(0);
   
   ((StBFChain *) StMaker::GetTopChain())->EventLoop(N);
 #endif
