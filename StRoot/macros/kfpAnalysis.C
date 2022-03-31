@@ -88,18 +88,22 @@ void kfpAnalysis(
   StKFParticleInterface::instance()->SetMaxDistanceBetweenParticlesCut(1);
   StKFParticleInterface::instance()->SetLCut(0.3f);
 
-  /*  
+    
   StKFParticleInterface::instance()->SetChiPrimaryCut2D(0);
   StKFParticleInterface::instance()->SetChi2Cut2D(3);
   StKFParticleInterface::instance()->SetLdLCut2D(5);
-  */
+  /*/
   StKFParticleInterface::instance()->SetChiPrimaryCut2D(0);
   StKFParticleInterface::instance()->SetChi2Cut2D(0);
   StKFParticleInterface::instance()->SetLdLCut2D(0);
+  */
 
   //these should be important for 3pi 
-  StKFParticleInterface::instance()->SetChi2CutXiOmega(30);
-  StKFParticleInterface::instance()->SetChi2TopoCutXiOmega(30);
+  // 3pi vertex quality - saved into mother_chi2ndf 
+  StKFParticleInterface::instance()->SetChi2CutXiOmega(30);//30 - quite wide cut
+  //chi2 od the 3pi to primary vertex ..mother_PV_chi2  (5->25)
+  StKFParticleInterface::instance()->SetChi2TopoCutXiOmega(30); //30  ..
+  //decay length/ its sigma, but that's not what I save....
   StKFParticleInterface::instance()->SetLdLCutXiOmega(50);  
   
   /*
@@ -107,9 +111,11 @@ void kfpAnalysis(
   StKFParticleInterface::instance()->SetChi2TopoCutCharmManybodyDecays(3);
   StKFParticleInterface::instance()->SetLdLCutCharmManybodyDecays(5);
 */
+  /*dont need these for 3pi
   StKFParticleInterface::instance()->SetChi2CutCharmManybodyDecays(0);
   StKFParticleInterface::instance()->SetChi2TopoCutCharmManybodyDecays(0);
   StKFParticleInterface::instance()->SetLdLCutCharmManybodyDecays(0);
+  */
   
   ((StBFChain *) StMaker::GetTopChain())->EventLoop(N);
 #endif

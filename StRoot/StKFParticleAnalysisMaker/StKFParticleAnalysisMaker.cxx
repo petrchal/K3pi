@@ -169,6 +169,9 @@ void StKFParticleAnalysisMaker::BookVertexPlots()
 //_____________________________________________________________________________
 Int_t StKFParticleAnalysisMaker::Make()
 {  
+ cout<<endl<<"StKFParticleAnalysisMaker::Make()"<<endl;
+
+
   if(fIsPicoAnalysis)
   {
     fPicoDst = StPicoDst::instance();
@@ -225,10 +228,14 @@ Int_t StKFParticleAnalysisMaker::Make()
 //   fStKFParticleInterface->OpenCharmTriggerCompression(triggeredTracks.size(), fPicoDst->numberOfTracks(), openCharmTrigger);
   //collect histograms
   
-
-  if(isGoodEvent) return kStOk;
-  
  
+  if(!isGoodEvent) {
+    cout<<" isGoodEvent=FALSE  ..quitting"<<endl;
+    return kStOk;
+   }
+  
+  cout<<" pred clean clusters.."<<endl;
+  
 #if 1
     //clean clusters
     int nTracks = 0;
@@ -308,6 +315,8 @@ Int_t StKFParticleAnalysisMaker::Make()
       } //PDG cut 3001<pDG<=3029
     } //clean clusters iParticle loop over reconstructed particles
 
+
+cout<<" pred clean 3001 .."<<endl;
 #if 1 //FIXME
     for(int iParticle=nTracks; iParticle<fStKFParticlePerformanceInterface->GetNReconstructedParticles(); iParticle++) {
       const KFParticle particle = fStKFParticleInterface->GetParticles()[iParticle];
@@ -343,7 +352,8 @@ Int_t StKFParticleAnalysisMaker::Make()
 #endif
 
 
-
+cout<<" pred clean lambdas.."<<endl;
+ 
 
 #if 1 //FIXME
 //clean primary lambdas
@@ -413,7 +423,8 @@ Int_t StKFParticleAnalysisMaker::Make()
     }  //clean primary lambdas
 #endif
 
-    
+    cout<<" pred store candidates.."<<endl;
+ 
     if(fStoreCandidates) {
       KFPartEfficiencies parteff;
       for(int iParticle=0; iParticle<fStKFParticlePerformanceInterface->GetNReconstructedParticles(); iParticle++) {
@@ -443,17 +454,23 @@ Int_t StKFParticleAnalysisMaker::Make()
     int runId = -1;
     
    
-    
+    cout<<" pred Performance Iface"<<endl;
+ 
     int centralityWeight = 1;
     int centralityBin= 1;
     
     fStKFParticlePerformanceInterface->SetMCTracks(mcTracks);
+    cout<<" Perf chp1"<<endl;
     fStKFParticlePerformanceInterface->SetMCIndexes(mcIndices);    
-    fStKFParticlePerformanceInterface->SetCentralityBin(centralityBin);
-    fStKFParticlePerformanceInterface->SetCentralityWeight(centralityWeight);
+     cout<<" Perf chp2"<<endl;
+   fStKFParticlePerformanceInterface->SetCentralityBin(centralityBin);
+     cout<<" Perf chp3"<<endl;
+   fStKFParticlePerformanceInterface->SetCentralityWeight(centralityWeight);
     Int_t nevent = 100000;
-    fStKFParticlePerformanceInterface->SetPrintEffFrequency(nevent);
-    fStKFParticlePerformanceInterface->PerformanceAnalysis();
+     cout<<" Perf chp4"<<endl;
+   fStKFParticlePerformanceInterface->SetPrintEffFrequency(nevent);
+     cout<<" Perf chp5"<<endl;
+   fStKFParticlePerformanceInterface->PerformanceAnalysis();
     
    
    if(fKaonAnalysis) Fill_KaonNtuples();
@@ -474,6 +491,7 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
 
       for(int iD=0; iD<particle.NDaughters(); iD++) {
               TDaughter &daughter=fK.daughter(iD);
+              if (iD==3) fK.matchedKF=1;
               daughter.index=iD;
               int id_kf=particle.DaughterIds()[iD];
               KFParticle daugh=(fStKFParticleInterface->GetParticles())[id_kf];
@@ -634,17 +652,13 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
               }
                     
 
-              daughter.decay_dl=daugh.GetDeviationFromVertex(particle);
+              daughter.match_chi2=daugh.GetDeviationFromVertex(particle);
 
               daughter.decay_p=daughter_p_decay.mag();daughter.decay_pt=daughter_p_decay.perp(); daughter.decay_eta=daughter_p_decay.pseudoRapidity();
               daughter.decay_phi=daughter_p_decay.phi();
               daughter.decay_px=daughter_p_decay.x();daughter.decay_py=daughter_p_decay.y();daughter.decay_pz=daughter_p_decay.z();
               
-              /*
-              double x=daughter.decay_px*fK.decay_Vx + daughter.decay_py*fK.decay_Vy;
-              double y=daughter.decay_px*fK.decay_Vy - daughter.decay_py*fK.decay_Vx;
-             daughter.phi_wrt_mother=TMath::ATan2(y,x); 
-              */
+            
               //better this way
               daughter.phi_wrt_Vr=decayVtx.angle(daughter_p_decay);
 
@@ -664,11 +678,20 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
 // and then match the primary kaon
 
  const KFParticleTopoReconstructor *topoRec=fStKFParticleInterface->GetTopoReconstructor();
+
+ if (!topoRec) {
+   cout<<" TopoRec=NULL ..quitting"<<endl;
+   return;
+ }
  // cout<<" Primary vertices:"<<endl<<"in KF: "<<topoRec->NPrimaryVertices()<< " , ID="<<topoRec->GetPrimVertex().Id()<<endl;
   //cout<<"in MuDst: "<<fMuDst->numberOfPrimaryVertices()<<endl;
   int npt=fStKFParticleInterface->GetParticles().size();
   cout<<"fStKFParticleInterface->GetParticles().size()="<<npt<<endl;
-  /*test 
+   if (npt<=0){
+      cout<<"  ..quitting"<<endl;
+      return;
+    }
+        /*test 
   for(unsigned int iParticle=0; iParticle<npt; iParticle++) {
     cout<<"iParticle="<<iParticle<<" ID="<<fStKFParticleInterface->GetParticles()[iParticle].Id()<<endl;
   }  
@@ -676,7 +699,7 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
 
   //primary vertex
   KFParticle primVtx=topoRec->GetPrimVertex();
- 
+  
   for(unsigned int iParticle=0; iParticle<npt; iParticle++) {
     //cout<<"i="<<iParticle<<" KFP_iD="<<fStKFParticleInterface->GetParticles()[iParticle].Id()
     //<<" PDG="<<fStKFParticleInterface->GetParticles()[iParticle].GetPDG()<<" pt="<<
@@ -761,12 +784,15 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
 //         if((l/dl < 3) && (ppi.GetChi2()/float(ppi.GetNDF() < 10))) {
 //           fStKFParti
 */
-     // fK.mother_PV_chi2 =particle.GetDeviationFromVertex(primVtx);
+      fK.mother_chi2ndf = particle.GetChi2()/float(particle.GetNDF());
+      fK.mother_PV_chi2 =particle.GetDeviationFromVertex(primVtx);
+
+      //distance to PV - usefull to see if it comes from the primary vertex...I coudl have seom decays of secondary kaons
+      //float_v lCandidate, dlCandidate;
       float l, dl;
       particle.GetDistanceToVertexLine(primVtx,l,dl);
       fK.mother_PV_l=l; fK.mother_PV_dl=dl; 
-      //wrong... fK.mother_PV_l=particle.GetDistanceFromVertex(primVtx);
-     
+      
      //fill daughters
      fK.mother_isMc=1; //will changed by FillDaughters
      if (!FillKFDaughters(particle)) continue;
@@ -787,6 +813,7 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
     }//nPIDs loop
        
   }//FKparticles loop
+
 }
 
 void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
@@ -805,7 +832,7 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
       best_dt.DecayDca_mu=10e20;
       //loop over global
 
-      TDaughter &daughter =fK.daughter(4);
+      TDaughter daughter;
         
       for (UInt_t k = 0; k < fPicoDst->numberOfTracks(); k++) {
            picotrack = fPicoDst->track(k);
@@ -898,7 +925,6 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
            //if (daughter.dp_Decay>1000.) continue; //junk from initialization best_dt.dp_Decay=10e20;
           
            
-          //daughter.decay_dl=daugh.GetDeviationFromVertex(particle);
           
           daughter.decay_p=daughter_p_decay.mag();daughter.decay_pt=daughter_p_decay.perp(); daughter.decay_eta=daughter_p_decay.pseudoRapidity();
           daughter.decay_phi=daughter_p_decay.phi();
@@ -932,8 +958,11 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
          } //loop over primary    
 
          //save the best
-         
-         daughter= best_dt;
+         if (best_dt.dp_Decay<= 1000.){ //arbitraty large enough number
+          fK.matchedGeom=1;
+          TDaughter &res =fK.daughter(4);
+          res=best_dt;
+          }
         /* skipping so far
 
         //now save the best
@@ -961,15 +990,13 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
       best_dt.dp_Decay=10e20;
       best_dt.DecayDca_mu=10e20;
       //loop over global
-      TDaughter &daughter =fK.daughter(4);
+      TDaughter daughter;
       for (UInt_t k = 0; k < fMuDst->numberOfGlobalTracks(); k++) {
        mutrack = (StMuTrack *) fMuDst->array(muGlobal)->UncheckedAt(k);
       //lglob
       //for (UInt_t k = 0; k < fMuDst->numberOfPrimaryTracks(); k++) {
       //    track = (StMuTrack *) fMuDst->array(muPrimary)->UncheckedAt(k);
           if (! mutrack) continue;
-         
-          TDaughter &daughter =fK.daughter(4);
           daughter.Clear();
          
          
@@ -1027,8 +1054,7 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
 
            //if (daughter.dp_Decay>1000.) continue; //junk from initialization best_dt.dp_Decay=10e20;
           
-          //daughter.decay_dl=daugh.GetDeviationFromVertex(particle);
-
+        
           daughter.decay_p=daughter_p_decay.mag();daughter.decay_pt=daughter_p_decay.perp(); daughter.decay_eta=daughter_p_decay.pseudoRapidity();
           daughter.decay_phi=daughter_p_decay.phi();
           daughter.decay_px=daughter_p_decay.x();daughter.decay_py=daughter_p_decay.y();daughter.decay_pz=daughter_p_decay.z();
@@ -1070,8 +1096,13 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
             */
             } //loop over primary     
   
-       daughter= best_dt;
-       
+    //save the best
+         if (best_dt.dp_Decay<= 1000.){ //arbitraty large enough number
+          fK.matchedGeom=1;
+          TDaughter &res =fK.daughter(4);
+          res=best_dt;
+          }
+      
           /* skipping so far
         //now save the best
         if (best_dt.dp_Decay<= 1000.){

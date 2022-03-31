@@ -1044,7 +1044,7 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
 //   if(!IsGoodPV(primaryVertex)) return 0;
   
   Int_t nGlobalTracks = picoDst->numberOfTracks( );
-  
+
   fParticles.resize(nGlobalTracks*10);
   fNHftHits.resize(nGlobalTracks*10);
   fParticlesPdg.resize(nGlobalTracks*10);
@@ -1218,6 +1218,8 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
   }  
   //reconstruct short-lived particles
   ReconstructParticles();
+
+  cout<<" Process Evnt DONE"<<endl;
 
   return 1;
 }

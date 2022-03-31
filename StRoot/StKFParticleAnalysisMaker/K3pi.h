@@ -1,4 +1,4 @@
-                                                             
+
 #ifndef STAR_K3pi
 #define STAR_K3pi
 //#define __DEVT__
@@ -20,6 +20,7 @@ class TFile;
 class TChain;
 class TTree;
 class StRefMultCorr;
+
 
 class TDaughter : public TObject {
    public:
@@ -43,17 +44,20 @@ class TDaughter : public TObject {
      //DCA and matching
      //isBest this is useful only for the parent track, otherwise -1
      //
-    Bool_t  isBest; 
+    Int_t  isBest; 
     Float_t 
-      DecayDca_KF=0,DecayDca_mu=0,     //DCA to 3pi   vertex from KF and from muDst(picoDst)
+      //chi of matching the track to the 3pi vertex
+      match_chi2=-1,
+      //DCA to 3pi   vertex from KF and from muDst(picoDst)
+      DecayDca_KF=0,DecayDca_mu=0,     
+      //DCA to primary vertex vertex from KF and from muDst(picoDst)
       PvtxDca_KF=0,PvtxDca_official=0, 
       PvtxDca_mu=0,
+      //difference in momemtum 3pi vertex and the track 
       dp_Decay=0,dp_decay_KF=0,dp_PVX=0,
      //information from helix 
      helix_R=-1, helix_Cr=-1, helix_lowR=0,helix_hiR=0, //radius and distance of centre from beam in transverse plane
-     //from KFParticle
-     decay_dl=0,
-     //others
+      //others
      pdg=0,idTruth=-5,qaTruth=-5;
 
    ClassDef(TDaughter,1) 
@@ -68,6 +72,9 @@ class TEvInfo: public TObject{
      bool isTrigger(unsigned int) const;
      bool isTrigger(std::vector<unsigned int> &trigs);  
      //TODO setters ..trigers, from event
+     void addTrigger(unsigned int);
+     void addTriggers(std::vector<unsigned int> trigs);
+     
 
      //to make sure that the righ PV is used  the values of PV position are filled from KFP 
      bool Fill(StMuDst *dst, KFParticle &primVtx);
@@ -82,6 +89,7 @@ class TEvInfo: public TObject{
      Float_t Vx,Vy,Vz,vzVpd,
      ZDCx,BBCx; // coincidence rates  
      //same as in picoDST
+     int nBTOFMatch;
      int refMult; //via tracks (-0.5<eta<0.5)
      int gRefMult;//global tracks in |eta|<0.5
   private:
@@ -100,11 +108,13 @@ class TK3pi : public TObject {
     Int_t mother_PID;
     Char_t mother_isMc;
     
-    Int_t matchedKF=0;
-    Int_t matchedGeom=0;
+    Char_t matchedKF=0;
+    Char_t matchedGeom=0;
 
      // decay position 
-     Float_t decay_Vr, decay_Vx, decay_Vy, decay_Vz,
+     Float_t decay_Vr, decay_Vx, decay_Vy, decay_Vz, 
+     //chi2 of the reconsturcted 3pi vertex
+     mother_chi2ndf, 
     //momentum at the decay vertex from KFP
      mother_pt, mother_px,     mother_py,     mother_pz,    mother_eta,      mother_phi, 
      //recalculated after transport to PVTX
