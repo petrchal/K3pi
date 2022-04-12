@@ -1,2 +1,5 @@
 *.consign
 /StRoot/StRefMultCorr/macros/CVS/Entries
+/StRoot/StEvent/
+/StRoot/StMuDSTMaker/
+.sl*
