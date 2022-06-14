@@ -83,11 +83,14 @@ class StKFParticleAnalysisMaker : public StMaker {
   
   //kaon analysis
   Bool_t fKaonAnalysis;
-  TK3pi fK; //for global sharing of currently selected particle
   TString fKaonFileName;
   TFile* fKaonFile;
+  TFile* fEventFile;
+  TTree* fEventTree;
+  TEvInfo fE;
   TTree* fKaonTree;
-
+  TK3pi fK;//for global sharing of currently selected particle
+ 
   
    std::vector<int> fDecays;
 

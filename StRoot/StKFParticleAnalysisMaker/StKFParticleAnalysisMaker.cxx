@@ -33,6 +33,8 @@
 #include "StDetectorDbMaker/St_tpcPadPlanesC.h"
 #include "StDetectorDbMaker/St_itpcPadPlanesC.h"
 
+#include <bitset>
+
 
 ClassImp(StKFParticleAnalysisMaker);
 
@@ -94,7 +96,12 @@ Int_t StKFParticleAnalysisMaker::Init()
      
     fKaonTree = new TTree("kaons","tree of K to 3 pi");
     fKaonTree->Branch("K","TK3pi",&fK,32000,2);
-      
+
+    ///EvCout: for event countign purpose...but it can conflict with offline efficiciecncy analysis code  
+    fEventTree = new TTree("events","tree of all events");
+    fEventTree->Branch("E","TEvInfo",&fE,32000,2);
+    
+
     gFile = curFile;
     gDirectory = curDirectory;
   }
@@ -184,6 +191,8 @@ Int_t StKFParticleAnalysisMaker::Make()
     else { if(StMuDst::instance()->numberOfPrimaryVertices() == 0 ) return kStOK; }
   }
   
+  
+
   //find max global track index
   int maxGBTrackIndex = -1;
   if(fIsPicoAnalysis)
@@ -227,8 +236,16 @@ Int_t StKFParticleAnalysisMaker::Make()
 //   if(isGoodEvent) openCharmTrigger =  fStKFParticleInterface->OpenCharmTrigger();
 //   fStKFParticleInterface->OpenCharmTriggerCompression(triggeredTracks.size(), fPicoDst->numberOfTracks(), openCharmTrigger);
   //collect histograms
+
+ //*EvCount
+  //fill event info
+  {
+    KFParticle primVtx=fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex();
+    if (fKaonAnalysis) {if(fIsPicoAnalysis) fE.Fill(fPicoDst,primVtx); else fE.Fill(fMuDst,primVtx);}
+   fEventTree->Fill();
+  }
+
   
- 
   if(!isGoodEvent) {
     cout<<" isGoodEvent=FALSE  ..quitting"<<endl;
     return kStOk;
@@ -533,6 +550,17 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
                #else
                StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->topologyMap(2));
                #endif  
+               if (map.hasHitInDetector(kiTpcId)){
+                float Ri=0;
+                int lastiTpcRow=72;
+                  while ( lastiTpcRow>0 && !map.hasHitInRow(kiTpcId, lastiTpcRow)) {lastiTpcRow--;}
+                  if (lastiTpcRow>0){
+                  if (lastiTpcRow<=40) Ri=St_itpcPadPlanesC::instance()->innerRowRadii(0)[lastiTpcRow-1];
+                  else Ri=St_itpcPadPlanesC::instance()->outerRowRadii(0)[lastiTpcRow-1];
+                  if (Ri>daughter.lastPointR) daughter.lastPointR=Ri;
+                  }
+               }
+               else //track with only tpc hits - either before 2018 or only from outer sector
                if (map.hasHitInDetector(kTpcId)){
                 int lastTpcRow=45;
                 while (lastTpcRow>0 && !map.hasHitInRow(kTpcId, lastTpcRow)){lastTpcRow--;}
@@ -540,16 +568,8 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
                   if (lastTpcRow<=13) daughter.lastPointR=St_tpcPadPlanesC::instance()->innerRowRadii(0)[lastTpcRow-1];
                   else daughter.lastPointR=St_tpcPadPlanesC::instance()->outerRowRadii(0)[lastTpcRow-14];
                 }
-               }//hits in TPC
-               //now iTPC
-               if (map.hasHitInDetector(kiTpcId)){
-                float Ri=0;
-                int lastiTpcRow=40;
-                  while ( lastiTpcRow>0 && !map.hasHitInRow(kiTpcId, lastiTpcRow)) {lastiTpcRow--;}
-                  if (lastiTpcRow>0) Ri=St_itpcPadPlanesC::instance()->innerRowRadii(0)[lastiTpcRow-1];
-                  if (Ri>daughter.lastPointR) daughter.lastPointR=Ri;
-               }//iTPC hits
-              
+               }
+                            
 
                //St_tpcPadConfigC::instance()->
              }//picoDst
@@ -566,11 +586,11 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
 
             }
 
-              cout<<" fK.mother_isMc="<<fK.mother_isMc<<endl;
+              cout<<" fK.mother_isMc="<<(bool)fK.mother_isMc<<endl;
               cout<<" iD="<<iD<<" .. daughter.idTruth="<<daughter.idTruth<<endl;
               
               fK.mother_isMc=fK.mother_isMc && (daughter.idTruth>0)&&(daughter.idTruth<10000); //above 10000 it comes from real data
-              cout<<" fK.mother_isMc="<<fK.mother_isMc<<endl;
+              cout<<" fK.mother_isMc="<<(bool)fK.mother_isMc<<endl;
              
               //DCA's - mainly useful for mother track - iD==3
               //a) to decay Vtx: from KFP, from MuTrack
@@ -896,11 +916,17 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
           daughter.lastPointR=0; //from PV to last hist
           #if !defined (__TFG__VERSION__)
           StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->iTpcTopologyMap());
-          cout<<"topo NO-TFG data: "<<picotrack->topologyMap(0)<<" "<<picotrack->topologyMap(1)<<" "<<picotrack->iTpcTopologyMap()<<endl;
+          cout<<"topo (mother) NO-TFG data: "<<picotrack->topologyMap(0)<<" "<<picotrack->topologyMap(1)<<" "<<picotrack->iTpcTopologyMap()<<endl;
+          std::cout<<" topologyMap[1]="<<std::bitset<32>(picotrack->topologyMap(1))<<" topologyMap[0]="<<std::bitset<32>(picotrack->topologyMap(0))<<
+          "iTpcTopologyMap="<<std::bitset<32>(picotrack->iTpcTopologyMap())<<endl;
           #else
           StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->topologyMap(2));
-         cout<<"topo TFG data: "<<picotrack->topologyMap(0)<<" "<<picotrack->topologyMap(1)<<" "<<picotrack->topologyMap(2)<<endl;
+         cout<<"topo (mother) TFG data: "<<picotrack->topologyMap(0)<<" "<<picotrack->topologyMap(1)<<" "<<picotrack->topologyMap(2)<<endl;
+          std::cout<<" topologyMap[1]="<<std::bitset<32>(picotrack->topologyMap(1))<<" topologyMap[0]="<<std::bitset<32>(picotrack->topologyMap(0))<<
+          "topologyMap[2]="<<std::bitset<32>(picotrack->topologyMap(2))<<endl;
+        
           #endif  
+         /*
           if (map.hasHitInDetector(kTpcId)){
             int lastTpcRow=45;
             while ( lastTpcRow>0 && !map.hasHitInRow(kTpcId, lastTpcRow)) {lastTpcRow--;}
@@ -920,8 +946,29 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
             if (Ri>daughter.lastPointR) daughter.lastPointR=Ri;
             cout<<" Ri="<<Ri<<endl;
           }//iTPC hits
-         
-         
+         aaaaaaa
+        */
+       
+         if (map.hasHitInDetector(kiTpcId)){
+                float Ri=0;
+                int lastiTpcRow=72;
+                  while ( lastiTpcRow>0 && !map.hasHitInRow(kiTpcId, lastiTpcRow)) {lastiTpcRow--;}
+                  if (lastiTpcRow>0){
+                  if (lastiTpcRow<=40) Ri=St_itpcPadPlanesC::instance()->innerRowRadii(0)[lastiTpcRow-1];
+                  else Ri=St_itpcPadPlanesC::instance()->outerRowRadii(0)[lastiTpcRow-1];
+                  if (Ri>daughter.lastPointR) daughter.lastPointR=Ri;
+                  }
+               }
+               else //track with only tpc hits - either before 2018 or only from outer sector
+               if (map.hasHitInDetector(kTpcId)){
+                int lastTpcRow=45;
+                while (lastTpcRow>0 && !map.hasHitInRow(kTpcId, lastTpcRow)){lastTpcRow--;}
+                 if (lastTpcRow>0) {
+                  if (lastTpcRow<=13) daughter.lastPointR=St_tpcPadPlanesC::instance()->innerRowRadii(0)[lastTpcRow-1];
+                  else daughter.lastPointR=St_tpcPadPlanesC::instance()->outerRowRadii(0)[lastTpcRow-14];
+                }
+               }
+        
            //if (daughter.dp_Decay>1000.) continue; //junk from initialization best_dt.dp_Decay=10e20;
           
            
@@ -1195,10 +1242,11 @@ void StKFParticleAnalysisMaker::GetParticleParameters(const int iReader, KFParti
 */
 Int_t StKFParticleAnalysisMaker::Finish() 
 {
-  
+  cout<<"StKFParticleAnalysisMaker::Finish()"<<endl;
   if (fKaonFile) {
     fKaonFile->cd();
     fKaonTree->Write();
+    if (fEventTree) fEventTree->Write();
     fKaonFile->Close(); delete fKaonFile;}
   
   if(fStoreCandidates)
