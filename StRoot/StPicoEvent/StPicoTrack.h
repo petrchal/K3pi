@@ -148,10 +148,10 @@ class StPicoTrack : public TObject {
 
   /// Return track topology map (return 0 in case when requested index is >1)
   UInt_t  topologyMap(UInt_t idx) const  { return (idx>1) ? 0 : mTopologyMap[idx]; }
-#if !defined (__TFG__VERSION__)
+//#if !defined (__TFG__VERSION__)
   /// Return topology map for iTPC
   ULong64_t iTpcTopologyMap() const      { return mTopoMap_iTpc; }
-#endif
+//#endif
   
 
   /// Return if the track has an inner PXL hit
@@ -370,12 +370,12 @@ class StPicoTrack : public TObject {
   /// a match are stored as 0.
   Short_t  mBEmcMatchedTowerIndex;
 
-#if !defined (__TFG__VERSION__)
+//#if !defined (__TFG__VERSION__)
   /// Topology map for the iTPC
   ULong64_t mTopoMap_iTpc;
-#else
+//#else
     Char_t mStatus; // =1 if fitted in a vertex
-#endif
+//#endif
 
   /// MC track id
   UShort_t mIdTruth;

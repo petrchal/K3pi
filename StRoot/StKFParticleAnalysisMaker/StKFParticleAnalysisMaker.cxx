@@ -545,11 +545,12 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
              // daughter.lastPointR=picotrack->lastPoint().perp(); //from PV to last hist
                daughter.lastPointR=0;
             
-               #if !defined (__TFG__VERSION__)
+               //#if !defined (__TFG__VERSION__)
                StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->iTpcTopologyMap());
-               #else
+               /*#else
                StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->topologyMap(2));
                #endif  
+               */
                if (map.hasHitInDetector(kiTpcId)){
                 float Ri=0;
                 int lastiTpcRow=72;
@@ -914,18 +915,19 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
             //daughter.lastPointR=picotrack->lastPoint().perp(); //from PV to last hist
           //this is special for picoDST since the last point is not saved - we need to go via hitmap
           daughter.lastPointR=0; //from PV to last hist
-          #if !defined (__TFG__VERSION__)
+          //#if !defined (__TFG__VERSION__)
           StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->iTpcTopologyMap());
-          cout<<"topo (mother) NO-TFG data: "<<picotrack->topologyMap(0)<<" "<<picotrack->topologyMap(1)<<" "<<picotrack->iTpcTopologyMap()<<endl;
+          cout<<"topo (mother kaon) NO-TFG data: "<<picotrack->topologyMap(0)<<" "<<picotrack->topologyMap(1)<<" "<<picotrack->iTpcTopologyMap()<<endl;
           std::cout<<" topologyMap[1]="<<std::bitset<32>(picotrack->topologyMap(1))<<" topologyMap[0]="<<std::bitset<32>(picotrack->topologyMap(0))<<
           "iTpcTopologyMap="<<std::bitset<32>(picotrack->iTpcTopologyMap())<<endl;
+          /*
           #else
           StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->topologyMap(2));
-         cout<<"topo (mother) TFG data: "<<picotrack->topologyMap(0)<<" "<<picotrack->topologyMap(1)<<" "<<picotrack->topologyMap(2)<<endl;
+          cout<<"topo (mother kaon) TFG data: "<<picotrack->topologyMap(0)<<" "<<picotrack->topologyMap(1)<<" "<<picotrack->topologyMap(2)<<endl;
           std::cout<<" topologyMap[1]="<<std::bitset<32>(picotrack->topologyMap(1))<<" topologyMap[0]="<<std::bitset<32>(picotrack->topologyMap(0))<<
           "topologyMap[2]="<<std::bitset<32>(picotrack->topologyMap(2))<<endl;
-        
           #endif  
+          */
          /*
           if (map.hasHitInDetector(kTpcId)){
             int lastTpcRow=45;
