@@ -26,7 +26,7 @@ class TNtuple;
 class TFile;
 class TChain;
 class TTree;
-
+class StTrackTopologyMap;
 
 
 class StKFParticleAnalysisMaker : public StMaker {
@@ -65,7 +65,8 @@ class StKFParticleAnalysisMaker : public StMaker {
   void Set3DEfficiency(TString fileName) { f3DEfficiencyFile = fileName; }
 
   void AddCandidateToStore(int pdg);
-
+protected:
+  float GetLastHitInTPC(StTrackTopologyMap &map);
 
  private:
   static const int fNNTuples = 8;
