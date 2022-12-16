@@ -1233,7 +1233,6 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
     primaryVertex.SetId(bestPV); 
   } 
 
-  if (muDst->primaryVertex(bestPV)->ranking()>=0.) return 0;
 //   if(!IsGoodPV(primaryVertex)) return 0;
 
   Int_t nGlobalTracks = muDst->numberOfGlobalTracks();
