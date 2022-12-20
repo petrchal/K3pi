@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="1"  filesPerHour="2" simulateSubmission="false" copyInputLocally="false" fileListSyntax="paths">
+
+<Generator>
+    <Location>./report/</Location>
+    <ScriptLocation>./csh/</ScriptLocation>
+    <ListLocation>./list/</ListLocation>
+</Generator>
+
+
+<stdout URL="file:&basePath;/jobs/log/$JOBID.out"/>
+<stderr URL="file:&basePath;/jobs/err/$JOBID.err"/>
+ 
+              
+  
+<command> 
+  pwd
+  set noPID=1
+  set isPico=0
+  set isFXT=0
+  set geom=y2018
+  #processignal flag: {kAllTracks=0,kMcTracksOnly=1,kRealTracksOnly=2;
+  set trkType=0
+         
+  source ./setDEV2.csh  
+  starver TFG21d
+  root4star -l -b -q kfpAnalysis.C\(10000000,$trkType,$isPico,$isFXT,$noPID,\"${FILELIST}\",\"\${JOBID}.root\",\"${geom}\"\) &gt;&amp; &basePath;/jobs/log/${JOBID}B.log
+    
+</command>
+
+<output fromScratch="*.root"    toURL="&basePath;/production/" />
+<output fromScratch="*.log"     toURL="&basePath;/jobs/log/" /> 
+  
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/2021-04-26_06-32_singleK/production/*MuDst.root" nFiles="all" /> -->
+<!-- simulations for 7p7 2021 -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_lowMult/production/*MuDst.root" nFiles="all" />  -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_hiMult/production/*MuDst.root" nFiles="50" />  -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_singleK/production/*MuDst.root" nFiles="all" />  -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_1M_2018_hiMult_TGF/production/*MuDst.root" nFiles="all" /> -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_1M_2018_hiMult_TGF/production/*picoDst.root" nFiles="all" /> -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_1M_2018_hiMult_dev/production/*MuDst.root" nFiles="all" />  -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_1M_2018_hiMult_dev/production/*picoDst.root" nFiles="all" /> -->
+<!-- input URL="file:/gpfs/mnt/gpfs01/star/pwg_tasks/TF_TrkEff/reco/2021/RF/TFG21c.B/7p7GeV_2021/*/*/*MuDst.root" nFiles="2" /> -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/2022-01-30_18-08_hiMult_SL19b/production/*MuDst.root" nFiles="10" /> -->
+
+
+<SandBox installer="ZIP">
+   <Package name="LocalLibraries">
+    <File>file:./*.C</File>
+    <File>file:./setDEV2.csh</File>
+    <File>file:./StRoot/</File>
+    <File>file:./.sl73_x8664_gcc485/</File>
+  </Package>
+</SandBox>
+
+</job>

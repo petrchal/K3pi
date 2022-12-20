@@ -1,0 +1,27 @@
+The cut values are selected by the same variables as for two body decays.
+It uses the same FindV0 procedure as 2D decays=>uses the same cuts
+the mother kaon matching is controled by
+KFParticleFinder::SetChi2Cut2D(float cut)       { fCuts2D[1] = cut; } ///< Sets cut on \f$\chi^2_{geo}\f$ for 2-daughter decays.
+
+!!!
+There is a different hardwired settings for fixed target a collider mode
+marked by "TODO FXT" in StKFParticleInterface.cxx
+
+The code aby defaulta uses PID for kaon candidates:
+1. There is "softmode" for TOF - set in muAnalysis.C
+   StKFParticleInterface::instance()->SetSoftKaonPIDMode();
+      for pions:
+         StKFParticleInterface::instance()->SetSoftTofPidMode();
+         2. Even if off it still uses dE/dx
+            This needs to be manually commented out in ::GetPID
+            
+            In order to run on simulation one needs to set in muAnalysis.C
+               kfpAnalysis->ProcessSignal();
+               
+               
+When runing on simulation one has to enable  kfpAnalysis->ProcessSignal(); in muAnalysis.C
+and vice versa !
+
+in muAnlysis.C is setup ry2016, picoEvt  ....is this a problem on run19 data?
+
+https://drupal.star.bnl.gov/STAR/blog/fisyak/status-express-production-run-xxi
