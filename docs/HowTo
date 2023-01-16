@@ -1,0 +1,90 @@
+﻿Inconprehensive guide ...let‘s modifiy as we work
+
+Downloading from repository:
+git clone https://gitlab.fjfi.cvut.cz/KalmanFilter/KFParticle.git
+git clone git@gitlab.fjfi.cvut.cz:KalmanFilter/KFParticle.git
+
+checkou the main branch:
+it checkout --track origin/K3pi 
+
+The I woudl suggest to make a private branch and share it to gitlab:
+
+git branch „name“
+git checkout „name“
+git push -u origin „name“
+
+
+The compilation of code:
+ 
+The code runs under TFG libraries. Since it uses some of the code from stadard library
+the compiling also includes patching. The general problem is that KFParticle Finder runs
+only under TFG, but there is some problem with TPC hitmap for iTPC.
+
+1) the compilation procedure:
+
+  # change to TFG
+  source ./setDEV2.csh
+  starver TFG22f
+  #note this has to be the same version as in scripts/DataAnalysis.xml
+  # before this it may be safe ot remove the remove the previousily compled codes: /.sl73_*
+  ./compile
+  #note: as libraries evolve this is a possible palce where things can brake
+  # this can be done once - then one can use only cons
+
+2) running the code:
+   The real data processing as well embedding! is started by 
+   ./runjobs.sh "name"
+    This scrit is somewhat automatic, but one needs to be carefull a little bit.
+    Inside the script there are some settings:
+    a) the script cds to results directory
+    b) created directory name from time and supplied "name"
+    c) take susername from whoami
+    d) copies codes and libraries. Make 
+    e) makes local output directories. 
+       Most important is the directory production where all the *root files go in the 
+    f) schedules ./starSubmit/DataAnalysis.xml
+
+ 3) structure of ./scripts/DataAnalysis.xml
+    Now this shoulbe actually done before 2)
+    This is a stadart sml job file, but there are couple thing that
+    VERY important and need to be set prior to running!
+    Parmeters are trsfered to script kfpAnalysis.C which runs the KFP
+
+    set noPID=1 ... if set to 1 the KFP code ignores PID, it takes any particle as possible kaon candidate
+    set isPico=1 ... the code can run od both picoDST and MuDSt
+    set isFXT=0  ... the code can run for both collider mode or FXT
+                     fro FXT it performs some primeary vertex quality cleanup developed by Maxim 
+
+    set geometry = ...   should be the same as the data used ..not sure though how imortant this is
+                        ..sort of relict from Yuris code
+    starversion must be consistent with bullet a)
+     
+4) StRoot/macros/kfpAnalysis.C
+   This is the macro whcich setups the KFP chain. The ananlysis itself is done by StKFParticleAnalysisMaker
+   There are some settings in this file that can be usefull.
+   The macros set which particles should be reconstructed and cut values for reconstruction criteria.
+   For the K->3pi these are the important ones:
+   kfpAnalysis->AddDecayToReconstructionList( 100321); //K+->3pi without matching primary kaon
+   kfpAnalysis->AddDecayToReconstructionList(-100321); //K-->3pi without matching primary kaon
+   kfpAnalysis->AddDecayToReconstructionList( 200321); //K+->3pi with matched primary kaon
+   kfpAnalysis->AddDecayToReconstructionList(-200321); //K+->3pi with matched primary kaon
+
+    Note parameter trkTyep can possibly cause problems - it decided which tracks are used:
+    {kAllTracks=0,kMcTracksOnly=1,kRealTracksOnly=2
+
+    We will need in future to better comment on the meaning of the various cuts used.
+  
+    One thing I'm not sure is if we correctly use badrunlist...!!
+
+5) postprecessing
+    After the jobs are finished the results are in the "production folder/kaon_*.root". Usually huge ammount small files that addup tens of GB. The only way how to reasonably run on those is to summ then up to files of roughly 1G sizes. For this there is scripts/haddMulti.pl . This is somewhat lousy scripts whic could be improved.
+syntax: haddMulti.pl "result".root "kaon_*.root". The script looks at number of CPUs and memory and tries to recursively add all files up to the given size (parameter inside) of the script. 
+
+
+ 
+
+    
+
+  
+
+
