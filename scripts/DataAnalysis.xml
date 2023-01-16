@@ -23,11 +23,14 @@
   set trkType=0
   
   #auau27GeV 2018 => y2018a
-  #set geometry=y2018
+  set geometry=y2018
+  
   #auau19GeV 2019 => y2019
   #set geometry=y2019
+  
   #auau54
-  set geometry=y2017
+  #set geometry=y2017
+  
   
   source ./setDEV2.csh
   #starver TFG21d
@@ -49,14 +52,14 @@
 
 <!-- 19GeV collider year19 official muDst and picoDst-->
 <!-- <input URL="catalog:star.bnl.gov?production=P21ic,trgsetupname=production_19GeV_2019,filetype=daq_reco_MuDst,filename~st_phys,storage!=HPSS" nFiles="500"/>   -->
-<!-- <input URL="catalog:star.bnl.gov?production=P21ic,trgsetupname=production_19GeV_2019,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="200"/>  -->
+<!-- <input URL="catalog:star.bnl.gov?production=P21ic,trgsetupname=production_19GeV_2019,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="200"/> -->
 
 
 <!-- 27GeV collider year18 official picDst collider mode -->
 <!-- <input URL="catalog:star.bnl.gov?production=P19ib,trgsetupname=27GeV_production_2018,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
 
 <!-- 54GeV collider year17 official picDst collider mode -->
-<input URL="catalog:star.bnl.gov?trgsetupname=AuAu54_production_2017,production=P18ic,library=SL20c,filename~st_phys,filetype=daq_reco_picoDst,storage!=HPSS,sanity=1" nFiles="500"/> 
+<!-- <input URL="catalog:star.bnl.gov?trgsetupname=AuAu54_production_2017,production=P18ic,library=SL20c,filename~st_phys,filetype=daq_reco_picoDst,storage!=HPSS,sanity=1" nFiles="500"/> -->
 
 
 <!-- 26.5 GeV fixed-target year18 official picDst  -->
@@ -69,8 +72,8 @@
 <!-- 27GeV 2018-->
 <!-- <input URL="file:/star/u/petrchal/kaons_simulated/2021-09-10_05-50_picoFull/production/*picoDst.root" nFiles="5"/> -->
 <!-- <input URL="file:/star/embed/embedding/27GeV_production_2018/Kplus3pi_200_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/> -->
-<!-- <input URL="file:/gpfs/mnt/gpfs01/star/pwg/petrchal/kaons_sim/Kplus3pi_fulltest._20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/> -->
-<!-- <input URL="file:/star/u/petrchal/embscratch/kaons_sim/Kplus3pi_complete_flat_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/>   -->
+<!-- <input URL="file:/gpfs/mnt/gpfs01/star/pwg/petrchal/kaons_sim/Kplus3pi_fulltest._20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/> --> 
+<input URL="file:/star/u/petrchal/embscratch/kaons_sim/Kplus3pi_complete_flat_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/> 
 <!-- <input URL="file:/star/u/petrchal/scratch_TrkEff/kaons_sim/Kplus3pi_27Emb_uniform2_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/> -->
 <!-- latest pt weighted - 1M events -->
 <!-- <input URL="file:/star/embed/embedding/27GeV_production_2018/Kplus3pi_30[0-2]_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/>  -->

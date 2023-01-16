@@ -3,7 +3,7 @@
 codeDir=`pwd`
 cd $HOME/kaons_resKFP2
 productionId=`date +%F_%H-%M`_$1
-analyzer="petrchal"
+analyzer=`whoami`
 
 mkdir $productionId
 cd $productionId

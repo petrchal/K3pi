@@ -32,7 +32,7 @@ void TDaughter::Clear(){
 }
 
 //======================================
-TK3pi::TK3pi():TObject(),Evt(),d("TDaughter", 5){
+TK3pi::TK3pi():TObject(),d("TDaughter", 5),Evt(){
       for (int i=0;i<5;i++){
        new (d[i]) TDaughter;
        daughter(i).Clear();
@@ -69,6 +69,8 @@ void TEvInfo::Clear(){
      refMult=-100; 
      gRefMult=-100;
      nBTOFMatch=-100;
+     nK3piP=0;
+     nK3piN=0;
 }
 
 

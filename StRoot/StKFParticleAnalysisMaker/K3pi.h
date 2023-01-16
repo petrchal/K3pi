@@ -26,7 +26,6 @@ class TDaughter : public TObject {
    public:
     TDaughter(){Clear();}
     void Clear();
-    //TODO pridat an naboj a pt projekci...
     //track properties
     Int_t 
       id=0,index=0,charge=0, 
@@ -43,8 +42,12 @@ class TDaughter : public TObject {
      
      //DCA and matching
      //isBest this is useful only for the parent track, otherwise -1
-     //
-    Int_t  isBest; 
+     // -1 ..was not touched
+     //0 .. was touched but, eventualy better candidate was found
+     // 1 .. best matched track by geometry
+     // 2 .. if matching was done via dca at decay vertex, not dp, this would not be the best candidate
+
+    Int_t  isBest=-1; 
     Float_t 
       //chi of matching the track to the 3pi vertex
       match_chi2=-1,
@@ -92,6 +95,8 @@ class TEvInfo: public TObject{
      int nBTOFMatch;
      int refMult; //via tracks (-0.5<eta<0.5)
      int gRefMult;//global tracks in |eta|<0.5
+     int nK3piP;// number of k3pi + vertexex found with Vr>40 (id 100321)
+     int nK3piN;// number of K3pi - vertexex found with Vr>40 (id -100321)
   private:
      std::vector<unsigned int> triggerIds;
      ClassDef(TEvInfo,1) 

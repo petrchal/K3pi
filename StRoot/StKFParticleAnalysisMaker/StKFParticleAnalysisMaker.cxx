@@ -252,13 +252,21 @@ Int_t StKFParticleAnalysisMaker::Make()
     return kStOk;
    }
 
-  {
-    KFParticle primVtx=fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex();
-    if (fKaonAnalysis) {if(fIsPicoAnalysis) fE.Fill(fPicoDst,primVtx); else fE.Fill(fMuDst,primVtx);}
-   fEventTree->Fill();
-  }
-
+  //fill event info
+  KFParticle primVtx=fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex();
+  if (fKaonAnalysis) {if(fIsPicoAnalysis) fE.Fill(fPicoDst,primVtx); else fE.Fill(fMuDst,primVtx);}
+    
+  //fill number of k3 picandidates 
+  int npt=fStKFParticleInterface->GetParticles().size();
+  for(unsigned int i=0; i<npt; i++){
+    int pdg=fStKFParticleInterface->GetParticles()[i].GetPDG();
+    if(fabs(pdg)!=100321) continue; //k3pi vertex
+    KFParticle particle = fStKFParticleInterface->GetParticles()[i];
+    if (particle.GetR()<40) continue;
+    if (pdg==100321) fE.nK3piP++; else fE.nK3piN++;
+    }
   
+   fEventTree->Fill();
   
   
   //cout<<" pred clean clusters.."<<endl;
@@ -701,9 +709,20 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
   }  
 */
 
-  //primary vertex
-  KFParticle primVtx=topoRec->GetPrimVertex();
-  
+  //primary vertex 
+  KFParticle primVtx=topoRec->GetPrimVertex(); 
+
+/*
+  //before saving I want to make counts of found 3pi vertex candidates  100321,-100321
+  // there coudl be some dupliactes, I may later use only events with single found 3pi decay vertex
+  //since I care only about kaons that decay with Vr>50 I'll count for safety reasons all above 40cm
+  int n3piVertexis=0;
+  for(unsigned int iParticle=0; iParticle<npt; iParticle++){
+    if(fabs(fStKFParticleInterface->GetParticles()[iParticle].GetPDG())!=100321) 
+        if (if (particle.GetR()<40)) n3piVertexis++;
+  }
+*/
+
   for(unsigned int iParticle=0; iParticle<npt; iParticle++) {
     //cout<<"i="<<iParticle<<" KFP_iD="<<fStKFParticleInterface->GetParticles()[iParticle].Id()
     //<<" PDG="<<fStKFParticleInterface->GetParticles()[iParticle].GetPDG()<<" pt="<<
@@ -726,7 +745,9 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
       fK.Clear();
 
       //fill event info
-      if(fIsPicoAnalysis) fK.EvInfo().Fill(fPicoDst,primVtx); else fK.EvInfo().Fill(fMuDst,primVtx);   
+      //if(fIsPicoAnalysis) fK.EvInfo().Fill(fPicoDst,primVtx); else fK.EvInfo().Fill(fMuDst,primVtx);   
+      //use th ealredy filled info
+      fK.Evt=fE;
 
       //fill mother (3pi vertex)  info
       // skip decays out of TPC --- save disk space
@@ -1054,7 +1075,7 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
           if (bestDca>daughter.DecayDca_mu) bestDca=daughter.DecayDca_mu;
           if (best_dt.dp_Decay>daughter.dp_Decay){
             cout<<" new best"<<endl;
-                        daughter.isBest=1;
+            daughter.isBest=1;
             //now swap the best
             TDaughter tmpd=best_dt;   best_dt=daughter;  daughter=tmpd;
             StThreeVectorD tmpp=best_dt_p_PVX; best_dt_p_PVX=daughter_p_decay; daughter_p_decay=tmpp;

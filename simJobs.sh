@@ -10,17 +10,14 @@ mkdir $productionId
 cd $productionId
 
 #copy needed folders
-cp -r $codeDir/Template/.sl73* ./
-cp -Lr $codeDir/Template/StRoot ./
-cp $codeDir/Template/StRoot/macros/kfpAnalysis.C ./
-cp $codeDir/Template/StRoot/macros/lMuDst.C ./
-cp $codeDir/Template/setDEV2.csh ./
-echo chp1
+cp -r $codeDir/.sl73* ./
+cp -Lr $codeDir/StRoot ./
+cp $codeDir/StRoot/macros/kfpAnalysis.C ./
+cp $codeDir/StRoot/macros/lMuDst.C ./
+cp $codeDir/setDEV2.csh ./
 mkdir starSubmit
-echo chp2
 cp $codeDir/SimAnalysis.xml ./starSubmit
 
-echo chp3
 mkdir -p production
 mkdir -p report
 mkdir -p csh
