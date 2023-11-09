@@ -865,6 +865,12 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
           daughter.Clear();
           //DCA from MuDST
           daughter.PvtxDca_official=picotrack->gDCA(fPicoDst->event()->primaryVertex()).Mag();
+          //unsigned DCAxy
+          //daughter.PvtxDcaXY_official=picotrack->gDCAxy(fPicoDst->event()->primaryVertex().X(),
+          //                       fPicoDst->event()->primaryVertex().Y());
+          //signed DCAxy
+          daughter.PvtxDcaXY_official=picotrack->gDCAs(fPicoDst->event()->primaryVertex());
+          daughter.PvtxDcaZ_official=picotrack->gDCAz(fPicoDst->event()->primaryVertex().Z());
           if (daughter.PvtxDca_official>10 ) continue;//junk
 
           daughter.index=4;
@@ -885,7 +891,8 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
           daughter.idTruth =picotrack->idTruth();
           daughter.qaTruth =picotrack->qaTruth();
 
-        
+          
+          // DCA at decay vertex
            StPicoPhysicalHelix helix = picotrack->helix(fPicoDst->event()->bField());
            TVector3 decayVtx_(fK.decay_Vx, fK.decay_Vy, fK.decay_Vz); //for picoDst analyses
            StThreeVectorD decayVtx(fK.decay_Vx, fK.decay_Vy, fK.decay_Vz); 
@@ -904,8 +911,8 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
           //pathlength = helix.pathLength(pVtx, true );
           //daughter.PvtxDca_mu=(helix.at(pathlength)-pVtx).mag();
           TVector3 pVtx_(fK.EvInfo().Vx, fK.EvInfo().Vy, fK.EvInfo().Vz);
-          daughter.PvtxDca_mu=helix.distance(pVtx_); 
-             //daughter.DecayDca_mu=fabs(helix.geometricSignedDistance(v));
+          daughter.PvtxDca_mu=helix.distance(pVtx_);  
+          daughter.PvtxDcaXY_mu=helix.curvatureSignedDistance(pVtx_); 
           tmp= helix.momentumAt(pathlength,fPicoDst->event()->bField()*kilogauss);
           StThreeVectorD daughter_p_PVX;
           daughter_p_PVX.set(tmp.X(),tmp.Y(),tmp.Z());
@@ -1004,7 +1011,9 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
          
           //DCA from MuDST
           daughter.PvtxDca_official=mutrack->dcaGlobal().mag();
-          if (daughter.PvtxDca_official>10 ) continue;//junk
+          daughter.PvtxDcaXY_official=mutrack->dcaD();
+          daughter.PvtxDcaZ_official=mutrack->dcaZ();
+           if (daughter.PvtxDca_official>10 ) continue;//junk
 
 
           daughter.index=4;
@@ -1046,7 +1055,7 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
           //daughter.PvtxDca_mu=(helix.at(pathlength)-pVtx).mag();
           StThreeVectorD pVtx(fK.EvInfo().Vx, fK.EvInfo().Vy, fK.EvInfo().Vz);
           daughter.PvtxDca_mu=helix.distance(pVtx); 
-             //daughter.DecayDca_mu=fabs(helix.geometricSignedDistance(v));
+          daughter.PvtxDcaXY_mu=helix.curvatureSignedDistance(pVtx); 
           StThreeVectorD daughter_p_PVX= helix.momentumAt(pathlength,fMuDst->event()->runInfo().magneticField()*kilogauss);
           daughter.dp_PVX=(daughter_p_PVX-mother_p_PVX).mag();
 

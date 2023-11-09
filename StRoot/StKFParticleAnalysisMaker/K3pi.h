@@ -54,8 +54,9 @@ class TDaughter : public TObject {
       //DCA to 3pi   vertex from KF and from muDst(picoDst)
       DecayDca_KF=0,DecayDca_mu=0,     
       //DCA to primary vertex vertex from KF and from muDst(picoDst)
-      PvtxDca_KF=0,PvtxDca_official=0, 
-      PvtxDca_mu=0,
+      PvtxDca_KF=0,
+      PvtxDca_official=0,  PvtxDcaXY_official=0, PvtxDcaZ_official=0,
+      PvtxDca_mu=0, PvtxDcaXY_mu=0,
       //difference in momemtum 3pi vertex and the track 
       dp_Decay=0,dp_decay_KF=0,dp_PVX=0,
      //information from helix 
