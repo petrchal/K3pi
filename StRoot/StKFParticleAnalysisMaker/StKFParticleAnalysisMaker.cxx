@@ -857,12 +857,12 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
       best_dt.DecayDca_mu=10e20;
       //loop over global
 
-      TDaughter daughter;
-        
+         
       for (UInt_t k = 0; k < fPicoDst->numberOfTracks(); k++) {
            picotrack = fPicoDst->track(k);
            if (! picotrack) continue;
-          daughter.Clear();
+            TDaughter daughter;
+             daughter.Clear();
           //DCA from MuDST
           daughter.PvtxDca_official=picotrack->gDCA(fPicoDst->event()->primaryVertex()).Mag();
           //unsigned DCAxy
@@ -999,13 +999,13 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
       best_dt.dp_Decay=10e20;
       best_dt.DecayDca_mu=10e20;
       //loop over global
-      TDaughter daughter;
       for (UInt_t k = 0; k < fMuDst->numberOfGlobalTracks(); k++) {
        mutrack = (StMuTrack *) fMuDst->array(muGlobal)->UncheckedAt(k);
       //lglob
       //for (UInt_t k = 0; k < fMuDst->numberOfPrimaryTracks(); k++) {
       //    track = (StMuTrack *) fMuDst->array(muPrimary)->UncheckedAt(k);
           if (! mutrack) continue;
+          TDaughter daughter;
           daughter.Clear();
          
          
