@@ -41,6 +41,7 @@ TK3pi::TK3pi():TObject(),d("TDaughter", 5),Evt(){
 
 void TK3pi::Clear(){
      mother_PID=-1; mother_isMc=-1;
+     matchedKF=0;Char_t matchedGeom=0
      // decay position 
      decay_Vr=0; decay_Vx=0; decay_Vy=0; decay_Vz=0;
      //chi2 of the reconsturcted 3pi vertex
