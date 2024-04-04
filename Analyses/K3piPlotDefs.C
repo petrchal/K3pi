@@ -1,0 +1,127 @@
+
+
+   //the declarations must be here, not global 0,0 -automatic range and #bins, otherwise 100 bins
+  TPlotDefinitions Event_plots{
+    TPlotDef{"Evt.Vz","Prim. vtx position","Vz[cm]",-100,100,"Vz"},
+    TPlotDef{"Evt.eventId","eventId","eventId",0,10000000},
+    TPlotDef{"Evt.vzVpd","Vpd vtx position","VZ_vpd[cm]",-100,100,"VPDdif,Vz"},
+    TPlotDef{"Evt.Vz-Evt.vzVpd","VpdVz-Vz","diff Vz[cm]",-8,8,"VPDdif"},
+    TPlotDef{"Evt.ZDCx","ZDC coincidence rate","f[hz]",0,2000,"ZDC"}, 
+    TPlotDef{"Evt.BBCx","BBC coincidence rate","f[Hz]",0,1500000,"BBC"},
+    TPlotDef{"Evt.nBTOFMatch","Num of TOF matched track","#TOF matched",0,1000,"TOFmatch"},
+    TPlotDef{"Evt.refMult","RefMult ","RefMult",0,2000,"refMult"},
+    TPlotDef{"Evt.gRefMult","gRefMult","gRefMult",0,2000,"gRefMult"},
+    TPlotDef{"Evt.runId","runId","runId",0,0},
+    TPlotDef{"Evt.triggerIds","triggerIds","Trigger Ids",0,1000000},
+    TPlotDef{"Evt.nK3piP","number of 3pi+ vertexes","nK3piP",-2,10},
+    TPlotDef{"Evt.nK3piN","number of 3pi- vertexes","nK3piN-",-2,10},
+    
+  };
+
+
+ //the declarations must be here, not global 0,0 -automatic range and #bins, otherwise 100 bins
+  TPlotDefinitions Event_plots_FXT{
+    TPlotDef{"Evt.Vz","Prim. vtx position","Vz[cm]",0,500,"Vz"},
+    TPlotDef{"Evt.eventId","eventId","eventId",0,10000000},
+    TPlotDef{"Evt.vzVpd","Vpd vtx position","VZ_vpd[cm]",-0,500,"VPDdif,Vz"},
+    TPlotDef{"Evt.Vz-Evt.vzVpd","VpdVz-Vz","diff Vz[cm]",-8,8,"VPDdif"},
+    TPlotDef{"Evt.ZDCx","ZDC coincidence rate","f[hz]",0,800,"ZDC"}, 
+    TPlotDef{"Evt.BBCx","BBC coincidence rate","f[Hz]",0,300000,"BBC"},
+    TPlotDef{"Evt.nBTOFMatch","Num of TOF matched track","#TOF matched",0,500,"TOFmatch"},
+    TPlotDef{"Evt.refMult","RefMult ","RefMult",0,1000,"refMult"},
+    TPlotDef{"Evt.gRefMult","gRefMult","gRefMult",0,1000,"gRefMult"},
+    TPlotDef{"Evt.runId","runId","runId",0,0},
+    TPlotDef{"Evt.triggerIds","triggerIds","Trigger Ids",0,1000000},
+    TPlotDef{"Evt.nK3piP","number of 3pi+ vertexes","nK3piP",-2,10},
+    TPlotDef{"Evt.nK3piN","number of 3pi- vertexes","nK3piN",-2,10},
+    
+  };
+
+ TPlotDefinitions RecoVtx_plots{
+    //mother plots 
+    //variable to plot , name , ranges,  comma-separated list of cuts which are disabled before plotting
+    TPlotDef{"mother_m","mass of 3pi vertex","m[GeV/c]",0.4,.6,"minv"}, 
+    TPlotDef{"mother_PID","3pi vertex PID","PID",0,0},
+    TPlotDef{"mother_isMc","Is 3pi MC","",-5,5},
+    TPlotDef{"matchedKF","matched by KF","",-5,5},
+    TPlotDef{"matchedGeom","matched by dp","",-5,5},
+    TPlotDef{"mother_chi2ndf","3piVtx_chi2ndf","xi/ndf",0,0,"cut_mom_ch2ndf"},
+    TPlotDef{"mother_PV_chi2","3piVtx_PV_chi2","xi/ndf",0,150}, //note in data are values ..-600
+    TPlotDef{"mother_PV_l","3piVtx_PV_l","l[cm]",0,15},
+    TPlotDef{"mother_PV_dl","3piVtx_PV_dl","\sigma l[cm]",0,10},
+    TPlotDef{"(mother_PV_dl>0)?mother_PV_l/mother_PV_dl:0","3piVtx l per dl","\sigma l/dl",0,15},
+  
+    TPlotDef{"mother_eta_PVX","eta from 3pi vertex at PVX","eta",-2.,2.,"eta"},
+    TPlotDef{"decay_Vr","radial position of decay","Vr[cm]",50,200,"decay_Vr"}, 
+    TPlotDef{"decay_Vz","z position of decay","Vz[cm]",-100,100}, 
+    TPlotDef{"mother_pt_PVX","pt from 3pi vertex at PVX","pt[GeV/c^2]",0,1.5,"pt"},
+    TPlotDef{"mother_phi_PVX","phi from 3pi vertex at PVX","phi",-7,7.},
+    TPlotDef{"MaxHits(decay_Vr)","maximum number of hits of matched kaon","hnits",-0.5,99.5,"decay_Vr"},
+ 
+
+    TPlotDef{"d.qaTruth[0]+d.qaTruth[1]+d.qaTruth[2]","sum of daughter qaTruths","",0.,300.},
+  
+    //first decay daugter 
+    TPlotDef{"d.index[0]","daughter index","index",-0.5,6.5},
+    TPlotDef{"d.nhits[0]","daughter nHitsFit","nHitsFit",-0.5,100.5,"nhits_daughters"},
+    TPlotDef{"d.nhits_pos[0]","daughter NHits possible from DST","nHitsPos",-0.5,100.5,"nhits_possible"},
+    TPlotDef{"MaxHitsDaughter","daughter NHitsf possible from Vr","nHitsPos",-0.5,100.5,"nhits_possible"},
+ 
+    TPlotDef{"(float)d.nhits[0]/(float)d.nhits_pos[0]","daughter NHits/possible","nHitsFit/nHitsPos",-0.5,2,"nhits_posrat"},
+    TPlotDef{"(float)d.nhits[0]/(float)MaxHitsDaughter","daughter NHits/possible recalc","nHitsFit/nHitsPos recalculated",-0.5,2,"nhits_posrat"},
+    TPlotDef{"d.PvtxDca_official[0]","daughter Prim. vtx DCA","dca[cm]",-1,100},
+    TPlotDef{"d.PvtxDcaXY_official[0]","daughter Prim. vtx DCA_XY","dca_xy[cm]",-1,10},
+    TPlotDef{"d.PvtxDcaZ_official[0]","daughter Prim. vtx DCA_Z","dca_z[cm]",-10,10},
+    TPlotDef{"d.lastPointR[0]","daughter last hit position","r[cm]",80,200},
+    TPlotDef{"d.match_chi2[0]","daughter match_chi2","chi2",0,5000},
+    //TPlotDef{"d.idTruth[0]","daughter idTruth","idTruth",0,0,},
+    TPlotDef{"d.qaTruth[0]","daughter qaTruth","qaTruth",0,150},
+ }; //3piVtx_plot
+
+//const int K_match=4;//[4]..is matched (via dp from Dst) ...d[3] via KFP
+#define K_match 4
+
+TPlotDefinitions MatchedKaon_plots{
+    TPlotDef{"d.nhits[K_match]","kaon nHitsFit","nHitsFit",-0.5,100.5,"kaon_nhits"},
+    TPlotDef{"d.nhits_pos[K_match]","kaon nHitsPos (from MuDst)","nHitsPos",-0.5,100.5,},
+    TPlotDef{"d.nhits_dEdx[K_match]","kaon dEdx hist","nhit dEdx",-0.5,100.5},
+    TPlotDef{"d.PvtxDca_official[K_match]","kaon: Prim. vtx DCA","dca[cm]",-1,10,"kaon_DCA"},
+    TPlotDef{"PvtxDca_corrected","corrected kaon Prim. vtx DCA","dca[cm]",-1,10,"kaon_DCA"},
+    TPlotDef{"d.PvtxDcaXY_official[K_match]","kaon Prim. vtx DCA_XY","dca_xy[cm]",-3,3,"kaon_DCA"},
+    TPlotDef{"PvtxDcaXY_corrected","corrected kaon Prim. vtx DCA_XY","dca_xy[cm]",-3,3,"kaon_DCA"},
+    TPlotDef{"PvtxDcaXY_corrected-d.PvtxDcaXY_official[K_match]","difference corrected - kaon Prim. vtx DCA_XY","dca_xy[cm]",-3,3,"kaon_DCA"},
+    TPlotDef{"d.PvtxDcaZ_official[K_match]","kaon Prim. vtx DCA_Z","dca_z[cm]",-3,3,"kaon_DCA"},
+    TPlotDef{"d.PvtxDca_mu[K_match]","recalc from helix Prim. vtx DCA ","dca[cm]",-1,10,"kaon_DCA"},
+    TPlotDef{"d.PvtxDcaXY_mu[K_match]","recalc from helix Prim. vtx DCA XY ","dca_xy[cm]",-3,3,"kaon_DCA"},
+    TPlotDef{"d.lastPointR[K_match]","kaon: last hit position","r[cm]",0,200},
+    TPlotDef{"d.match_chi2[K_match]","kaon: match_chi2","chi2",0,0},
+    TPlotDef{"d.idTruth[K_match]","kaon: idTruth","idTruth",0,0},
+    TPlotDef{"d.qaTruth[K_match]","kaon: qaTruth","qaTruth",0,150},
+    TPlotDef{"d.isBest[K_match]","kaon: isBest","",-3,3,"K_best"},
+    TPlotDef{"d.lastPointR[K_match]-decay_Vr","kaon: dR -radial difference betwen last hit and decay vtx","dR[cm]",-100,200,"K_lastR"},
+    TPlotDef{"d.dp_Decay[K_match]","kaon: dP at decay","dp[Gev/c^2]",0,0.4,"K_dp"},
+  //  TPlotDef{"d.dp_decay_KF[K_match]","kaon: dP at decay from KF","dp[Gev/c^2]",0,0.2},
+    TPlotDef{"d.DecayDca_mu[K_match]","kaon: DCA at decay from StHelix","dca[cm]",0,3,"K_dp"},
+    //TPlotDef{"d.DecayDcaXY_mu[K_match]","kaon: DCA_xy at decay from StHelix","dca_xy[cm]",0,3,"K_dp"},
+ //   TPlotDef{"d.DecayDca_KF[K_match]","kaon: DCA at decay from KF track","dca",0,3},   
+    TPlotDef{"(float)d.nhits[K_match]/(float)MaxHits(decay_Vr)","nhits/nposhits (calculated).","nhits/nposhits",-1,2,"kaon_hits_ratio"},
+    TPlotDef{"(float)d.nhits[K_match]/(float)d.nhits_pos[K_match]","nhits/nposhits (from MUDst).","nhits/nposhits",-1,2,"kaon_hits_ratio"}
+
+ };
+
+ //TPlotDefinitions2D MatchedKaon_plots_2D{
+
+  TPlotDefinitions Efficiency_plots{
+    //3piVtx plots 
+    //variable to plot , name , ranges,  comma-separated list of cuts which are disabled before plotting
+    TPlotDef{"decay_Vr","radial decay position","r[cm]",50,200},
+    TPlotDef{"mother_pt_PVX","matched kaon pt","pt[GeV/c^2]",0,1.2},
+    TPlotDef{"mother_m","reconstructed mass","M_inv[GeV/c]",0.45,0.55},
+    TPlotDef{"mother_eta_PVX","pseudorapidity","eta",-2,2},
+    TPlotDef{"mother_phi_PVX","phi","phi",-4,4},
+       //TPlotDef{"3piVtx_PV_l/3piVtx_PV_dl","nsig l","nsig l",0,15}, //bad idea
+       //TPlotDef{"d.nhits[4]","number of hits","nhits",-0.5,99.5},   //bad idea
+    TPlotDef{"Evt.Vz","event vertex z-position","Vz[cm]",-120,120},
+    TPlotDef{"decay_Vz","decay z-position","Z_decay[cm]",-200,200},
+    TPlotDef{"MaxHits(decay_Vr)","max number of fitted hist. (calculated)","max #hits",-0.5,99.5},
+ };
