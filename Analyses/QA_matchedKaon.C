@@ -36,6 +36,8 @@ void QA_matchedKaon(){
 
   // structure for results
   ResultList1D Res_Plots; 
+  ResultList1D Res_Plots_events; 
+  ResultList1D Res_Plots_vtx; 
    
   //loop over datasets
   for (int iFile=0;iFile<nFiles;iFile++){
@@ -64,30 +66,31 @@ void QA_matchedKaon(){
    
     // if (files[order[iFile]].isMc) kaons_node=AddVariations(vary_DCAxy,kaons_node);
 
-    auto d_events = kaons_node.Filter(evCut.Str());
+    auto after_evCut_node = kaons_node.Filter(evCut.Str());
     cout<<" Event cut used:  "<<endl <<evCut.Str()<<endl<<endl;
   
-    //all 3pi candidates ... all together MC and non MC, positive and negative !!!
-    //auto d_3piCandidates = d_events.Filter(K3piCut_VertexCanditate().Str());
      
-    auto CurrentPos=Res_Plots.begin();
-    
     //matched kaons with cut on mother PID from KFP (100321 for K+) both real and MC
-    auto kaon_cut=K3piCut_Matched_Kplus();
+    auto MatchedKaon_cut=K3piCut_Matched_Kplus();
     //for MC filed I only add cut on MC vertex !!!!not on the KAON - allows to study mis matches
-    if (files[order[iFile]].isMc) {kaon_cut=K3piCut_Matched_Kplus() + Setup_MCvertex();}
-    cout<<endl<<" K+ Mother cut used:  "<<endl<< kaon_cut.Str()<<endl<<endl;
+    if (files[order[iFile]].isMc) {MatchedKaon_cut=K3piCut_Matched_Kplus() + Setup_MCvertex();}
+    cout<<endl<<" K+ Mother cut used:  "<<endl<< MatchedKaon_cut.Str()<<endl<<endl;
  
      
     // event plot per matched K
-    auto ev_cut=kaon_cut+evCut;
-    //AddPlots4QA(Event_plots,kaons_node,ev_cut,Res_Plots,CurrentPos,"per matched K+",files[order[iFile]].lable,rebin,false);
+    auto Cut=MatchedKaon_cut+evCut;
+    auto CurrentPos_ev=Res_Plots_events.begin();
+    AddPlots4QA(Event_plots,kaons_node,Cut,Res_Plots_events,CurrentPos_ev,"per matched K+",files[order[iFile]].lable,rebin,false);
    
-    //Mother(3pi vertex) per matched K
-   // AddPlots4QA(Mother_plots,d_events,kaon_cut,Res_Plots,CurrentPos,"per matched K+",files[order[iFile]].lable,rebin,false);
-      
-    //Properties of matched kaon
-    AddPlots4QA(MatchedKaon_plots,d_events,kaon_cut,Res_Plots,CurrentPos,"of matched K+",files[order[iFile]].lable,rebin,false);
+    //properties of 3pi vertex with matched K
+    auto CurrentPos_vtx=Res_Plots_vtx.begin();
+    //3pi vertex 
+    AddPlots4QA(RecoVtx_plots,after_evCut_node,MatchedKaon_cut,Res_Plots_vtx,CurrentPos_vtx,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+
+
+    //Properties of matched kaons
+    auto CurrentPos=Res_Plots.begin();
+    AddPlots4QA(MatchedKaon_plots,after_evCut_node,MatchedKaon_cut,Res_Plots,CurrentPos,"of matched K+",files[order[iFile]].lable,rebin,false);
     
 
  // .. it is a problem, since histogram may come from different trees (nodes)
