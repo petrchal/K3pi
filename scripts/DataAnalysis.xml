@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="10"  filesPerHour="1" simulateSubmission="false" copyInputLocally="true" fileListSyntax="xrootd">
+<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="50"  filesPerHour="1" simulateSubmission="false" copyInputLocally="true" fileListSyntax="xrootd">
 
 <Generator>
     <Location>./report/</Location>
@@ -15,22 +15,26 @@
   
 <command> 
   pwd
-  set noPID=1
-  set isPico=1
+  set noPID=1 #ignore PID - usual behaviour
+  set isPico=1 #pico - data, MuDst-embedding
   set isFXT=0
 
 #processignal flag: {kAllTracks=0,kMcTracksOnly=1,kRealTracksOnly=2;
   set trkType=0
   
+  #7p7
+  #set geometry=y2021
+  
   #auau27GeV 2018 => y2018a
-  set geometry=y2018
+  #set geometry=y2018
   
   #auau19GeV 2019 => y2019
-  #set geometry=y2019
+  set geometry=y2019
   
   #auau54
   #set geometry=y2017
   
+  #set geometry=y2020
   
   source ./setDEV2.csh
   #starver TFG21d
@@ -43,16 +47,35 @@
 <output fromScratch="*.root"    toURL="&basePath;/production/" />
 <output fromScratch="*.log"     toURL="&basePath;/jobs/log/" /> 
   
-<!--<input URL="file:/gpfs01/star/scratch/fisyak/reco/2021/RF/TFG21c.B/7p7GeV_2021/*/*/*MuDst.root" nFiles="all" /> -->
-<!--<input URL="file:/gpfs01/star/subsys-tpc/fisyak/Pico/2020/TFG21b/RF/*/*/*MuDst.root" /> -->
 <!-- <input URL="file:/star/u/petrchal/kaons_3D/data/larger/*MuDst.root" nFiles="all" />  -->
 
 <!-- 7p7 year2021 from Yuri -->
-<!-- <input URL="file:/gpfs/mnt/gpfs01/star/pwg_tasks/TF_TrkEff/reco/2021/RF/TFG21c.B/7p7GeV_2021/*/*/*MuDst.root" nFiles="all" /> -->
+<!-- <input URL="file:/gpfs/mnt/gpfs01/star/pwg_tasks/TF_TrkEff/reco/2021/RF/TFG21c.B/7p7GeV_2021/*/*/*MuDst.root" nFiles="1" /> -->
+<!-- official production -->
+<!-- <input URL="catalog:star.bnl.gov?production=P22ib,trgsetupname=production_7p7GeV_2021,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/>   -->
 
-<!-- 19GeV collider year19 official muDst and picoDst-->
+<!-- I need to find my simulations -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/2021-04-26_06-32_singleK/production/*MuDst.root" nFiles="all" /> -->
+<!-- simulations for 7p7 2021 -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_lowMult/production/*MuDst.root" nFiles="all" />  -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_hiMult/production/*MuDst.root" nFiles="all" />  -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_singleK/production/*MuDst.root" nFiles="all" />  -->
+<!--  <input URL="file:/star/u/petrchal/kaons_simulated/*_1M_2018_hiMult_TGF/production/*MuDst.root" nFiles="all" /> -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_1M_2018_hiMult_TGF/production/*picoDst.root" nFiles="all" /> -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_1M_2018_hiMult_dev/production/*MuDst.root" nFiles="all" />  -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/*_1M_2018_hiMult_dev/production/*picoDst.root" nFiles="all" /> -->
+<!-- <input URL="file:/gpfs/mnt/gpfs01/star/pwg_tasks/TF_TrkEff/reco/2021/RF/TFG21c.B/7p7GeV_2021/*/*/*MuDst.root" nFiles="2" -->
+<!-- <input URL="file:/star/u/petrchal/kaons_simulated/2022-01-30_18-08_hiMult_SL19b/production/*MuDst.root" nFiles="10" /> -->
+
+
+
+
+<!-- official data -->
+<!-- 19GeV collider year19 official muDst and picoDst SL21 production-->
 <!-- <input URL="catalog:star.bnl.gov?production=P21ic,trgsetupname=production_19GeV_2019,filetype=daq_reco_MuDst,filename~st_phys,storage!=HPSS" nFiles="500"/>   -->
-<!-- <input URL="catalog:star.bnl.gov?production=P21ic,trgsetupname=production_19GeV_2019,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="200"/> -->
+<input URL="catalog:star.bnl.gov?production=P21ic,trgsetupname=production_19GeV_2019,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/>
+<!--SL23 full REproduction -->
+<!-- <input URL="catalog:star.bnl.gov?production=P23id,trgsetupname=production_19GeV_2019,library=SL23d,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
 
 
 <!-- 27GeV collider year18 official picDst collider mode -->
@@ -70,16 +93,27 @@
 
 <!-- Embeddings .......  -->
 <!-- 27GeV 2018-->
-<!-- <input URL="file:/star/u/petrchal/kaons_simulated/2021-09-10_05-50_picoFull/production/*picoDst.root" nFiles="5"/> -->
 <!-- <input URL="file:/star/embed/embedding/27GeV_production_2018/Kplus3pi_200_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/> -->
-<!-- <input URL="file:/gpfs/mnt/gpfs01/star/pwg/petrchal/kaons_sim/Kplus3pi_fulltest._20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/> --> 
-<input URL="file:/star/u/petrchal/embscratch/kaons_sim/Kplus3pi_complete_flat_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/> 
-<!-- <input URL="file:/star/u/petrchal/scratch_TrkEff/kaons_sim/Kplus3pi_27Emb_uniform2_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/> -->
-<!-- latest pt weighted - 1M events -->
+<!-- old pt weighted - 1M events -->
 <!-- <input URL="file:/star/embed/embedding/27GeV_production_2018/Kplus3pi_30[0-2]_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/>  -->
-<!-- latest falt pt + forced decay in TPC -->
+<!-- old flat pt + forced decay in TPC -->
 <!-- <input URL="file:/star/embed/embedding/27GeV_production_2018/Kplus3piFlat_100_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/>  -->
+<!-- new tuned embedding 5M events-->
+<!-- <input URL="file:/star/data105/embedding/27GeV_production_2018/Kplus3pi_4*_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/> -->
 
+<!-- Embeddings .......  -->
+<!-- 19GeV 2019-->
+<!-- June 2023 - P21ic setup - compatible with P21ic production -->
+<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3pi_*/P21ic.SL21c/2019/*/*/*MuDst.root" nFiles="all"/> -->
+<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3pi_*/P21ic.SL21c/2019/*/*/*picoDst.root" nFiles="all"/> -->
+<!-- 18GeV 2023 tune for the lates SL23 production -->
+<!--     <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_100*/P23id.SL23d/2019/*/*/*picoDst.root" nFiles="all"/>  -->
+<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_100*/P23id.SL23d/2019/*/*/*MuDst.root" nFiles="all"/> -->
+
+<!-- FXT data -->
+<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_31p2GeV_fixedTarget_2020,production=P23id,library=SL23d,filetype=daq_reco_picoDst" nFiles="all"/> -->
+<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_13p5GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
+<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_5p75GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
 
 <SandBox installer="ZIP">
    <Package name="LocalLibraries">
