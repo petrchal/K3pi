@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="50"  filesPerHour="1" simulateSubmission="false" copyInputLocally="true" fileListSyntax="xrootd">
+<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="50"  filesPerHour="1" simulateSubmission="true" copyInputLocally="true" fileListSyntax="xrootd">
 
 <Generator>
     <Location>./report/</Location>
@@ -16,7 +16,7 @@
 <command> 
   pwd
   set noPID=1 #ignore PID - usual behaviour
-  set isPico=1 #pico - data, MuDst-embedding
+  set isPico=0 #pico - data, MuDst-embedding
   set isFXT=0
 
 #processignal flag: {kAllTracks=0,kMcTracksOnly=1,kRealTracksOnly=2;
@@ -50,7 +50,7 @@
 <!-- <input URL="file:/star/u/petrchal/kaons_3D/data/larger/*MuDst.root" nFiles="all" />  -->
 
 <!-- 7p7 year2021 from Yuri -->
-<!-- <input URL="file:/gpfs/mnt/gpfs01/star/pwg_tasks/TF_TrkEff/reco/2021/RF/TFG21c.B/7p7GeV_2021/*/*/*MuDst.root" nFiles="1" /> -->
+<input URL="file:/gpfs/mnt/gpfs01/star/pwg_tasks/TF_TrkEff/reco/2021/RF/TFG21c.B/7p7GeV_2021/*/*/*MuDst.root" nFiles="10" /> 
 <!-- official production -->
 <!-- <input URL="catalog:star.bnl.gov?production=P22ib,trgsetupname=production_7p7GeV_2021,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/>   -->
 
@@ -73,7 +73,7 @@
 <!-- official data -->
 <!-- 19GeV collider year19 official muDst and picoDst SL21 production-->
 <!-- <input URL="catalog:star.bnl.gov?production=P21ic,trgsetupname=production_19GeV_2019,filetype=daq_reco_MuDst,filename~st_phys,storage!=HPSS" nFiles="500"/>   -->
-<input URL="catalog:star.bnl.gov?production=P21ic,trgsetupname=production_19GeV_2019,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/>
+<!-- <input URL="catalog:star.bnl.gov?production=P21ic,trgsetupname=production_19GeV_2019,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
 <!--SL23 full REproduction -->
 <!-- <input URL="catalog:star.bnl.gov?production=P23id,trgsetupname=production_19GeV_2019,library=SL23d,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
 

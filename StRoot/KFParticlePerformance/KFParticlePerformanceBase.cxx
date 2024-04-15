@@ -834,7 +834,7 @@ void KFParticlePerformanceBase::CreateParameterHistograms(TH1F* histoParameters[
                                       "X","Y","Z","R", "L", "l/dl","m_{t}","Multiplicity",
                                       "dX", "dY", "dZ", "dPx", "dPy", "dPz", "dE", "dM"};
   TString parTitle[nHistoPartParam];
-  TString parName2D[nHistoPartParam2D] = {"y-p_{t}", "Z-R", "Armenteros", "y-m_{t}"};
+  TString parName2D[nHistoPartParam2D] = {"y-p_{t}", "Z-R", "Armenteros", "y-m_{t}", "X-Y"};
   TString parTitle2D[nHistoPartParam2D];
   TString parName3D[nHistoPartParam3D] = {"y-p_{t}-M", "y-m_{t}-M", "centrality-pt-M", "centrality-y-M", "centrality-mt-M", "ct-pt-M", "dalitz", "dalitz2","dalitz3","dalitzM2", "dalitz2M2", "dalitz3M2"};
   TString parTitle3D[nHistoPartParam3D];
@@ -911,19 +911,19 @@ void KFParticlePerformanceBase::CreateParameterHistograms(TH1F* histoParameters[
                                   4.f, // Mt
                                   float(fParteff.partMaxMult[iPart])+0.5f};
 #else
-  int nBins[nHistoPartParam] = {1000, // M
-                                 100, // p
-                                 100, // pt
-                                  30, // y
+  int nBins[nHistoPartParam] = {3000, // M
+                                1000, // p
+                                1000, // pt
+                                1000, // y
                                   60, // DecayL
                                   60, // ctau
                                  100, // chi2/ndf
                                  100, // prob
                                  100, // theta
                                  100, // phi
-                                 100, // X
-                                 100, // Y
-                                 100, // Z
+                                1000, // X
+                                1000, // Y
+                                1000, // Z
                                  500, // R
                                  500, // L
                                 1000, // L/dL
@@ -948,8 +948,8 @@ void KFParticlePerformanceBase::CreateParameterHistograms(TH1F* histoParameters[
                                   0.f, // prob
                                   0.f, // theta
                          -TMath::Pi(), // phi
-                                -10.f, // X
-                                -10.f, // Y
+                               -210.f, // X
+                               -210.f, // Y
                                -230.f, // Z
                                   0.f, // R
                                   0.f, // L
@@ -968,15 +968,15 @@ void KFParticlePerformanceBase::CreateParameterHistograms(TH1F* histoParameters[
   float xMax[nHistoPartParam] = { fParteff.partMHistoMax[iPart], // M
                                   10.f, // p
                                   10.f, // pt
-                                  0.f, // y
+                                   3.f, // y
                                   50.f, // DecayL
                                   50.f, // ctau
                                   20.f, // chi2/ndf
                                    1.f, // prob
                            TMath::Pi(), // theta
                            TMath::Pi(), // phi
-                                  10.f, // X
-                                  10.f, // Y
+                                 210.f, // X
+                                 210.f, // Y
                                  230.f, // Z
                                  200.f, // R
                                  200.f, // L
@@ -1004,6 +1004,15 @@ void KFParticlePerformanceBase::CreateParameterHistograms(TH1F* histoParameters[
                                           nBins[iH],xMin[iH],xMax[iH]);
     histoParameters[iPart][iH]->GetXaxis()->SetTitle(parAxisName[iH].Data());
   }
+
+//XY
+  histoParameters2D[iPart][4] = new TH2F(parName2D[4].Data(),parTitle2D[4].Data(),
+                                    nBins[10],xMin[10],xMax[10],
+                                    nBins[11],xMin[11],xMax[11]);
+  histoParameters2D[iPart][4]->GetXaxis()->SetTitle("X [cm]");
+  histoParameters2D[iPart][4]->GetYaxis()->SetTitle("Y [cm]");
+  histoParameters2D[iPart][4]->GetYaxis()->SetTitleOffset(1.0);
+  //
 
   histoParameters2D[iPart][0] = new TH2F(parName2D[0].Data(),parTitle2D[0].Data(),
                                     nBins[3],xMin[3],xMax[3],

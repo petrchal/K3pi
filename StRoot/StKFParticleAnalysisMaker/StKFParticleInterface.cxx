@@ -74,6 +74,7 @@ void StKFParticleInterface::InitParticlesAtFirstAndLastHit()
 { 
 
   //cout<<"StKFParticleInterface::InitParticlesAtFirstAndLastHit()"<<endl;
+  //std::cin.get();
   KFPTrackVector ftracksAtFirstHit;
   KFPTrackVector ftracksAtLastHit;
   int nTracks = fParticlesAtLastHit.size();

@@ -130,6 +130,18 @@ class KFParticleFinder
   void NeutralDaughterDecay(KFPTrackVector* vTracks, std::vector<KFParticle>& Particles,
                             std::vector<KFParticleSIMD, KFPSimdAllocator<KFParticleSIMD> >& PrimVtx);
 
+  void SubtractV0FromTrack(
+                        std::vector<KFParticle>& vV0,      
+                        const int V0PDG,                  
+                        KFPTrackVector& primTracks,       
+                        const int primPartPdg,            
+                        const int q,                      
+                        const int firstTrack,             
+                        const int lastTrack,             
+                        std::vector<KFParticle>& Particles,   
+                        const int missingPartPdg,        
+                        std::vector<KFParticleSIMD, KFPSimdAllocator<KFParticleSIMD> >& PrimVtx); 
+
   void FindTrackV0Decay(std::vector<KFParticle>& vV0,
                         const int V0PDG,
                         KFPTrackVector& vTracks,
@@ -169,9 +181,6 @@ class KFParticleFinder
   void MatchKaons(KFPTrackVector* vTracks, 
                   std::vector<KFParticleSIMD, KFPSimdAllocator<KFParticleSIMD> >& PrimVtx,
                   std::vector<KFParticle>& Particles);
-  
-  //Turn on/off kaond PID for k->3pi macthing
-  //void SetKaonPIDinK3pi(char isOn){fKaonPIDinK3pi=isOn;}
 
   //Set Emc clusters containing gammas
   void SetEmcClusters(KFPEmcCluster* clusters) { fEmcClusters = clusters; } ///< Set a pointer to the gamma-clusters from the electromagnetic calorimeter.
@@ -482,7 +491,6 @@ class KFParticleFinder
   
   KFParticleFinder(const KFParticleFinder&); ///< Copying is disabled for this class.
   KFParticleFinder& operator=(const KFParticleFinder&); ///< Copying is disabled for this class.
-
 };
 
 #endif /* !KFParticleFinder_h */

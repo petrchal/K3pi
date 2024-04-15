@@ -1,7 +1,7 @@
 #!/bin/bash
 
 codeDir=`pwd`
-cd $HOME/kaons_resKFP2
+cd $HOME/kaons_resKFP
 productionId=`date +%F_%H-%M`_$1
 analyzer=`whoami`
 
