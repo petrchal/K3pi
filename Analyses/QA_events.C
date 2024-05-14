@@ -55,6 +55,7 @@ void QA_events(){
  
   // strucuture for results
   ResultList1D Res_eventPlots; 
+  ResultList2D Res_eventPlots_2D; 
    
   //loop over datasets
   for (int iFile=0;iFile<nFiles;iFile++){
@@ -74,6 +75,7 @@ void QA_events(){
    ROOT::RDF::RNode event_node = ROOT::RDF::AsRNode(RDataFrame(*chain_events)); //raw event count
 
    auto CurrentPos=Res_eventPlots.begin();
+   auto CurrentPos_2D=Res_eventPlots_2D.begin();
    //plots before any cuts
    
    
@@ -86,8 +88,8 @@ void QA_events(){
    
     event_node=DefineNewVariables(event_node);
    //  event_node=AddVariations(vary_EvtVz,event_node);
-     AddPlots4QA(Event_plots,event_node,evCut,Res_eventPlots,CurrentPos,"events",files[order[iFile]].lable,rebin,false);
-     //AddPlots4QA(Event_plots_FXT,event_node,evCut,Res_eventPlots,CurrentPos,"events",files[order[iFile]].lable,rebin,false);
+     //AddPlots4QA(Event_plots,event_node,evCut,Res_eventPlots,CurrentPos,"events",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(Event_plots_2D,event_node,evCut,Res_eventPlots_2D,CurrentPos_2D,"events",files[order[iFile]].lable,rebin,false);
    
     
     cout<<"trigger lazy evaluation"<<endl;
@@ -102,10 +104,11 @@ void QA_events(){
  
 } //loop over files
 
-TFile f("events_SL23_ZDCcomp.root","recreate");
-DrawResults(Res_eventPlots);
-f.Write();
-f.Close();
+TFile *f=new TFile("events_SL23_ZDCcomp.root","recreate");
+//DrawResults(Res_eventPlots);
+DrawResults(Res_eventPlots_2D);
+f->Write();
+//f.Close(); //dono tclose to see resutls
 
 return;
 }

@@ -52,12 +52,25 @@
     } TPlotDef;
   //I could also add info how to deal with it ..normalize, or not.. 
 
+//same for 2D plots
+typedef struct{
+      const char* x_expr; //variable on x-axis
+      const char* y_expr;//variable on y-axis
+      const char* title;
+      const char* x_axisTitle=NULL;
+      const char* y_axisTitle=NULL;
+      float x_lo; float x_hi;
+      float y_lo; float y_hi;
+      //comma-separated list of cuts which are disabled before plotting
+      //work only when 
+      const char* cutMods=NULL; //cut modification when plotting this histogram
 
-  typedef std::pair<TPlotDef,TPlotDef> TPlotDef2D;
+    } TPlotDef_2D;
+
   
   //list of all plot definitions 
   typedef std::vector<TPlotDef> TPlotDefinitions;
-  typedef std::vector<TPlotDef2D> TPlotDefinitions2D;
+  typedef std::vector<TPlotDef_2D> TPlotDefinitions_2D;
 
 
 
@@ -81,16 +94,21 @@ template <typename T> struct TSinglePlotRes{
 
 //List of results coming from the same definition.
 //The list is usualy over different files
-template <typename T> struct TResultStack{ 
-          TPlotDef def; 
+template <typename T, typename defT> struct TResultStack{ 
+          defT def; 
           std::vector<TSinglePlotRes<T>> singlePlots; 
           //std::vector<TString> localcut;
           THStack *stack=NULL; 
           THStack *ratios=NULL;
         }; 
 
+//results from one definition over all files(data imputs)
+typedef TResultStack<TH1D,TPlotDef> SingleDefResStack1D;
+typedef TResultStack<TH2D,TPlotDef_2D> SingleDefResStack2D;
+
 //list over all plot definitions
-typedef std::vector<TResultStack<TH1D>> ResultList1D; 
+typedef std::vector<SingleDefResStack1D> ResultList1D; 
+typedef std::vector<SingleDefResStack2D> ResultList2D; 
 
 
 //----------------------------------------------------
@@ -323,7 +341,7 @@ void AddPlots_1D(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,ResultList1D&
 
         //If at the end of list add Results stack for another variable          
         if (iter==rlist.end()){ 
-            TResultStack<TH1D> r;
+            SingleDefResStack1D r;
             r.def=def; r.stack=NULL;
             cout<<"pushing "<<def.expr<<endl;
             rlist.push_back(r);
@@ -352,7 +370,7 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,K
          //for first file this means to create the structure, others only add histogram
      
          if (iter==rlist.end()){ 
-            TResultStack<TH1D> r;
+            SingleDefResStack1D r;
             r.def=def; r.stack=NULL;
             cout<<"pushing "<<def.expr<<endl;
             rlist.push_back(r);
@@ -404,12 +422,83 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,K
       return defaultNode;
 }
 
+//-----version for 2D plots--------------------------------
+//this not only adds plots, but for each plots modifies the cut so that it can be plotted without bounds
+ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions_2D& plotDefs, ROOT::RDF::RNode node,K3PiCut defaultCut, ResultList2D& rlist,
+ ResultList2D::iterator &iter, const char * plotprefix = "", const char * fileprefix = "",bool rebin=false,bool ignoreRange=false)
+ {
+    ROOT::RDF::RNode defaultNode=node.Filter(defaultCut.Str()); //nod with all cuts applied
+    int tmpVarCount=0;
+    
+    for (auto def: plotDefs){ //loop over single plot definiton and book the plots
+         //for first file this means to create the structure, others only add histogram
+     
+         if (iter==rlist.end()){ 
+            SingleDefResStack2D r;
+            r.def=def; r.stack=NULL;
+            cout<<"pushing 2D plot of "<<def.x_expr<<" : "<<def.y_expr<<endl;
+            rlist.push_back(r);
+            iter=rlist.end();iter--; //last element
+          }
+         //iter is now poiting to valid TResultStack
+        
+        
+        TString var="tmpVar";var+=tmpVarCount++;
+        TString var2="tmpVar";var2+=tmpVarCount++;
+        TString exp2D=def.x_expr;exp2D+=":";exp2D+=def.y_expr;
+        TString title=def.title; title+=" - "; title+=plotprefix; 
+        //this gets realy complicated for 2D 
+        auto h=defaultNode.Define(var.Data(),def.x_expr).Define(var2.Data(),def.y_expr)  //this must be done for calculated variables 
+                   .Histo2D(ROOT::RDF::TH2DModel(exp2D.Data(),title, 
+                     100/rebin, (ignoreRange)?0:def.x_lo, (ignoreRange)?0:def.x_hi, 100/rebin, (ignoreRange)?0:def.y_lo, (ignoreRange)?0:def.y_hi),
+                     var.Data(),var2.Data()); 
+       //now add it to the results at current position
+        TSinglePlotRes<TH2D> sr;
+        sr.resMap.push_back(ROOT::RDF::Experimental::VariationsFor(h)); 
+        sr.labels={fileprefix,plotprefix,""};
+       
+        //add second one for comparison with a given cut
+        
+        if (def.cutMods){
+          TSinglePlotRes<TH2D> sr;
+          K3PiCut cut=defaultCut;
+          cout<<"  modified:"<<def.cutMods<<endl;
+          cout<<"        "<<cut.Str()<<endl;
+          cout<<cut.Remove(def.cutMods)<<endl;
+          cout<<"        "<<cut.Str()<<endl<<endl;
+          //with modified cut
+          auto h2=node.Filter(cut.Str()). 
+                Define(var.Data(),def.x_expr).Define(var2.Data(),def.y_expr)  //this must be done for calculated variables 
+                   .Histo2D(ROOT::RDF::TH2DModel(exp2D.Data(),title, 
+                     100/rebin, (ignoreRange)?0:def.x_lo, (ignoreRange)?0:def.x_hi, 100/rebin, (ignoreRange)?0:def.y_lo, (ignoreRange)?0:def.y_hi),
+                     var.Data(),var2.Data()); 
+
+          sr.resMap.push_back(ROOT::RDF::Experimental::VariationsFor(h2));
+          TString bb;//=fileprefix;
+          bb+="disabled ";bb+=def.cutMods; bb+=" cut";
+         // sr.label=bb; 
+          sr.labels={fileprefix,plotprefix,bb.Data()};
+          iter->singlePlots.push_back(sr); //use prefix as a label of the histogram
+        } 
+        
+        //because of drawing order push first the version with cut modification
+        iter->singlePlots.push_back(sr); //use prefix as a label of the histogram
+       
+     //  if (def.cutMods && iter->singlePlots.size()>1) goto SKIP;
+     //the default one with full cut, but only for fist file
+   
+     //SKIP:  
+       iter++; // position int list of plotted variables
+      }
+
+      return defaultNode;
+}
 
 
 
 //-----------------------------------------------------------------------
 //histograms and normalized ratios for one variable defintion over files ( and variations)
-void Draw1Dstack(TResultStack<TH1D> &r,const char* variation="nominal"){
+void Draw1Dstack(SingleDefResStack1D &r,const char* variation="nominal"){
 
   const int   color[]={kBlack,kBlue,kRed,kGreen,kMagenta,kCyan}; 
 
@@ -547,7 +636,7 @@ void Draw1Dstack(TResultStack<TH1D> &r,const char* variation="nominal"){
     //bottom pad
     pad2->cd();
     r.ratios->Draw("enostack");
-    if (r.ratios->GetXaxis()) r.ratios->GetXaxis()->SetTitle(r.def.expr);
+    if (r.ratios->GetXaxis()) r.ratios->GetXaxis()->SetTitle(r.def.axisTitle);
    }
 
   auto frame2 = r.ratios->GetHistogram();
@@ -573,6 +662,251 @@ void Draw1Dstack(TResultStack<TH1D> &r,const char* variation="nominal"){
     c->Modified();
     c->Write(r.def.title);
   }
+
+//---- simplifieed drawing for 2D histogram - so far does not handle comparision
+void Draw2Dstack(SingleDefResStack2D &r,const char* variation="nominal"){
+
+  const int   color[]={kBlack,kBlue,kRed,kGreen,kMagenta,kCyan}; 
+
+
+    //auto hist=r.singlePlots.begin()->hist->GetPtr();
+    //r.stack=new  THStack(hist); //copy settign from first histogram ...notw
+    //auto s=new  THStack(const TH1* hist, Option_t* axis = "x", const char* name = 0, const char* title = 0, Int_t firstbin = 1, Int_t lastbin = -1, Int_t firstbin2 = 1, Int_t lastbin2 = -1, Option_t* proj_option = "", Option_t* draw_option = "");
+      
+    auto tmp = r.singlePlots.front().ResMap().GetKeys().size();
+    int nn=r.singlePlots.size()*tmp;
+    int nx=sqrt(nn);
+    int ny=nx; if (nx*ny < nn) nx++;
+
+    auto c=new TCanvas("","",nx*800,ny*600);
+    c->Divide(nx,ny);
+
+/*
+ //  frame1->GetXaxis()->SetMoreLogLabels();
+    gPad->SetLeftMargin(0.09);
+    gPad->SetRightMargin(0.05);
+    gPad->SetTopMargin(0.11);//0.025
+    gPad->SetBottomMargin(0.);
+
+    pad2->SetLeftMargin(0.09);
+    pad2->SetRightMargin(0.05);
+    pad2->SetBottomMargin(0.2);//0.025
+    pad2->SetTopMargin(0.);
+  */
+
+    /*
+    pad1->cd();
+    auto l = new TLegend(0.65,0.75,0.9,0.9);
+    l->SetHeader("","C");
+        int id=0;//ugly but...
+    */
+
+      int pad=1;
+
+     for ( auto &sr : r.singlePlots){ //over files- TSinglePlotRes
+      TString str=get<0>(sr.labels);str+=" ";str+=get<2>(sr.labels);
+      cout<<"sr.labels="<<str.Data()<<endl;
+      //l->AddEntry((TObject*)0, "", "");  
+     // l->AddEntry((TObject*)0, str.Data(), "");
+      //denominator - te first of variation
+    
+      //loop over variations
+      auto  keys=sr.ResMap().GetKeys();
+      int  nVariations =keys.size();
+      for (int iv=0;iv<nVariations;iv++){ 
+      cout<<"  variation "<<keys[iv]<<endl;
+       c->cd(pad++);
+
+
+       TH1* h_copy=(TH1*)sr.ResMap()[keys[iv]].Clone(); //use default variation hist[]
+
+              //color and other things
+        h_copy->GetXaxis()->SetTitle(r.def.x_axisTitle);
+        h_copy->GetYaxis()->SetTitle(r.def.y_axisTitle);
+        //h_copy->SetLineColor(color[id]);
+        //h_copy->SetLineColor(id+1);
+        //h_copy->SetMarkerColor(id+1);
+       //add to stack and label
+        //l->AddEntry(h_copy,get<0>(sr.labels).c_str(),"l");
+        //TString lb=keys[iv].c_str();
+        //l->AddEntry(h_copy,lb,"l");
+        h_copy->SetTitle(get<0>(sr.labels).c_str());
+        h_copy->Draw("colz");
+        gPad->Modified();
+      } //over varitions
+
+  } //over files loop
+
+  
+/*
+    siz = siz*(1.+(1.-pdiv));
+    frame2->SetTitleSize(siz);       frame2->SetLabelSize(siz);
+    frame2->SetTitleSize(siz, "Y");  frame2->SetLabelSize(siz, "Y");
+    frame2->GetXaxis()->SetTitleOffset(1.1);
+    frame2->GetYaxis()->SetTitle("ratio of normalized  ");
+    frame2->GetYaxis()->SetTitleOffset(0.54); //0.64
+    */
+   
+    //pad2->Modified();
+
+    c->Modified();
+    c->Write(r.def.title);
+  }
+
+//-----------------------------------------------------------------------
+//histograms and normalized ratios for one variable defintion over files ( and variations)
+/*
+void Draw2Dstack(SingleDefResStack2D &r,const char* variation="nominal"){
+
+  const int   color[]={kBlack,kBlue,kRed,kGreen,kMagenta,kCyan}; 
+
+
+    //auto hist=r.singlePlots.begin()->hist->GetPtr();
+    //r.stack=new  THStack(hist); //copy settign from first histogram ...notw
+    //auto s=new  THStack(const TH1* hist, Option_t* axis = "x", const char* name = 0, const char* title = 0, Int_t firstbin = 1, Int_t lastbin = -1, Int_t firstbin2 = 1, Int_t lastbin2 = -1, Option_t* proj_option = "", Option_t* draw_option = "");
+  
+    r.stack=new THStack();//r.def.expr,r.def.title);
+    r.ratios=new THStack("","");
+
+    auto c=new TCanvas("","",800,600);
+
+
+    Double_t pdiv = 0.3;
+    TPad *pad1 = new TPad("p1", "p1", 0., pdiv, 1., 1.); // upper
+    TPad *pad2 = new TPad("p2", "p2", 0., 0., 1., pdiv); // lower
+    pad1->Draw();
+    pad2->Draw();
+
+    pad1->cd();
+
+  //global constants with range of the plot
+  //const Double_t gxmin = 17., gymin = 15., gxmax = 1990., gymax = 1000.;
+
+  // TH1F* frame1 = gPad->DrawFrame(gxmin,gymin,gxmax,gymax);
+
+ //  frame1->GetXaxis()->SetMoreLogLabels();
+    gPad->SetLeftMargin(0.09);
+    gPad->SetRightMargin(0.05);
+    gPad->SetTopMargin(0.11);//0.025
+    gPad->SetBottomMargin(0.);
+
+    pad2->SetLeftMargin(0.09);
+    pad2->SetRightMargin(0.05);
+    pad2->SetBottomMargin(0.2);//0.025
+    pad2->SetTopMargin(0.);
+
+
+    pad1->cd();
+    auto l = new TLegend(0.65,0.75,0.9,0.9);
+    l->SetHeader("","C");
+        int id=0;//ugly but...
+
+
+    TH1* h_den;
+    bool first=true;
+    //loop 
+    for ( auto &sr : r.singlePlots){ //over files- TSinglePlotRes
+      TString str=get<0>(sr.labels);str+=" ";str+=get<2>(sr.labels);
+      cout<<"sr.labels="<<str.Data()<<endl;
+      l->AddEntry((TObject*)0, "", "");  
+      l->AddEntry((TObject*)0, str.Data(), "");
+      //denominator - te first of variation
+    
+      //loop over variations
+      auto  keys=sr.ResMap().GetKeys();
+      int  nVariations =keys.size();
+      for (int iv=0;iv<nVariations;iv++){ 
+      cout<<"  variation "<<keys[iv]<<endl;
+       pad1->cd();
+       TH1* h_copy=(TH1*)sr.ResMap()[keys[iv]].Clone(); //use default variation hist[]
+
+       //this will be denumerator - the histogram to compare to
+       if (first){ 
+         cout<<" making denum"<<endl;
+         h_den=(TH1*)h_copy->Clone();
+         h_den->Scale(1./h_den->Integral());
+       }
+
+        //color and other things
+        //h_copy->GetXaxis()->SetTitle(r.def.expr);
+        //h_copy->SetLineColor(color[id]);
+        h_copy->SetLineColor(id+1);
+        h_copy->SetMarkerColor(id+1);
+       //add to stack and label
+        r.stack->Add(h_copy);
+        //l->AddEntry(h_copy,get<0>(sr.labels).c_str(),"l");
+        TString lb=keys[iv].c_str();
+        l->AddEntry(h_copy,lb,"l");
+  
+      //normalized ratio - hard for 2D
+        
+      if (!first){
+          cout<<" taking ratio"<<endl;
+          TH1* h_num=(TH1*)h_copy->Clone();
+          h_num->Scale(1./h_num->Integral());
+          h_num->Divide(h_den);
+          pad2->cd();
+          r.ratios->Add(h_num);
+        //h_num->Draw();
+          } else cout<<" no ratio"<<endl;
+          
+         first=false; 
+        id++;
+      }
+
+  } //over files loop
+
+  pad1->cd();
+  //r.stack->Draw("ehistnostack");
+  r.stack->Draw("colz");
+  r.stack->SetMinimum(0.001);
+
+   Float_t siz = 0.045;
+
+  //label axes
+  auto frame1 = r.stack->GetHistogram();
+  if (frame1) {
+    frame1->SetTitleSize(siz);       frame1->SetLabelSize(siz);
+    frame1->SetTitleSize(siz, "Y");  frame1->SetLabelSize(siz, "Y");
+    frame1->SetLabelSize(0.00001, "X");
+    frame1->GetXaxis()->SetTitleOffset(1.4);
+    //frame1->SetTitle(r.def.expr);
+    frame1->SetTitle(r.def.title);
+    
+    l->Draw("same");
+    //pad1->Modified();
+
+    //bottom pad
+    pad2->cd();
+    r.ratios->Draw("enostack");
+    if (r.ratios->GetXaxis()){r.ratios->GetXaxis()->SetTitle(r.def.x_expr);}
+    if (r.ratios->GetYaxis()){r.ratios->GetYaxis()->SetTitle(r.def.y_expr);}
+   }
+
+  auto frame2 = r.ratios->GetHistogram();
+  if (frame2) {
+    //cout<<"min="<<r.ratios->GetMinimum()<<endl;
+    ///cout<<"max="<<r.ratios->GetMaximum()<<endl;
+    // cout<<"min2="<<r.ratios->GetYaxis()->GetXmin()<<endl;
+    //cout<<"max2="<<r.ratios->GetYaxis()->GetXmax()<<endl;
+    //if (r.ratios->GetYaxis()->GetXmin()<0) 
+
+    //r.ratios->SetMinimum(0.5);
+    //r.ratios->SetMaximum(2);
+
+    siz = siz*(1.+(1.-pdiv));
+    frame2->SetTitleSize(siz);       frame2->SetLabelSize(siz);
+    frame2->SetTitleSize(siz, "Y");  frame2->SetLabelSize(siz, "Y");
+    frame2->GetXaxis()->SetTitleOffset(1.1);
+    frame2->GetYaxis()->SetTitle("ratio of normalized  ");
+    frame2->GetYaxis()->SetTitleOffset(0.54); //0.64
+   } 
+    //pad2->Modified();
+
+    c->Modified();
+    c->Write(r.def.title);
+  }
+*/
 
 //-------------------------------------
   void DrawResults(ResultList1D &results,const char* whichVariation=NULL){
@@ -612,6 +946,27 @@ void Draw1Dstack(TResultStack<TH1D> &r,const char* variation="nominal"){
     }
 }
 
+ 
+
+//-----2D version--------------------------------
+//sofar I cannot do the vgood plotting for variation of 2D histograms
+  void DrawResults(ResultList2D &results,const char* whichVariation=NULL){
+    cout<<endl<<"DrawResults"<<endl;
+//draw 1D histograms in stack
+    gStyle->SetPadTickY(1);
+    gStyle->SetTickLength(0.02,"Y");
+//gStyle->SetOptStat(0);
+
+   for ( auto &r : results){ //over plots TResultStack, r-is for single plot definition
+        cout<<"Plotting 2D Stack for "<<r.def.x_expr<<" : "<< r.def.y_expr<<endl;
+        if (r.singlePlots.size()==0){ cout<<"  !!!!plot empty"<<endl; continue; }
+        //if (r.singlePlots.size()>1) 
+          Draw2Dstack(r,whichVariation);\
+    }
+}
+
+
+
 //---------------------------------------------------
 //--- code for efficiency plotting ------------------
 //---------------------------------------------------
@@ -643,4 +998,6 @@ void Draw1Dstack(TResultStack<TH1D> &r,const char* variation="nominal"){
   return c;
 }
 */
+
+
 #endif

@@ -67,7 +67,7 @@ void QA_3piVtx(){
     auto Reco3piVtx_cut=K3piCut_3piVtx_Kplus();
     //for MC data add condition on MC vertex.. 
     if (files[order[iFile]].isMc) {Reco3piVtx_cut=K3piCut_3piVtx_Kplus() + Setup_MCvertex();}
-    cout<<endl<<" K+ 3piVtx_ cut used:  "<<endl<<  3piVtx__cut.Str()<<endl<<endl;
+    cout<<endl<<" K+ 3piVtx_ cut used:  "<<endl<<  Reco3piVtx_cut.Str()<<endl<<endl;
  
     // event plot per 3pi+
     auto Cut=Reco3piVtx_cut+evCut;
