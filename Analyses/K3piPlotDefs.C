@@ -1,7 +1,7 @@
 
 
    //the declarations must be here, not global 0,0 -automatic range and #bins, otherwise 100 bins
-  TPlotDefinitions Event_plots{
+TPlotDefinitions Event_plots{
     TPlotDef{"Evt.Vz","Prim. vtx position","Vz[cm]",-100,100,"Vz"},
     TPlotDef{"Evt.eventId","eventId","eventId",0,10000000},
     TPlotDef{"Evt.vzVpd","Vpd vtx position","VZ_vpd[cm]",-100,100,"VPDdif,Vz"},
@@ -15,9 +15,30 @@
     TPlotDef{"Evt.triggerIds","triggerIds","Trigger Ids",0,1000000},
     TPlotDef{"Evt.nK3piP","number of 3pi+ vertexes","nK3piP",-2,10},
     TPlotDef{"Evt.nK3piN","number of 3pi- vertexes","nK3piN-",-2,10},
-    
   };
 
+  TPlotDefinitions_2D Event_plots_2D{
+    TPlotDef_2D{"Evt.Vz","Evt.vzVpd", "Prim. vtx Vz TPC vs VPD ","Vz TPC[cm]","Vz VPD[cm]",-100,100,-100,100},
+     //NOTE: for 2D histograms one cannot use automatic range finding
+     TPlotDef_2D{"Evt.runId","Evt.eventId", "run vs event Id ","runId","eventid",0,3.*1e7,0,10000000},
+     TPlotDef_2D{"Evt.ZDCx","Evt.BBCx", "ZDC vs BBC rates","ZDC coinc. rate [Hz]","BBC coinc. rate [Hz]",0,800,0,800000},
+     TPlotDef_2D{"Evt.Vz","Evt.BBCx", "event Vz vs BBC rates","Vz TPC [cm]","BBC coinc. rate [Hz]",-100,100,0,800000},
+     TPlotDef_2D{"Evt.Vz","Evt.ZDCx", "event Vz vs ZDZ rates","Vz TPC [cm]","ZDC coinc. rate [Hz]",-100,100,0,800},
+     TPlotDef_2D{"Evt.refMult","Evt.gRefMult", "refMult vs gRefMult","refMult","gRefMult",0,1000,0,1000},
+     TPlotDef_2D{"Evt.refMult","Evt.nBTOFMatch", "refMult vs nBTOFMatch","refMult","nBTOFMatch",0,1000,0,1000},
+     TPlotDef_2D{"Evt.gRefMult","Evt.nBTOFMatch", "gRefMult vs nBTOFMatch","gRefMult","nBTOFMatch",0,1000,0,1000},
+     TPlotDef_2D{"Evt.nBTOFMatch","Evt.nK3piP","nBTOFMatch vs number of 3pi+ vertexes","nBTOFMatch","nK3piP",0,1000,-2,10},
+     TPlotDef_2D{"Evt.nBTOFMatch","Evt.nK3piN","nBTOFMatch vs number of 3pi- vertexes","nBTOFMatch","nK3piN",0,1000,-2,10},
+     TPlotDef_2D{"Evt.nK3piP","Evt.nK3piN","number of 3pi+ vs 3p- vertexes","nK3piP","nK3piN",-2,10,-2,10},
+
+    /*
+  
+     TPlotDef{"Evt.nBTOFMatch","Num of TOF matched track","#TOF matched",0,1000,"TOFmatch"},
+     TPlotDef{"Evt.triggerIds","triggerIds","Trigger Ids",0,1000000},
+    TPlotDef{"Evt.nK3piP","number of 3pi+ vertexes","nK3piP",-2,10},
+    TPlotDef{"Evt.nK3piN","number of 3pi- vertexes","nK3piN-",-2,10},
+    */
+  };
 
  //the declarations must be here, not global 0,0 -automatic range and #bins, otherwise 100 bins
   TPlotDefinitions Event_plots_FXT{
