@@ -30,33 +30,8 @@ TPlotDefinitions Event_plots{
      TPlotDef_2D{"Evt.nBTOFMatch","Evt.nK3piP","nBTOFMatch vs number of 3pi+ vertexes","nBTOFMatch","nK3piP",0,1000,-2,10},
      TPlotDef_2D{"Evt.nBTOFMatch","Evt.nK3piN","nBTOFMatch vs number of 3pi- vertexes","nBTOFMatch","nK3piN",0,1000,-2,10},
      TPlotDef_2D{"Evt.nK3piP","Evt.nK3piN","number of 3pi+ vs 3p- vertexes","nK3piP","nK3piN",-2,10,-2,10},
+};
 
-    /*
-  
-     TPlotDef{"Evt.nBTOFMatch","Num of TOF matched track","#TOF matched",0,1000,"TOFmatch"},
-     TPlotDef{"Evt.triggerIds","triggerIds","Trigger Ids",0,1000000},
-    TPlotDef{"Evt.nK3piP","number of 3pi+ vertexes","nK3piP",-2,10},
-    TPlotDef{"Evt.nK3piN","number of 3pi- vertexes","nK3piN-",-2,10},
-    */
-  };
-
- //the declarations must be here, not global 0,0 -automatic range and #bins, otherwise 100 bins
-  TPlotDefinitions Event_plots_FXT{
-    TPlotDef{"Evt.Vz","Prim. vtx position","Vz[cm]",0,500,"Vz"},
-    TPlotDef{"Evt.eventId","eventId","eventId",0,10000000},
-    TPlotDef{"Evt.vzVpd","Vpd vtx position","VZ_vpd[cm]",-0,500,"VPDdif,Vz"},
-    TPlotDef{"Evt.Vz-Evt.vzVpd","VpdVz-Vz","diff Vz[cm]",-8,8,"VPDdif"},
-    TPlotDef{"Evt.ZDCx","ZDC coincidence rate","f[hz]",0,800,"ZDC"}, 
-    TPlotDef{"Evt.BBCx","BBC coincidence rate","f[Hz]",0,300000,"BBC"},
-    TPlotDef{"Evt.nBTOFMatch","Num of TOF matched track","#TOF matched",0,500,"TOFmatch"},
-    TPlotDef{"Evt.refMult","RefMult ","RefMult",0,1000,"refMult"},
-    TPlotDef{"Evt.gRefMult","gRefMult","gRefMult",0,1000,"gRefMult"},
-    TPlotDef{"Evt.runId","runId","runId",0,0},
-    TPlotDef{"Evt.triggerIds","triggerIds","Trigger Ids",0,1000000},
-    TPlotDef{"Evt.nK3piP","number of 3pi+ vertexes","nK3piP",-2,10},
-    TPlotDef{"Evt.nK3piN","number of 3pi- vertexes","nK3piN",-2,10},
-    
-  };
 
  TPlotDefinitions RecoVtx_plots{
     //mother plots 

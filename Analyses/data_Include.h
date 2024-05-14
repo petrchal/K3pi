@@ -45,7 +45,7 @@
  
    
     //SL21 data - new but the data have lower stat 
-    {"../../ntup/2019_19GeV_SL21/*.root","data SL21 ",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu)"},
+    {"../../ntup/2019_19GeV_SL21/*11.root","data SL21 ",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu)"},
     //{"../../ntup/2019_19GeV_SL21/*.root","19GeV data SL21 nK=4",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu),nK3piP:Evt.nK3piP==4"},
    
     //SL21 embed
@@ -54,7 +54,7 @@
 
     
    //SL23 data 
-   {"../../ntup/2019_19GeV_SL23/*.root","data SL23 rerun",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu)"}, //new data
+   {"../../ntup/2019_19GeV_SL23/*11.root","data SL23 rerun",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu)"}, //new data
    // {"../../ntup/2019_19GeV_SL23/*.root","19GeV data SL23 rerun nK=4",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu),nK3piP:Evt.nK3piP==4"}, //new data
    //{"../../ntup/2019_19GeV_SL23/*.root","19GeV data SL23 lowZDC",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu),ZDC:(Evt.ZDCx>100) && (Evt.ZDCx<300)"}, //new data
    //{"../../ntup/2019_19GeV_SL23/*.root","19GeV data SL23 hiZDC",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu),ZDC:(Evt.ZDCx>400) && (Evt.ZDCx<600)"}, //new data
@@ -65,9 +65,9 @@
    };
 
    TFileDescription data_2020_FXT[]={
-    {"../../ntup/2020_FXT_31p2_P23id/*.root","31.2GeV FXT SL23d",0,NULL}, 
-    {"../../ntup/2020_FXT_13p5_P23ie/*.root","13.5GeV FXT SL23e",0,NULL}, 
-    {"../../ntup/2020_FXT_5p75_P23ie/*.root","5.75GeV FXT Sl23e",0,NULL}, 
+    {"../../ntup/2020_FXT_31p2_P23id_noLcut/*.root","31.2GeV FXT SL23d",0,NULL}, 
+    {"../../ntup/2020_FXT_13p5_P23ie_noLcut/*.root","13.5GeV FXT SL23e",0,NULL}, 
+    {"../../ntup/2020_FXT_5p75_P23ie_noLcut/*.root","5.75GeV FXT Sl23e",0,NULL}, 
     }; 
 
 

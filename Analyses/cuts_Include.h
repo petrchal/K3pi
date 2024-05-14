@@ -428,8 +428,8 @@ void InitCuts(){
 
   //for DCA adjustments - move and smear embedding
   //this should be done in a smarter way - separately for each data set
-  AddNewVar("PvtxDcaXY_corrected","d.PvtxDcaXY_official[K_match]");
-  AddNewVar("PvtxDca_corrected","d.PvtxDca_official[K_match]");
+  //AddNewVar("PvtxDcaXY_corrected","d.PvtxDcaXY_official[K_match]");
+  //AddNewVar("PvtxDca_corrected","d.PvtxDca_official[K_match]");
   
   //AddNewVar("PvtxDcaXY_corrected","float((d.qaTruth[K_match]>0.0)?((d.PvtxDcaXY_official[K_match]*1.1+0.0456)):d.PvtxDcaXY_official[K_match])");
   //AddNewVar("PvtxDca_corrected","float(sqrt(PvtxDcaXY_corrected*PvtxDcaXY_corrected+d.PvtxDcaZ_official[K_match]*d.PvtxDcaZ_official[K_match]))");
@@ -444,9 +444,9 @@ void InitCuts(){
   cout<<"Setup_3piVtxQA:"<<endl;
   //cout<<"  "<<Setup_3piVertexQA().Str()<<endl;
   cout<<"Setup_KaonMatching:"<<endl;
-  cout<<"  "<<Setup_KaonMatching().Str()<<endl;
+  //cout<<"  "<<Setup_KaonMatching().Str()<<endl;
   cout<<"Setup_MCvertex:"<<endl;
-  cout<<"  "<<Setup_MCvertex().Str()<<endl;
+  //cout<<"  "<<Setup_MCvertex().Str()<<endl;
   
   cout<<endl<<endl;
  
