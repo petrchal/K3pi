@@ -675,8 +675,10 @@ void Draw2Dstack(SingleDefResStack2D &r,const char* variation="nominal"){
       
     auto tmp = r.singlePlots.front().ResMap().GetKeys().size();
     int nn=r.singlePlots.size()*tmp;
-    int nx=sqrt(nn);
-    int ny=nx; if (nx*ny < nn) nx++;
+    int nx=sqrt(nn); int ny=nx; 
+    if (nx*ny < nn) nx++;
+    if (nx*ny < nn) ny++;
+    
 
     auto c=new TCanvas("","",nx*800,ny*600);
     c->Divide(nx,ny);
