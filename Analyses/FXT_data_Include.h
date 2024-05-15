@@ -36,9 +36,9 @@
 */
 
    TFileDescription data_2020_FXT[]={
-    {"../../ntup/2020_FXT_31p2_P23id/*.root","31.2GeV FXT SL23d",0,NULL}, 
-    {"../../ntup/2020_FXT_13p5_P23ie/*.root","13.5GeV FXT SL23e",0,NULL}, 
-    {"../../ntup/2020_FXT_5p75_P23ie/*.root","5.75GeV FXT Sl23e",0,NULL}, 
+    {"../../ntup/2020_FXT_31p2_SL23d_noLcut/*.root","31.2GeV FXT SL23d",0,NULL}, 
+    {"../../ntup/2020_FXT_13p5_SL23e_noLcut/*.root","13.5GeV FXT SL23e",0,NULL}, 
+    {"../../ntup/2020_FXT_5p75_SL23e_noLcut/*.root","5.75GeV FXT Sl23e",0,NULL}, 
     }; 
 
 
