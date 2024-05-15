@@ -18,6 +18,21 @@
     TPlotDef{"Evt.nK3piN","number of 3pi- vertexes","nK3piN",-2,10},
     };
 
+    TPlotDefinitions_2D Event_plots_2D_FXT{
+    TPlotDef_2D{"Evt.Vz","Evt.vzVpd", "Prim. vtx Vz TPC vs VPD ","Vz TPC[cm]","Vz VPD[cm]",0,300,0,500},
+     //NOTE: for 2D histograms one cannot use automatic range finding
+     TPlotDef_2D{"Evt.runId","Evt.eventId", "run vs event Id ","runId","eventid",0,3.*1e7,0,10000000},
+     //TPlotDef_2D{"Evt.ZDCx","Evt.BBCx", "ZDC vs BBC rates","ZDC coinc. rate [Hz]","BBC coinc. rate [Hz]",0,200,0,200000},
+     //TPlotDef_2D{"Evt.Vz","Evt.BBCx", "event Vz vs BBC rates","Vz TPC [cm]","BBC coinc. rate [Hz]",-100,100,0,200000},
+     //TPlotDef_2D{"Evt.Vz","Evt.ZDCx", "event Vz vs ZDZ rates","Vz TPC [cm]","ZDC coinc. rate [Hz]",-100,100,0,200},
+     TPlotDef_2D{"Evt.refMult","Evt.gRefMult", "refMult vs gRefMult","refMult","gRefMult",0,100,0,100},
+     TPlotDef_2D{"Evt.refMult","Evt.nBTOFMatch", "refMult vs nBTOFMatch","refMult","nBTOFMatch",0,100,0,200},
+     TPlotDef_2D{"Evt.gRefMult","Evt.nBTOFMatch", "gRefMult vs nBTOFMatch","gRefMult","nBTOFMatch",0,100,0,200},
+     TPlotDef_2D{"Evt.nBTOFMatch","Evt.nK3piP","nBTOFMatch vs number of 3pi+ vertexes","nBTOFMatch","nK3piP",0,200,-2,10},
+     TPlotDef_2D{"Evt.nBTOFMatch","Evt.nK3piN","nBTOFMatch vs number of 3pi- vertexes","nBTOFMatch","nK3piN",0,200,-2,10},
+     TPlotDef_2D{"Evt.nK3piP","Evt.nK3piN","number of 3pi+ vs 3p- vertexes","nK3piP","nK3piN",-2,10,-2,10},
+};
+
  TPlotDefinitions RecoVtx_plots{
     //mother plots 
     //variable to plot , name , ranges,  comma-separated list of cuts which are disabled before plotting
