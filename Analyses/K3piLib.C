@@ -24,6 +24,8 @@
 #include <ROOT/RTrivialDS.hxx>
 
 #include<optional>
+#include <vector>
+#include <iterator>
 //using namespace ROOT;
 
   typedef struct{
@@ -68,7 +70,10 @@ typedef struct{
     } TPlotDef_2D;
 
   
+
+
   //list of all plot definitions 
+  bool gIgnoreCutMods=false; //setting to true can speed running - reduces data filtering
   typedef std::vector<TPlotDef> TPlotDefinitions;
   typedef std::vector<TPlotDef_2D> TPlotDefinitions_2D;
 
@@ -106,9 +111,60 @@ template <typename T, typename defT> struct TResultStack{
 typedef TResultStack<TH1D,TPlotDef> SingleDefResStack1D;
 typedef TResultStack<TH2D,TPlotDef_2D> SingleDefResStack2D;
 
+//list of results - basicaly vector holding information about current position of interator
+template<typename T>
+class TResVector : public std::vector<T> {
+private:
+    typename std::vector<T>::iterator currentPos; // Iterator to track position
+
+public:
+    // Default constructor
+    TResVector() : std::vector<T>(), currentPos(this->begin()) {}
+    // Constructor with initial size
+    TResVector(size_t size) : std::vector<T>(size), currentPos(this->begin()) {}
+    // Constructor with size and default value
+    TResVector(size_t size, const T& value) : std::vector<T>(size, value), currentPos(this->begin()) {}
+    // Copy constructor
+    TResVector(const TResVector<T>& other) : std::vector<T>(other), currentPos(this->begin()) {}
+    // Move constructor
+    TResVector(TResVector<T>&& other) noexcept : std::vector<T>(std::move(other)), currentPos(this->begin()) {}
+    // Constructor from std::vector
+    TResVector(const std::vector<T>& other) : std::vector<T>(other), currentPos(this->begin()) {}
+    // Move constructor from std::vector
+    TResVector(std::vector<T>&& other) noexcept : std::vector<T>(std::move(other)), currentPos(this->begin()) {}
+    
+    // Method to reset the position
+    void resetPosition() {currentPos = this->begin();
+    }
+
+    // Method to advance the position by n steps
+    void advancePosition(size_t n) {
+        if (currentPos + n <= this->end()) {
+            currentPos += n;
+        } else {
+            currentPos = this->end();
+        }
+    }
+
+    // Method to get the current position
+    typename std::vector<T>::iterator *CurrentPosition() {
+        return &currentPos;
+    }
+
+    // Method to print the current position
+    void printCurrentPosition() const {
+        if (currentPos != this->end()) {
+            std::cout << "Current position points to position: - not end"  << std::endl;
+        } else {
+            std::cout << "Current position is at the end of the vector." << std::endl;
+        }
+    }
+  
+};
+
 //list over all plot definitions
-typedef std::vector<SingleDefResStack1D> ResultList1D; 
-typedef std::vector<SingleDefResStack2D> ResultList2D; 
+typedef TResVector<SingleDefResStack1D> ResultList1D; 
+typedef TResVector<SingleDefResStack2D> ResultList2D; 
 
 
 //----------------------------------------------------
@@ -361,20 +417,26 @@ void AddPlots_1D(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,ResultList1D&
 //-----------------------------------------------------------------------
 //this not only adds plots, but for each plots modifies the cut so that it can be plotted without bounds
 ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,K3PiCut defaultCut, ResultList1D& rlist,
- ResultList1D::iterator &iter, const char * plotprefix = "", const char * fileprefix = "",bool rebin=false,bool ignoreRange=false)
+ //ResultList1D::iterator &iter, 
+ const char * plotprefix = "", const char * fileprefix = "",bool rebin=false,bool ignoreRange=false)
  {
+   
+   auto iter=rlist.CurrentPosition();
+   //rlist->printCurrentPosition();
+
     ROOT::RDF::RNode defaultNode=node.Filter(defaultCut.Str()); //nod with all cuts applied
     int tmpVarCount=0;
-    
+   
+
     for (auto def: plotDefs){ //loop over single plot definiton and book the plots
          //for first file this means to create the structure, others only add histogram
      
-         if (iter==rlist.end()){ 
+         if (*iter==rlist.end()){ 
             SingleDefResStack1D r;
             r.def=def; r.stack=NULL;
             cout<<"pushing "<<def.expr<<endl;
             rlist.push_back(r);
-            iter=rlist.end();iter--; //last element
+            *iter=rlist.end();(*iter)--; //last element
           }
          //iter is now poiting to valid TResultStack
         
@@ -392,7 +454,7 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,K
        
         //add second one for comparison with a given cut
         
-        if (def.cutMods){
+        if (def.cutMods && (gIgnoreCutMods==false)){
           TSinglePlotRes<TH1D> sr;
           K3PiCut cut=defaultCut;
           cout<<"  modified:"<<def.cutMods<<endl;
@@ -406,17 +468,17 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,K
           bb+="disabled ";bb+=def.cutMods; bb+=" cut";
          // sr.label=bb; 
           sr.labels={fileprefix,plotprefix,bb.Data()};
-          iter->singlePlots.push_back(sr); //use prefix as a label of the histogram
+          (*iter)->singlePlots.push_back(sr); //use prefix as a label of the histogram
         } 
         
         //because of drawing order push first the version with cut modification
-        iter->singlePlots.push_back(sr); //use prefix as a label of the histogram
+        (*iter)->singlePlots.push_back(sr); //use prefix as a label of the histogram
        
      //  if (def.cutMods && iter->singlePlots.size()>1) goto SKIP;
      //the default one with full cut, but only for fist file
    
      //SKIP:  
-       iter++; //increase position int list of plotted variables
+       (*iter)++; //increase position int list of plotted variables
       }
 
       return defaultNode;
@@ -425,20 +487,23 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,K
 //-----version for 2D plots--------------------------------
 //this not only adds plots, but for each plots modifies the cut so that it can be plotted without bounds
 ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions_2D& plotDefs, ROOT::RDF::RNode node,K3PiCut defaultCut, ResultList2D& rlist,
- ResultList2D::iterator &iter, const char * plotprefix = "", const char * fileprefix = "",bool rebin=false,bool ignoreRange=false)
+ //ResultList2D::iterator &iter, 
+ const char * plotprefix = "", const char * fileprefix = "",bool rebin=false,bool ignoreRange=false)
  {
+    auto iter=rlist.CurrentPosition();
+
     ROOT::RDF::RNode defaultNode=node.Filter(defaultCut.Str()); //nod with all cuts applied
     int tmpVarCount=0;
     
     for (auto def: plotDefs){ //loop over single plot definiton and book the plots
          //for first file this means to create the structure, others only add histogram
      
-         if (iter==rlist.end()){ 
+         if (*iter==rlist.end()){ 
             SingleDefResStack2D r;
             r.def=def; r.stack=NULL;
             cout<<"pushing 2D plot of "<<def.x_expr<<" : "<<def.y_expr<<endl;
             rlist.push_back(r);
-            iter=rlist.end();iter--; //last element
+            (*iter)=rlist.end();(*iter)--; //last element
           }
          //iter is now poiting to valid TResultStack
         
@@ -459,7 +524,7 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions_2D& plotDefs, ROOT::RDF::RNode nod
        
         //add second one for comparison with a given cut
         
-        if (def.cutMods){
+        if (def.cutMods && (gIgnoreCutMods==false)){
           TSinglePlotRes<TH2D> sr;
           K3PiCut cut=defaultCut;
           cout<<"  modified:"<<def.cutMods<<endl;
@@ -478,17 +543,17 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions_2D& plotDefs, ROOT::RDF::RNode nod
           bb+="disabled ";bb+=def.cutMods; bb+=" cut";
          // sr.label=bb; 
           sr.labels={fileprefix,plotprefix,bb.Data()};
-          iter->singlePlots.push_back(sr); //use prefix as a label of the histogram
+          (*iter)->singlePlots.push_back(sr); //use prefix as a label of the histogram
         } 
         
         //because of drawing order push first the version with cut modification
-        iter->singlePlots.push_back(sr); //use prefix as a label of the histogram
+        (*iter)->singlePlots.push_back(sr); //use prefix as a label of the histogram
        
      //  if (def.cutMods && iter->singlePlots.size()>1) goto SKIP;
      //the default one with full cut, but only for fist file
    
      //SKIP:  
-       iter++; // position int list of plotted variables
+       (*iter)++; // position int list of plotted variables
       }
 
       return defaultNode;
@@ -508,6 +573,8 @@ void Draw1Dstack(SingleDefResStack1D &r,const char* variation="nominal"){
     //auto s=new  THStack(const TH1* hist, Option_t* axis = "x", const char* name = 0, const char* title = 0, Int_t firstbin = 1, Int_t lastbin = -1, Int_t firstbin2 = 1, Int_t lastbin2 = -1, Option_t* proj_option = "", Option_t* draw_option = "");
   
     r.stack=new THStack();//r.def.expr,r.def.title);
+    r.stack->SetTitle(r.def.expr);
+      
     r.ratios=new THStack("","");
 
     auto c=new TCanvas("","",800,600);
@@ -541,61 +608,50 @@ void Draw1Dstack(SingleDefResStack1D &r,const char* variation="nominal"){
     pad1->cd();
     auto l = new TLegend(0.65,0.75,0.9,0.9);
     l->SetHeader("","C");
-        int id=0;//ugly but...
 
-/*
-    auto tmp=r.singlePlots.begin();
-   //first histogram of first file
-  auto keys=tmp->resMap[0].GetKeys();
-  int  nVariations=keys.size();
-  cout<<"variations="<<nVariations<<endl;
- TH1* h_den=NULL;
-/*
-  for (int iv=0;iv<nVariations;iv++){ //loop over variations
-    //get "denominator" for each variation
-    cout<<"iv="<<iv<<" key="<<keys[iv]<<" celkem ="<< keys.size()<<endl;
-    cout<<resMap[keys[iv]].GetName()<<endl;
-    //TH1* h_den=NULL;
-    TH1* h_den=(TH1*)resMap[keys[iv]].Clone();
-    h_den->Scale(1./h_den->Integral());
- */
+    int id=0;//ugly but...
+
+
     TH1* h_den;
     bool first=true;
     for ( auto &sr : r.singlePlots){ //over files- TSinglePlotRes
-      TString str=get<0>(sr.labels);str+=" ";str+=get<2>(sr.labels);
-      cout<<"sr.labels="<<str.Data()<<endl;
-      l->AddEntry((TObject*)0, "", "");  
-      l->AddEntry((TObject*)0, str.Data(), "");
-      //denominator - te first of variation
       auto  keys=sr.ResMap().GetKeys();
       int  nVariations =keys.size();
 
+      TString str=get<0>(sr.labels);str+=" ";str+=get<2>(sr.labels);
+      cout<<"sr.labels="<<str.Data()<<endl;
+      l->AddEntry((TObject*)0, "", "");  
+      if (nVariations>1) l->AddEntry((TObject*)0, str.Data(), "");
+     
       for (int iv=0;iv<nVariations;iv++){ //loop over variations
-      cout<<"  variation "<<keys[iv]<<endl;
-       pad1->cd();
-       TH1* h_copy=(TH1*)sr.ResMap()[keys[iv]].Clone(); //use default variation hist[]
+         cout<<"  variation "<<keys[iv]<<endl;
+         pad1->cd();
+         TH1* h_copy=(TH1*)sr.ResMap()[keys[iv]].Clone(); //use default variation hist[]
 
-       //if (iv==0){ //this will be denumerator
-       if (first){ 
-         cout<<" making denum"<<endl;
-         h_den=(TH1*)h_copy->Clone();
-         h_den->Scale(1./h_den->Integral());
-       }
+         //if (iv==0){ //this will be denumerator
+         if (first){ 
+           cout<<" making denum"<<endl;
+           h_den=(TH1*)h_copy->Clone();
+           h_den->Scale(1./h_den->Integral());
+         } 
 
         //rebin and scale
         // if(rebin>1) h_copy->Rebin(rebin);
         // if (normalize) h_copy->Scale(1./h_copy->Integral());
         //color and other things
-        //h_copy->GetXaxis()->SetTitle(r.def.expr);
+        h_copy->SetTitle(r.def.expr);
         //h_copy->SetLineColor(color[id]);
         h_copy->SetLineColor(id+1);
         h_copy->SetMarkerColor(id+1);
        //add to stack and label
         r.stack->Add(h_copy);
         //l->AddEntry(h_copy,get<0>(sr.labels).c_str(),"l");
-        TString lb=/*glb+=":: ";lb+=*/keys[iv].c_str();
-        l->AddEntry(h_copy,lb,"l");
-  
+        if (nVariations>1) {
+          TString lb=/*glb+=":: ";lb+=*/keys[iv].c_str();
+          l->AddEntry(h_copy,lb,"l");
+          }
+          else  l->AddEntry(h_copy,str.Data(),"l");
+
       //normalized ratio
       //TSinglePlotRes<TH1D>* first=&(r.singlePlots.front());
       //if (&sr!=first){
@@ -722,196 +778,30 @@ void Draw2Dstack(SingleDefResStack2D &r,const char* variation="nominal"){
 
        TH1* h_copy=(TH1*)sr.ResMap()[keys[iv]].Clone(); //use default variation hist[]
 
-              //color and other things
+        //color and other things
+        TString titl=str.Data();
+        if (iv>0) {titl+=" : ";titl+= keys[iv];}//r.def.x_expr;titl+=" vs ";titl+=r.def.y_expr;
+        h_copy->SetTitle(titl);
         h_copy->GetXaxis()->SetTitle(r.def.x_axisTitle);
         h_copy->GetYaxis()->SetTitle(r.def.y_axisTitle);
-        //h_copy->SetLineColor(color[id]);
-        //h_copy->SetLineColor(id+1);
-        //h_copy->SetMarkerColor(id+1);
-       //add to stack and label
+         //add to stack and label
         //l->AddEntry(h_copy,get<0>(sr.labels).c_str(),"l");
         //TString lb=keys[iv].c_str();
         //l->AddEntry(h_copy,lb,"l");
-        h_copy->SetTitle(get<0>(sr.labels).c_str());
+        //h_copy->SetTitle(get<0>(sr.labels).c_str());
         h_copy->Draw("colz");
+        gPad->SetLogz();
         gPad->Modified();
       } //over varitions
 
   } //over files loop
-
-  
-/*
-    siz = siz*(1.+(1.-pdiv));
-    frame2->SetTitleSize(siz);       frame2->SetLabelSize(siz);
-    frame2->SetTitleSize(siz, "Y");  frame2->SetLabelSize(siz, "Y");
-    frame2->GetXaxis()->SetTitleOffset(1.1);
-    frame2->GetYaxis()->SetTitle("ratio of normalized  ");
-    frame2->GetYaxis()->SetTitleOffset(0.54); //0.64
-    */
-   
-    //pad2->Modified();
 
     c->Modified();
     c->Write(r.def.title);
   }
 
 //-----------------------------------------------------------------------
-//histograms and normalized ratios for one variable defintion over files ( and variations)
-/*
-void Draw2Dstack(SingleDefResStack2D &r,const char* variation="nominal"){
-
-  const int   color[]={kBlack,kBlue,kRed,kGreen,kMagenta,kCyan}; 
-
-
-    //auto hist=r.singlePlots.begin()->hist->GetPtr();
-    //r.stack=new  THStack(hist); //copy settign from first histogram ...notw
-    //auto s=new  THStack(const TH1* hist, Option_t* axis = "x", const char* name = 0, const char* title = 0, Int_t firstbin = 1, Int_t lastbin = -1, Int_t firstbin2 = 1, Int_t lastbin2 = -1, Option_t* proj_option = "", Option_t* draw_option = "");
-  
-    r.stack=new THStack();//r.def.expr,r.def.title);
-    r.ratios=new THStack("","");
-
-    auto c=new TCanvas("","",800,600);
-
-
-    Double_t pdiv = 0.3;
-    TPad *pad1 = new TPad("p1", "p1", 0., pdiv, 1., 1.); // upper
-    TPad *pad2 = new TPad("p2", "p2", 0., 0., 1., pdiv); // lower
-    pad1->Draw();
-    pad2->Draw();
-
-    pad1->cd();
-
-  //global constants with range of the plot
-  //const Double_t gxmin = 17., gymin = 15., gxmax = 1990., gymax = 1000.;
-
-  // TH1F* frame1 = gPad->DrawFrame(gxmin,gymin,gxmax,gymax);
-
- //  frame1->GetXaxis()->SetMoreLogLabels();
-    gPad->SetLeftMargin(0.09);
-    gPad->SetRightMargin(0.05);
-    gPad->SetTopMargin(0.11);//0.025
-    gPad->SetBottomMargin(0.);
-
-    pad2->SetLeftMargin(0.09);
-    pad2->SetRightMargin(0.05);
-    pad2->SetBottomMargin(0.2);//0.025
-    pad2->SetTopMargin(0.);
-
-
-    pad1->cd();
-    auto l = new TLegend(0.65,0.75,0.9,0.9);
-    l->SetHeader("","C");
-        int id=0;//ugly but...
-
-
-    TH1* h_den;
-    bool first=true;
-    //loop 
-    for ( auto &sr : r.singlePlots){ //over files- TSinglePlotRes
-      TString str=get<0>(sr.labels);str+=" ";str+=get<2>(sr.labels);
-      cout<<"sr.labels="<<str.Data()<<endl;
-      l->AddEntry((TObject*)0, "", "");  
-      l->AddEntry((TObject*)0, str.Data(), "");
-      //denominator - te first of variation
-    
-      //loop over variations
-      auto  keys=sr.ResMap().GetKeys();
-      int  nVariations =keys.size();
-      for (int iv=0;iv<nVariations;iv++){ 
-      cout<<"  variation "<<keys[iv]<<endl;
-       pad1->cd();
-       TH1* h_copy=(TH1*)sr.ResMap()[keys[iv]].Clone(); //use default variation hist[]
-
-       //this will be denumerator - the histogram to compare to
-       if (first){ 
-         cout<<" making denum"<<endl;
-         h_den=(TH1*)h_copy->Clone();
-         h_den->Scale(1./h_den->Integral());
-       }
-
-        //color and other things
-        //h_copy->GetXaxis()->SetTitle(r.def.expr);
-        //h_copy->SetLineColor(color[id]);
-        h_copy->SetLineColor(id+1);
-        h_copy->SetMarkerColor(id+1);
-       //add to stack and label
-        r.stack->Add(h_copy);
-        //l->AddEntry(h_copy,get<0>(sr.labels).c_str(),"l");
-        TString lb=keys[iv].c_str();
-        l->AddEntry(h_copy,lb,"l");
-  
-      //normalized ratio - hard for 2D
-        
-      if (!first){
-          cout<<" taking ratio"<<endl;
-          TH1* h_num=(TH1*)h_copy->Clone();
-          h_num->Scale(1./h_num->Integral());
-          h_num->Divide(h_den);
-          pad2->cd();
-          r.ratios->Add(h_num);
-        //h_num->Draw();
-          } else cout<<" no ratio"<<endl;
-          
-         first=false; 
-        id++;
-      }
-
-  } //over files loop
-
-  pad1->cd();
-  //r.stack->Draw("ehistnostack");
-  r.stack->Draw("colz");
-  r.stack->SetMinimum(0.001);
-
-   Float_t siz = 0.045;
-
-  //label axes
-  auto frame1 = r.stack->GetHistogram();
-  if (frame1) {
-    frame1->SetTitleSize(siz);       frame1->SetLabelSize(siz);
-    frame1->SetTitleSize(siz, "Y");  frame1->SetLabelSize(siz, "Y");
-    frame1->SetLabelSize(0.00001, "X");
-    frame1->GetXaxis()->SetTitleOffset(1.4);
-    //frame1->SetTitle(r.def.expr);
-    frame1->SetTitle(r.def.title);
-    
-    l->Draw("same");
-    //pad1->Modified();
-
-    //bottom pad
-    pad2->cd();
-    r.ratios->Draw("enostack");
-    if (r.ratios->GetXaxis()){r.ratios->GetXaxis()->SetTitle(r.def.x_expr);}
-    if (r.ratios->GetYaxis()){r.ratios->GetYaxis()->SetTitle(r.def.y_expr);}
-   }
-
-  auto frame2 = r.ratios->GetHistogram();
-  if (frame2) {
-    //cout<<"min="<<r.ratios->GetMinimum()<<endl;
-    ///cout<<"max="<<r.ratios->GetMaximum()<<endl;
-    // cout<<"min2="<<r.ratios->GetYaxis()->GetXmin()<<endl;
-    //cout<<"max2="<<r.ratios->GetYaxis()->GetXmax()<<endl;
-    //if (r.ratios->GetYaxis()->GetXmin()<0) 
-
-    //r.ratios->SetMinimum(0.5);
-    //r.ratios->SetMaximum(2);
-
-    siz = siz*(1.+(1.-pdiv));
-    frame2->SetTitleSize(siz);       frame2->SetLabelSize(siz);
-    frame2->SetTitleSize(siz, "Y");  frame2->SetLabelSize(siz, "Y");
-    frame2->GetXaxis()->SetTitleOffset(1.1);
-    frame2->GetYaxis()->SetTitle("ratio of normalized  ");
-    frame2->GetYaxis()->SetTitleOffset(0.54); //0.64
-   } 
-    //pad2->Modified();
-
-    c->Modified();
-    c->Write(r.def.title);
-  }
-*/
-
-//-------------------------------------
-  void DrawResults(ResultList1D &results,const char* whichVariation=NULL){
+ void DrawResults(ResultList1D &results,const char* whichVariation=NULL){
     cout<<endl<<"DrawResults"<<endl;
 //draw 1D histograms in stack
     gStyle->SetPadTickY(1);

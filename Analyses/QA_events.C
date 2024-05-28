@@ -34,18 +34,7 @@ void QA_events(){
   //initilaize variables
   InitCuts();
 
-/* comes from data_Include.h
-   //TFileDescription* files=data_2021_7p7;
-  TFileDescription* files=data19GeV;
-  //K3piCut_EventCut =EventCut_2021_7p7AuAu; //just in case override 
-   K3piCut_EventCut =EventCut_2019_19AuAu; //just in case override 
-  
-  const int nFiles=2; 
-  const int order[]={2,3,1,2};
-  const Long64_t nEntriefsLimit=TTree::kMaxEntries;////100000;// -1;
-  */
-
-  //K3piCut_EventCut =EventCut_2019_19AuAu; //just in case override 
+ //K3piCut_EventCut =EventCut_2019_19AuAu; //just in case override 
 
   //plotting modifiers
   int rebin=2;
@@ -74,9 +63,9 @@ void QA_events(){
    // RDataFrame event_node(*chain_events); //raw event count
    ROOT::RDF::RNode event_node = ROOT::RDF::AsRNode(RDataFrame(*chain_events)); //raw event count
 
-   auto CurrentPos=Res_eventPlots.begin();
-   auto CurrentPos_2D=Res_eventPlots_2D.begin();
-   //plots before any cuts
+   Res_eventPlots.resetPosition();
+   Res_eventPlots_2D.resetPosition();
+   
    
    
     auto evCut=K3piCut_EventCut(); 
@@ -88,27 +77,28 @@ void QA_events(){
    
     event_node=DefineNewVariables(event_node);
    //  event_node=AddVariations(vary_EvtVz,event_node);
-     //AddPlots4QA(Event_plots,event_node,evCut,Res_eventPlots,CurrentPos,"events",files[order[iFile]].lable,rebin,false);
-    AddPlots4QA(Event_plots_2D,event_node,evCut,Res_eventPlots_2D,CurrentPos_2D,"events",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(Event_plots,event_node,evCut,Res_eventPlots,"events",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(Event_plots_2D,event_node,evCut,Res_eventPlots_2D,"events",files[order[iFile]].lable,rebin,false);
    
     
     cout<<"trigger lazy evaluation"<<endl;
     auto ct= event_node.Count();
+    ct.OnPartialResult(/*every */100000/* events*/,
+                           [](auto c) { std::cout << c << '\n'; });
     cout<<*ct<<endl;
-
- 
-   cout<<"trigger DONE"<<endl;
+    cout<<"trigger DONE"<<endl;
  
   
    delete chain_events; 
  
 } //loop over files
 
-TFile *f=new TFile("events_SL23_ZDCcomp.root","recreate");
-//DrawResults(Res_eventPlots);
+TFile *f=new TFile("eventsComp_2019_SL23_noCuts.root","recreate");
+DrawResults(Res_eventPlots);
 DrawResults(Res_eventPlots_2D);
 f->Write();
-//f.Close(); //dono tclose to see resutls
+f->Flush();
+//f->Close(); //don't close to see resutls
 
 return;
 }

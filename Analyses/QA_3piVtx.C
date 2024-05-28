@@ -24,7 +24,7 @@ void QA_3piVtx(){
   InitCuts();
   //here must be called cuts that cannot be called in InitCuts in roder to define variables
   Setup_3piVertexQA();
-
+  
   //plotting modifiers
   int rebin=1;
   bool ignoreRange=false; // change to spot some outlayers
@@ -32,7 +32,12 @@ void QA_3piVtx(){
  
 
   // structure for results
-  ResultList1D Res_Plots; 
+  ResultList1D Res_EventPlots;
+  ResultList2D Res_EventPlots_2D; 
+  ResultList1D Res_3piPlots;
+  ResultList2D Res_3piPlots_2D; 
+  ResultList1D Res_KaonPlots; 
+  ResultList2D Res_KaonPlots_2D; 
    
   //loop over datasets
   for (int iFile=0;iFile<nFiles;iFile++){
@@ -69,9 +74,18 @@ void QA_3piVtx(){
     if (files[order[iFile]].isMc) {Reco3piVtx_cut=K3piCut_3piVtx_Kplus() + Setup_MCvertex();}
     cout<<endl<<" K+ 3piVtx_ cut used:  "<<endl<<  Reco3piVtx_cut.Str()<<endl<<endl;
  
+    Res_EventPlots.resetPosition();
+    Res_EventPlots_2D.resetPosition(); 
+    Res_3piPlots.resetPosition();
+    Res_3piPlots_2D.resetPosition(); 
+    Res_KaonPlots.resetPosition(); 
+    Res_KaonPlots_2D.resetPosition(); 
+   
+
     // event plot per 3pi+
     auto Cut=Reco3piVtx_cut+evCut;
-    //AddPlots4QA(Event_plots,kaons_node,ev_cut,Res_Plots,CurrentPos,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(Event_plots,kaons_node,Cut,Res_EventPlots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(Event_plots_2D,kaons_node,Cut,Res_EventPlots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
    
   
      //d_events=AddVariations(vary_EvtVz,d_events);
@@ -83,24 +97,20 @@ void QA_3piVtx(){
     cout<<endl<<"Cut used:  "<<endl<<  Cut.Str()<<endl<<endl;
  
 
-    auto CurrentPos=Res_Plots.begin();
-    
+    Cut=Reco3piVtx_cut;
     //Mother(3pi vertex) per found 3pi vertex 
-    //AddPlots4QA(Mother_plots,d_events,mother_cut,Res_Plots,CurrentPos,"per found 3pi+",files[order[iFile]].lable,rebin,false);
-      AddPlots4QA(RecoVtx_plots,d_events,Cut,Res_Plots,CurrentPos,"per found 3pi+",files[order[iFile]].lable,rebin,false);
-      //!!! this is without kaon matching cuts
-      //AddPlots4QA(MatchedKaon_plots,d_events,Cut,Res_Plots,CurrentPos,"per found 3pi+",files[order[iFile]].lable,rebin,false);
-      
+    AddPlots4QA(RecoVtx_plots,d_events,Cut,Res_3piPlots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(RecoVtx_plots_2D,d_events,Cut,Res_3piPlots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    //!!! this is without kaon matching cuts
+    AddPlots4QA(Kaon_plots,d_events,Cut,Res_KaonPlots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(Kaon_plots_2D,d_events,Cut,Res_KaonPlots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+     
    
- // .. it is a problem, since histogram may come from different trees (nodes)
-  //AddProgressBar(event_node);
-
    cout<<"trigger lazy evaluation"<<endl;
- 
    auto ct= kaons_node.Count();
-   
+   ct.OnPartialResult(/*every */100000/* events*/,
+                           [](auto c) { std::cout << c << '\n'; });
    cout<<*ct<<endl;
-
    cout<<"trigger DONE"<<endl;
  
   
@@ -108,7 +118,18 @@ void QA_3piVtx(){
  
 } //loop over files
 
-DrawResults(Res_Plots);
+TFile *f=new TFile("3piComp_2019_all_noCuts.root","recreate");
+  f->mkdir("events");f->cd("events"); 
+  DrawResults(Res_EventPlots);
+  DrawResults(Res_EventPlots_2D); 
+  f->mkdir("3pi");f->cd("3pi"); 
+  DrawResults(Res_3piPlots);
+  DrawResults(Res_3piPlots_2D); 
+  f->mkdir("kaons");f->cd("kaons"); 
+  DrawResults(Res_KaonPlots); 
+  DrawResults(Res_KaonPlots_2D);
+f->Write();
+//f.Close(); //dono tclose to see resutls
 
 return;
 }
