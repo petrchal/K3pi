@@ -150,7 +150,11 @@ K3PiCut Setup_3piVertexQA(){
           
     AddNewVar("cut_daugh_nhits","11.");
     VertexQA_cut["nhits_daughters"]="(d.nhits[0]>=cut_daugh_nhits && d.nhits[1]>=cut_daugh_nhits && d.nhits[2]>=cut_daugh_nhits)"; 
-     
+    
+    //spike
+    //VertexQA_cut["nhits_spike"]="(d.nhits[0]==50 || d.nhits[1]==50 || d.nhits[2]==50)"; 
+    //VertexQA_cut["nhits_spike"]="(d.nhits[0]==50)"; 
+   
     //this seems to remove all short tracks - BAD seem the nhits_pos is not filled correctly for secondaries
     // 3piVtxQA_cut["nhits_posrat"]="((float)d.nhits[0]/(float)d.nhits_pos[0]>0.51)&&((float)d.nhits[1]/(float)d.nhits_pos[1]>0.51)&&((float)d.nhits[3]/(float)d.nhits_pos[3]>0.51)";
      
@@ -186,11 +190,11 @@ K3PiCut Setup_FXT_3piVtxKinematics(){
 
   K3PiCut kin_cut;
 
-  //base cut
-  kin_cut["pt"]="(mother_pt_PVX>0.2)&&(mother_pt_PVX<0.9)"; 
-  kin_cut["eta"]="(mother_eta_PVX>-2.)&&(mother_eta_PVX<0.)";
+   //base cut
+    kin_cut["pt"]="(mother_pt_PVX>0.2)&&(mother_pt_PVX<0.9)"; 
+    kin_cut["eta"]="(mother_eta_PVX>-2.)&&(mother_eta_PVX<0.)";
   
-   //should always be on  - nothing is mathec below 80 
+   //should always be on  - nothing is macthed below 80 
    kin_cut["decay_Vr"]="(decay_Vr>80)";
 
    //not sure what the Vr cut should be for FXT

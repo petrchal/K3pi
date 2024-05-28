@@ -40,6 +40,8 @@ void FXT_QA_3piVtx(){
   // structure for results
   ResultList1D Res_Plots; 
   ResultList1D Res_eventPlots; 
+  ResultList2D Res_Plots_2D; 
+  ResultList2D Res_eventPlots_2D; 
    
   //loop over datasets
   for (int iFile=0;iFile<nFiles;iFile++){
@@ -80,17 +82,21 @@ void FXT_QA_3piVtx(){
     cout<<endl<<" K+ 3piVtx_ cut used:  "<<endl<< Reco3piVtx_cut.Str()<<endl<<endl;
  
    //this is cumbersome
-    auto CurrentPos=Res_eventPlots.begin();
+    Res_eventPlots.resetPosition();
+    Res_eventPlots_2D.resetPosition();
 
     // event plot per found 3pi+
     auto Cut=Reco3piVtx_cut+evCut;
-    AddPlots4QA(Event_plots_FXT,kaons_node,Cut,Res_eventPlots,CurrentPos,"events",files[order[iFile]].lable,rebin,false);
+    //AddPlots4QA(Event_plots_FXT,kaons_node,Cut,Res_eventPlots,CurrentPos,"events",files[order[iFile]].lable,rebin,false);
+    //AddPlots4QA(Event_plots_2D_FXT,kaons_node,Cut,Res_eventPlots_2D,CurrentPos_2D,"events",files[order[iFile]].lable,rebin,false);
     cout<<endl<<"Cut used:  "<<endl<<  Cut.Str()<<endl<<endl;
  
 
-   CurrentPos=Res_Plots.begin();
+   Res_Plots.resetPosition();
+   Res_Plots_2D.resetPosition();
     //3pi vertex 
-   AddPlots4QA(RecoVtx_plots,after_evCut_node,Reco3piVtx_cut,Res_Plots,CurrentPos,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+   AddPlots4QA(RecoVtx_plots,after_evCut_node,Reco3piVtx_cut,Res_Plots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+   AddPlots4QA(RecoVtx_plots_2D,after_evCut_node,Reco3piVtx_cut,Res_Plots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
       
  
 
@@ -107,15 +113,17 @@ void FXT_QA_3piVtx(){
 } //loop over files
 
 //save results
-TFile f("3pi_FXT_cleaned.root","recreate");
+TFile *f=new TFile("3pi_FXT_cleaned.root","recreate");
 
-f.mkdir("event info per found 3piVtx");f.cd("event info per found 3piVtx");
+f->mkdir("event info per found 3piVtx");f->cd("event info per found 3piVtx");
 DrawResults(Res_eventPlots);
-f.mkdir("3piVtxs");f.cd("3piVtxs");
+DrawResults(Res_eventPlots_2D);
+f->mkdir("3piVtxs");f->cd("3piVtxs");
 DrawResults(Res_Plots);
+DrawResults(Res_Plots_2D);
 
-f.Write();
-f.Close();
+f->Write();
+//f->Close(); to see results
 
 return;
 }

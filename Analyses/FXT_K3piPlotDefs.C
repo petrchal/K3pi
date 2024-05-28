@@ -36,6 +36,7 @@
  TPlotDefinitions RecoVtx_plots{
     //mother plots 
     //variable to plot , name , ranges,  comma-separated list of cuts which are disabled before plotting
+    
     TPlotDef{"mother_m","mass of 3pi vertex","m[GeV/c]",0.4,.6,"minv"}, 
     TPlotDef{"mother_PID","3pi vertex PID","PID",0,0},
     TPlotDef{"mother_isMc","Is 3pi MC","",-5,5},
@@ -52,17 +53,33 @@
     TPlotDef{"decay_Vz","z position of decay","Vz[cm]",-100,200}, 
     TPlotDef{"mother_pt_PVX","pt from 3pi vertex at PVX","pt[GeV/c^2]",0,1.5,"pt"},
     TPlotDef{"mother_phi_PVX","phi from 3pi vertex at PVX","phi",-7,7.},
-    TPlotDef{"MaxHits(decay_Vr)","maximum number of hits of matched kaon","hnits",-0.5,99.5,"decay_Vr"},
+    TPlotDef{"MaxHits(decay_Vr)","maximum number of hits of matched kaon","MaxHits(decay_Vr)",-0.5,99.5,"decay_Vr"},
  
 
     TPlotDef{"d.qaTruth[0]+d.qaTruth[1]+d.qaTruth[2]","sum of daughter qaTruths","",0.,300.},
   
     //first decay daugter 
-    TPlotDef{"d.index[0]","daughter index","index",-0.5,6.5},
-    TPlotDef{"d.nhits[0]","daughter nHitsFit","nHitsFit",-0.5,100.5,"nhits_daughters"},
-    TPlotDef{"d.nhits_pos[0]","daughter NHits possible from DST","nHitsPos",-0.5,100.5,"nhits_possible"},
-    TPlotDef{"MaxHitsDaughter","daughter NHitsf possible from Vr","nHitsPos",-0.5,100.5,"nhits_possible"},
+    TPlotDef{"d.index[0]","daughter[0] index","index",-0.5,6.5},
+    TPlotDef{"d.nhits[0]","daughter[0] nHitsFit","nHitsFit",-0.5,100.5,"nhits_daughters"},
+    TPlotDef{"d.nhits_pos[0]","daughter[0] NHits possible from DST","nHitsPos",-0.5,100.5,"nhits_possible"},
+   // TPlotDef{"MaxHitsDaughter","daughter[0] NHitsf possible from Vr","lastPoint - MaxHits(decay_V)",-0.5,100.5,"nhits_possible"},
  
+
+    //second decay daugter 
+    //TPlotDef{"d.index[1]","daughter[1] index","index",-0.5,6.5},
+    TPlotDef{"d.nhits[1]","daughter[1] nHitsFit","nHitsFit",-0.5,100.5,"nhits_daughters"},
+    TPlotDef{"d.nhits_pos[1]","daughter[1] NHits possible from DST","nHitsPos",-0.5,100.5,"nhits_possible"},
+    //TPlotDef{"MaxHitsDaughter[1]","daughter[1] NHitsf possible from Vr","MaxHits(Vr)",-0.5,100.5,"nhits_possible"},
+ 
+    //thisrd decay daugter 
+    //TPlotDef{"d.index[1]","daughter[1] index","index",-0.5,6.5},
+    TPlotDef{"d.nhits[2]","daughter[2] nHitsFit","nHitsFit",-0.5,100.5,"nhits_daughters"},
+    TPlotDef{"d.nhits_pos[2]","daughter[2] NHits possible from DST","nHitsPos",-0.5,100.5,"nhits_possible"},
+    //TPlotDef{"MaxHitsDaughter[2]","daughter[2] NHitsf possible from Vr","MaxHits(Vr)",-0.5,100.5,"nhits_possible"},
+ 
+ 
+
+/*
     TPlotDef{"(float)d.nhits[0]/(float)d.nhits_pos[0]","daughter NHits/possible","nHitsFit/nHitsPos",-0.5,2,"nhits_posrat"},
     TPlotDef{"(float)d.nhits[0]/(float)MaxHitsDaughter","daughter NHits/possible recalc","nHitsFit/nHitsPos recalculated",-0.5,2,"nhits_posrat"},
     TPlotDef{"d.PvtxDca_official[0]","daughter Prim. vtx DCA","dca[cm]",-1,100},
@@ -72,7 +89,71 @@
     TPlotDef{"d.match_chi2[0]","daughter match_chi2","chi2",0,5000},
     //TPlotDef{"d.idTruth[0]","daughter idTruth","idTruth",0,0,},
     TPlotDef{"d.qaTruth[0]","daughter qaTruth","qaTruth",0,150},
+    */
  }; //3piVtx_plot
+
+TPlotDefinitions_2D RecoVtx_plots_2D{
+    //vertex 
+    TPlotDef_2D{"mother_chi2ndf", "mother_m","3pi vertex chi2 vs mass","xi/ndf of found 3pi","m[GeV/c]",-1,11,0.4,0.6,"minv,3piVtx_chi"},
+    TPlotDef_2D{"mother_PV_chi2", "mother_m","3pi chi2 to PV vs mass","xi to PV of found  3pi","m[GeV/c]",-1,11,0.4,0.6,"minv,3piVtx_chi"},
+   
+    TPlotDef_2D{"decay_Vz", "decay_Vr","3pi - reconstructed position Z vs radius","z[cm]","r[cm]",-500,500.,0.,200,"decay_Vr,eta,pt"},
+    TPlotDef_2D{"decay_Vx", "decay_Vy","3pi - reconstructed position X-Y","x[cm]","y[cm]",-200,200.,-200,200,"decay_Vr,eta,pt"},
+    TPlotDef_2D{"mother_eta_PVX", "mother_pt_PVX","3pi - pt vs eta","eta","pt[GeV/c^2]",-3.,3.,0,2.,"eta,pt"},
+    TPlotDef_2D{"decay_Vr", "mother_pt_PVX","3pi - pt vs r","r[cm]","pt[GeV/c^2]",0.,200.,0,2.,"eta,pt,decay_Vr"},
+    TPlotDef_2D{"mother_PV_l", "mother_PV_dl","3pi - distance to PV vs error","l to pV[cm]","sigma l to PV[cm]",0,15.,-0,10},
+    TPlotDef_2D{"mother_PV_l", "(mother_PV_dl>0)?mother_PV_l/mother_PV_dl:0","3pi - distance to PV vs nsigma","l to pV[cm]","nsigma l to PV",0,15.,-0,10},
+     
+    //daughters[0]
+     TPlotDef_2D{"d.nhits_pos[0]", "d.nhits[0]","daughter[0] - nhits possible vs measured","nhits possible","hnits",-0.5,99.5,-0.5,99.5,"decay_Vr"},
+     TPlotDef_2D{"d.nhits_pos[0]", "decay_Vr","daughter[0] - nhits possible vs r","nhits possible","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits[0]", "decay_Vr","daughter[0] - nhits measured vs r","nhits","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits_pos[0]", "d.lastPointR[0]","daughter[0] - nhits possible vs lastPointR","nhits possible","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits[0]", "d.lastPointR[0]","daughter[0] - nhits measured vs lastPointR","nhits","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.lastPointR[0]", "decay_Vr","daughter[0] - nhits measured vs r","lastPoint[cm]","r[cm]",0.,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits_pos[0]", "MaxHits(decay_Vr)","daughter[0] - nhits possible vs calculated max","nhits possible","MaxHits(Vr)",-0.5,99.5,-0.5,99.5,"decay_Vr"},
+   
+     TPlotDef_2D{"d.nhits_pos[1]", "d.nhits[1]","daughter[1] - nhits possible vs measured","nhits possible","hnits",-0.5,99.5,-0.5,99.5,"decay_Vr"},
+     TPlotDef_2D{"d.nhits_pos[1]", "decay_Vr","daughter[1] - nhits possible vs r","nhits possible","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits[1]", "decay_Vr","daughter[1] - nhits measured vs r","nhits","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits_pos[1]", "d.lastPointR[1]","daughter[1] - nhits possible vs lastPointR","nhits possible","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits[1]", "d.lastPointR[1]","daughter[1] - nhits measured vs lastPointR","nhits","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.lastPointR[1]", "decay_Vr","daughter[1] - nhits measured vs r","lastPoint[cm]","r[cm]",0.,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits_pos[1]", "MaxHits(decay_Vr)","daughter[1] - nhits possible vs calculated max","nhits possible","MaxHits(Vr)",-0.5,99.5,-0.5,99.5,"decay_Vr"},
+    
+     TPlotDef_2D{"d.nhits_pos[2]", "d.nhits[2]","daughter[2] - nhits possible vs measured","nhits possible","hnits",-0.5,99.5,-0.5,99.5,"decay_Vr"},
+     TPlotDef_2D{"d.nhits_pos[2]", "decay_Vr","daughter[2] - nhits possible vs r","nhits possible","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits[2]", "decay_Vr","daughter[2] - nhits measured vs r","nhits","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits_pos[2]", "d.lastPointR[2]","daughter[2] - nhits possible vs lastPointR","nhits possible","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits[2]", "d.lastPointR[2]","daughter[2] - nhits measured vs lastPointR","nhits","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.lastPointR[2]", "decay_Vr","daughter[2] - nhits measured vs r","lastPoint[cm]","r[cm]",0.,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits_pos[2]", "MaxHits(decay_Vr)","daughter[2] - nhits possible vs calculated max","nhits possible","MaxHits(Vr)",-0.5,99.5,-0.5,99.5,"decay_Vr"},
+   
+
+    /*
+    TPlotDef{"mother_eta_PVX","eta from 3pi vertex at PVX","eta",-2.,2.,"eta"},
+    TPlotDef{"mother_pt_PVX","pt from 3pi vertex at PVX","pt[GeV/c^2]",0,1.5,"pt"},
+    TPlotDef{"mother_phi_PVX","phi from 3pi vertex at PVX","phi",-7,7.},
+    TPlotDef{"MaxHits(decay_Vr)","maximum number of hits of matched kaon","hnits",-0.5,99.5,"decay_Vr"},
+ 
+
+    TPlotDef{"d.qaTruth[0]+d.qaTruth[1]+d.qaTruth[2]","sum of daughter qaTruths","",0.,300.},
+  
+    //first decay daugter 
+  
+    TPlotDef{"(float)d.nhits[0]/(float)d.nhits_pos[0]","daughter NHits/possible","nHitsFit/nHitsPos",-0.5,2,"nhits_posrat"},
+    TPlotDef{"(float)d.nhits[0]/(float)MaxHitsDaughter","daughter NHits/possible recalc","nHitsFit/nHitsPos recalculated",-0.5,2,"nhits_posrat"},
+    TPlotDef{"d.PvtxDca_official[0]","daughter Prim. vtx DCA","dca[cm]",-1,100},
+    TPlotDef{"d.PvtxDcaXY_official[0]","daughter Prim. vtx DCA_XY","dca_xy[cm]",-1,10},
+    TPlotDef{"d.PvtxDcaZ_official[0]","daughter Prim. vtx DCA_Z","dca_z[cm]",-10,10},
+    TPlotDef{"d.lastPointR[0]","daughter last hit position","r[cm]",80,200},
+    TPlotDef{"d.match_chi2[0]","daughter match_chi2","chi2",0,5000},
+    //TPlotDef{"d.idTruth[0]","daughter idTruth","idTruth",0,0,},
+    TPlotDef{"d.qaTruth[0]","daughter qaTruth","qaTruth",0,150},
+    */
+ }; //3piVtx_plot
+
+
 
 //const int K_match=4;//[4]..is matched (via dp from Dst) ...d[3] via KFP
 #define K_match 4
