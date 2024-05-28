@@ -145,10 +145,11 @@ void FXT_plotEfficiencies(){
 
   
 
-  TFile f("FXT_eff.root","recreate");
+  TFile *f=new TFile("FXT_eff.root","recreate");
   DrawEffs(Res_Plots);
-  f.Write();
-  f.Close();
+  f->Write();
+  f->Flush();
+  //f->Close();
   return;
 }
 

@@ -36,9 +36,9 @@
 */
 
    TFileDescription data_2020_FXT[]={
-    {"../../ntup/2020_FXT_31p2_SL23d_noLcut/*.root","31.2GeV FXT SL23d",0,NULL}, 
-    {"../../ntup/2020_FXT_13p5_SL23e_noLcut/*.root","13.5GeV FXT SL23e",0,NULL}, 
-    {"../../ntup/2020_FXT_5p75_SL23e_noLcut/*.root","5.75GeV FXT Sl23e",0,NULL}, 
+    {"../../ntup/2020_FXT_31p2_SL23d_noLcut/*1.root","31.2GeV FXT SL23d",0,NULL}, 
+    {"../../ntup/2020_FXT_13p5_SL23e_noLcut/*1.root","13.5GeV FXT SL23e",0,NULL}, 
+    {"../../ntup/2020_FXT_5p75_SL23e_noLcut/*1.root","5.75GeV FXT SL23e",0,NULL}, 
     }; 
 
 
@@ -49,7 +49,7 @@
  //TFileDescription* files=data19GeV;
   TFileDescription* files=data_2020_FXT;
  
-  const int nFiles=3; //for efficiency plots only nFiles<=2 possible
+  const int nFiles=2; //for efficiency plots only nFiles<=2 possible
   const int order[]={2,1,0};
   const Long64_t nEntriefsLimit=TTree::kMaxEntries;//# or your number of entrie
 
