@@ -90,7 +90,7 @@ void plotEfficiencies(){
   //intilaize cuts
   InitCuts();
   Setup_3piVertexQA(); //must be called after InitCuts() !
-  
+  Setup_KaonMatching();
 
   TPlotDefinitions PlotDefs= Efficiency_plots;
   
@@ -187,7 +187,7 @@ void plotEfficiencies(){
 
   
 
-  TFile f("eff_dataComp_Vr80_ZDC200_600_Nhits20_DCA1.root","recreate");
+  TFile f("eff_2019_embedSL23vsData_test_Vz_Vr.root","recreate");
   DrawEffs(Res_Plots);
   f.Write();
   f.Close();

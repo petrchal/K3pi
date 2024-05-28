@@ -10,7 +10,11 @@
 #include "K3piLib.C"
 
 
-void AddNewVar(const char* var, const char *val) {NewVars[var]=val;}
+void AddNewVar(const char* var, const char *val) {
+    cout<<"Adding variable: "<<var<<"="<<val<<endl;
+    NewVars[var]=val;
+}
+
 
 
 const Float_t K_m=0.494;
@@ -25,6 +29,8 @@ TCutVariation vary_Minv={"cut_mom_Minv",{"cut_mom_Minv+0.02", "cut_mom_Minv-0.05
 TCutVariation vary_daughter_Nhits={"cut_daugh_nhits",{"12.", "13."}};//11
 TCutVariation vary_DCAxy={"PvtxDcaXY_corrected",{"float(PvtxDcaXY_corrected+0.1)"}};//11
 
+//runId list
+std::vector<unsigned int>  runIds_2019;
 
 //------ trigger lists   ----------------------------------------
 std::vector<unsigned int> trigList_2019_19AuAu;  //2019 19GeV AuAu same as in embedding
@@ -92,14 +98,12 @@ K3PiCut EventCut_2019_19AuAu(){
   Event_cut["trigger"]="Evt.isTrigger(trigList_2019_19AuAu)";
   //2019 has rather wide Vz distribution, I'm loosing about 60%
   AddNewVar("cut_Vz","50."); //alows cut variation
+ //cumulative loss of 70% for 2019
   Event_cut["Vz"]="(Evt.Vz>-cut_Vz)&&(Evt.Vz<cut_Vz)"; //embedding width
   Event_cut["VPDdif"]="fabs(Evt.vzVpd-Evt.Vz)<5"; //VPD cut ..maybe to tight, but ok .. takes off another 30%
-  //cumulative loss of 70% 
- 
+
   //Event_cut["nK3piP"]="Evt.nK3piP<=1"; //"there is a significant change from SL21 to SL23"
  
-
-
   //good run && luminosity
   //bad run list should be part of the candidate extraction
  
@@ -112,14 +116,11 @@ K3PiCut EventCut_2019_19AuAu(){
   */
 
  //optimization for 19GeV data
-  
-  
-
   Event_cut["gRefMult"]="(Evt.gRefMult<420)";
-  Event_cut["TOFmatch"]="(Evt.nBTOFMatch<460)";
+  Event_cut["TOFmatch"]="(Evt.nBTOFMatch<460)&&(Evt.nBTOFMatch>100)";
 
   //Event_cut["ZDC"]="(Evt.ZDCx>50) && (Evt.ZDCx<800)";
-  Event_cut["ZDC"]="(Evt.ZDCx>200) && (Evt.ZDCx<600)";
+  //Event_cut["ZDC"]="(Evt.ZDCx>200) && (Evt.ZDCx<600)";
   //Event_cut["eventId"]="(Evt.eventId>2000000)";
 
 
@@ -214,9 +215,8 @@ K3PiCut Setup_3piVertexQA(){
 
      AddNewVar("MaxHitsDaughter","MaxHitsDaughter(decay_Vr)");
 
-     AddNewVar("cut_mom_ch2ndf",".1");
-     VertexQA_cut["3piVtx_chi"]="(mother_chi2ndf<cut_mom_ch2ndf)"; //30 -cut off in extraction, the DNF shoudl be 5?
-     //3piVtxQA_cut["3piVtx_chi"]="(mother_chi2ndf<1.5)&&(mother_chi2ndf>0.8)"; //30 -cut off in extraction, the DNF shoudl be 5?
+     AddNewVar("cut_3pi_ch2ndf","1.");  //0.1 - strict cut, most of 3pi are below 0.2
+     VertexQA_cut["3piVtx_chi"]="(mother_chi2ndf<cut_3pi_ch2ndf)"; //30 -cut off in extraction, the DNF shoudl be 5?
      
      //TODO - possible to include
      //3piVtx_PV_l;
@@ -245,7 +245,7 @@ K3PiCut Setup_3piVertexQA(){
      //tmp["nhits_posrat"]="( (NhitsOK(d.nhits[0],decay_Vr)) &&  (NhitsOK(d.nhits[1],decay_Vr)) &&  (NhitsOK(d.nhits[2],decay_Vr)) )"; not working for iTPC
      
      //skip central membrane
-     //tmp["Z_decay"]="(fabs(decay_Vz)<130)&&(fabs(decay_Vz)>30)";
+     tmp["Z_decay"]="(fabs(decay_Vz)<130)&&(fabs(decay_Vz)>30)";
      
      VertexQA_cut["3piVtxAdds"]=tmp.Str();
     
@@ -278,13 +278,13 @@ K3PiCut Setup_3piVtxKinematics(){
 
    //base cut for iTPC - zero efficiency below 
    //!!!MUST be applied!!!
-   kin_cut["decay_Vr"]="(decay_Vr>80)"; //simulation cutoff for flat pt
+   kin_cut["decay_Vr"]="(decay_Vr>80)"; 
 
    // long track without iTPC: 2018
-   //kin_cut["decay_Vr"]="(decay_Vr>140)&&(decay_Vr<165)"; //170
+   //kin_cut["decay_Vr"]="(decay_Vr>140)&&(decay_Vr<160)"; //170
  
    // long track with iTPC: from 2019 up
-   //kin_cut["decay_Vr"]="(decay_Vr>130)&&(decay_Vr<160)"; //160 may be safer, could go to 120
+   kin_cut["decay_Vr"]="(decay_Vr>130)&&(decay_Vr<160)"; //160 may be safer, could go to 120
    //kin_cut["decay_Vr"]="(decay_Vr>120)&&(decay_Vr<160)"; //160 may be safer, could go to 120
    
    //kin_cut["decay_Vr"]="(decay_Vr>130)&&(decay_Vr<140)";
@@ -428,8 +428,8 @@ void InitCuts(){
 
   //for DCA adjustments - move and smear embedding
   //this should be done in a smarter way - separately for each data set
-  //AddNewVar("PvtxDcaXY_corrected","d.PvtxDcaXY_official[K_match]");
-  //AddNewVar("PvtxDca_corrected","d.PvtxDca_official[K_match]");
+  AddNewVar("PvtxDcaXY_corrected","d.PvtxDcaXY_official[K_match]");
+  AddNewVar("PvtxDca_corrected","d.PvtxDca_official[K_match]");
   
   //AddNewVar("PvtxDcaXY_corrected","float((d.qaTruth[K_match]>0.0)?((d.PvtxDcaXY_official[K_match]*1.1+0.0456)):d.PvtxDcaXY_official[K_match])");
   //AddNewVar("PvtxDca_corrected","float(sqrt(PvtxDcaXY_corrected*PvtxDcaXY_corrected+d.PvtxDcaZ_official[K_match]*d.PvtxDcaZ_official[K_match]))");
