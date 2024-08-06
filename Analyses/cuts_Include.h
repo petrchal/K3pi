@@ -21,7 +21,7 @@ const Float_t K_m=0.494;
 //int particlesPDG[nPIDS] = {100321, 200321,-100321, -200321}; //k->3pi only, K->3pi with found K
 
 //----------------- cut variations ----------------------------------------
-TCutVariation vary_3piVtx_chi2ndf={"cut_mom_ch2ndf",{"cut_mom_ch2ndf+0.2","cut_mom_ch2ndf+0.4"}};
+TCutVariation vary_3piVtx_chi2ndf={"cut_3pi_ch2ndf",{"cut_3pi_ch2ndf+0.2","cut_3pi_ch2ndf+0.4"}};
 TCutVariation vary_lastPointDiff={"cut_lastPointDiff",{"cut_lastPointDiff+3.","cut_lastPointDiff-3."}};
 TCutVariation vary_EvtVz={"cut_Vz",{"cut_Vz+15.","cut_Vz-15."}};
 TCutVariation vary_dpDecay={"cut_dpDecay",{"cut_dpDecay+0.05","cut_dpDecay-0.02"}};
@@ -89,6 +89,38 @@ void InitTriggerLists(){
   std::sort(trigList_2021_7p7AuAu.begin(), trigList_2021_7p7AuAu.end());
 }
 
+//--------------------runlists
+std::vector<unsigned int> runList_2019_19AuAu;  //2019 19GeV AuAu same as in embedding
+void InitRunLists(){
+  //read runlist from file
+  std::ifstream is("/home/petrchal/tpcAna/ntup/2019_19GeV_SL23_embed_final/runIds");
+  if (!is.is_open()) {  std::cerr << "Error opening file!" << std::endl;}
+  unsigned int num;
+  while (is >> num) {
+        runList_2019_19AuAu.push_back(num);
+    }
+  is.close();
+ 
+ std::cout << "Read " << runList_2019_19AuAu.size() << " numbers" << std::endl;
+ 
+ //print the numbers to stdout
+  std::cout << "numbers read in:\n";
+  std::copy(runList_2019_19AuAu.begin(), runList_2019_19AuAu.end(), 
+            std::ostream_iterator<unsigned int>(std::cout, " "));
+  std::cout << std::endl;
+
+  std::sort(runList_2019_19AuAu.begin(), runList_2019_19AuAu.end());
+}
+
+bool goodRunId(unsigned int id) {
+  //cout<<" petr runId="<<id<<endl;
+  bool res= std::find(runList_2019_19AuAu.begin(), runList_2019_19AuAu.end(), id) != runList_2019_19AuAu.end();
+  //TString s=" petr runId=";s+=id;s+=" found=";s+=res;
+  //cout<<s.Data()<<endl;
+  return res;
+}
+
+
 //------EVENT CUTS here----------------------------------------
 //------ this a to ensure that all theprocedures use the same event cut
 K3PiCut EventCut_2019_19AuAu(){
@@ -96,16 +128,20 @@ K3PiCut EventCut_2019_19AuAu(){
   K3PiCut Event_cut;
 
   Event_cut["trigger"]="Evt.isTrigger(trigList_2019_19AuAu)";
+  
   //2019 has rather wide Vz distribution, I'm loosing about 60%
-  AddNewVar("cut_Vz","50."); //alows cut variation
+  AddNewVar("cut_Vz","80."); //50 alows cut variation
  //cumulative loss of 70% for 2019
   Event_cut["Vz"]="(Evt.Vz>-cut_Vz)&&(Evt.Vz<cut_Vz)"; //embedding width
+  //Event_cut["Vz"]="(Evt.Vz>20)&&(Evt.Vz<80)"; //right half
+  //Event_cut["Vz"]="(Evt.Vz<-20)&&(Evt.Vz>-80)"; //left half
+  
   Event_cut["VPDdif"]="fabs(Evt.vzVpd-Evt.Vz)<5"; //VPD cut ..maybe to tight, but ok .. takes off another 30%
 
   //Event_cut["nK3piP"]="Evt.nK3piP<=1"; //"there is a significant change from SL21 to SL23"
  
-  //good run && luminosity
-  //bad run list should be part of the candidate extraction
+  //extracted from emebedding - using exatly same data
+  Event_cut["runId"]="goodRunId(Evt.runId)";
  
  /*
   //optimization for 27GeV data
@@ -116,18 +152,46 @@ K3PiCut EventCut_2019_19AuAu(){
   */
 
  //optimization for 19GeV data
-  Event_cut["gRefMult"]="(Evt.gRefMult<420)";
-  Event_cut["TOFmatch"]="(Evt.nBTOFMatch<460)&&(Evt.nBTOFMatch>100)";
+ //Event_cut["gRefMult"]="(Evt.gRefMult<420)";
+ //Event_cut["TOFmatch"]="(Evt.nBTOFMatch<460)&&(Evt.nBTOFMatch>100)";
 
   //Event_cut["ZDC"]="(Evt.ZDCx>50) && (Evt.ZDCx<800)";
   //Event_cut["ZDC"]="(Evt.ZDCx>200) && (Evt.ZDCx<600)";
-  //Event_cut["eventId"]="(Evt.eventId>2000000)";
-
+  //Event_cut["eventId"]="(Evt.eventId<1200000)";
 
 
   return Event_cut;
 } 
 
+//------ this a to ensure that all theprocedures use the same event cut
+K3PiCut EventCut_2018_27AuAu(){
+
+  K3PiCut Event_cut;
+
+  Event_cut["trigger"]="Evt.isTrigger(trigList_2018_27AuAu)";
+  
+   AddNewVar("cut_Vz","50.");
+
+  //Event_cut["Vz"]="(Evt.Vz>-cut_Vz)&&(Evt.Vz<cut_Vz)"; //embedding width
+  //Event_cut["Vz"]="(Evt.Vz>30)&&(Evt.Vz<80)"; //right half
+  //Event_cut["Vz"]="(Evt.Vz>10)&&(Evt.Vz<50)"; //right half
+   Event_cut["Vz"]="(Evt.Vz<-10)&&(Evt.Vz>-50)"; //left half
+  
+  Event_cut["VPDdif"]="fabs(Evt.vzVpd-Evt.Vz)<5"; //VPD cut ..maybe to tight, but ok .. takes off another 30%
+
+   
+  //extracted from emebedding - using exatly same data
+  //Event_cut["runId"]="goodRunId(Evt.runId)";
+ 
+ 
+  //optimization for 27GeV data
+  Event_cut["BBC"]="(Evt.BBCx<500000)";
+  Event_cut["ZDC"]="(Evt.ZDCx>800) && (Evt.ZDCx<1800)";
+  Event_cut["gRefMult"]="(Evt.gRefMult<320)";
+  Event_cut["TOFmatch"]="(Evt.nBTOFMatch<340)";
+  
+  return Event_cut;
+} 
 
 //-------------
 K3PiCut EventCut_2021_7p7AuAu(){
@@ -138,6 +202,8 @@ K3PiCut EventCut_2021_7p7AuAu(){
  
   AddNewVar("cut_Vz","50.");
   Event_cut["Vz"]="(Evt.Vz>-cut_Vz)&&(Evt.Vz<cut_Vz)"; //embedding width
+  
+
   Event_cut["VPDdif"]="fabs(Evt.vzVpd-Evt.Vz)<5"; //VPD cut ..maybe to tight, but ok
 
   //when comparing to TFG production
@@ -160,10 +226,10 @@ K3PiCut EventCut_2020_FXT(){ //so far empty cut
 
   return Event_cut;
 }    
-
 //!!!!!!!assign which cut is globaly used!!!!
 //std::function<K3PiCut()> K3piCut_EventCut =EventCut_2021_7p7AuAu;
 std::function<K3PiCut()> K3piCut_EventCut =EventCut_2019_19AuAu;
+//std::function<K3PiCut()> K3piCut_EventCut =EventCut_2018_27AuAu;
 //std::function<K3PiCut()> K3piCut_EventCut =EventCut_2020_FXT;
 
 //==========END of Event cuts =============================
@@ -215,7 +281,7 @@ K3PiCut Setup_3piVertexQA(){
 
      AddNewVar("MaxHitsDaughter","MaxHitsDaughter(decay_Vr)");
 
-     AddNewVar("cut_3pi_ch2ndf","1.");  //0.1 - strict cut, most of 3pi are below 0.2
+     AddNewVar("cut_3pi_ch2ndf",".2");  //0.1 - strict cut, most of 3pi are below 0.2
      VertexQA_cut["3piVtx_chi"]="(mother_chi2ndf<cut_3pi_ch2ndf)"; //30 -cut off in extraction, the DNF shoudl be 5?
      
      //TODO - possible to include
@@ -244,9 +310,7 @@ K3PiCut Setup_3piVertexQA(){
      //tmp["daughter_lastHit"]="(d.lastPointR[0]>155) && (d.lastPointR[1]>155)&& (d.lastPointR[2]>155)";
      //tmp["nhits_posrat"]="( (NhitsOK(d.nhits[0],decay_Vr)) &&  (NhitsOK(d.nhits[1],decay_Vr)) &&  (NhitsOK(d.nhits[2],decay_Vr)) )"; not working for iTPC
      
-     //skip central membrane
-     tmp["Z_decay"]="(fabs(decay_Vz)<130)&&(fabs(decay_Vz)>30)";
-     
+      
      VertexQA_cut["3piVtxAdds"]=tmp.Str();
     
 
@@ -269,9 +333,8 @@ K3PiCut Setup_3piVtxKinematics(){
   //kin_cut["pt"]="(mother_pt_PVX>0.25)&&(mother_pt_PVX<0.4)";
   //pt="&&(mother_pt_PVX>0.2)&&(mother_pt_PVX<1.)"; //basic pt cut
     
-    kin_cut["eta"]="(fabs(mother_eta_PVX)<0.8)";
-   //kin_cut["eta2"]="(mother_eta_PVX<-0.2)";
-   //kin_cut["eta2"]="(mother_eta_PVX>0.2)";
+   //kin_cut["eta"]="(fabs(mother_eta_PVX)<0.8)"; //standard
+    kin_cut["eta"]="(fabs(mother_eta_PVX)<1.2)";
    
    // 110cm -base cut for old TPC - nor 3pi bellow 110cm
    //kin_cut["decay_Vr"]="(decay_Vr>110)"; //simulation cutoff for flat pt
@@ -285,14 +348,25 @@ K3PiCut Setup_3piVtxKinematics(){
  
    // long track with iTPC: from 2019 up
    kin_cut["decay_Vr"]="(decay_Vr>130)&&(decay_Vr<160)"; //160 may be safer, could go to 120
-   //kin_cut["decay_Vr"]="(decay_Vr>120)&&(decay_Vr<160)"; //160 may be safer, could go to 120
+   //kin_cut["decay_Vr"]="(decay_Vr<120)&&(decay_Vr>80)"; //short tracks
+ 
+   // inner/outer divide
+   //kin_cut["decay_Vr"]="(decay_Vr>115)&&(decay_Vr<122)"; 
    
+
    //kin_cut["decay_Vr"]="(decay_Vr>130)&&(decay_Vr<140)";
    //kin_cut["decay_Vr"]="(decay_Vr>150)"; //160 may be safer, could go to 120
   
    //short tracks
    //kin_cut["decay_Vr"]="(decay_Vr<110)"; //160 may be safer, could go to 120
    
+   //--Vz---
+   //skip central membrane
+   //tmp["decay_Z"]="(fabs(decay_Vz)<130)&&(fabs(decay_Vz)>30)";
+   // kin_cut["decay_Z"]="decay_Vz>10";
+   //this does not work ...not sure why ..mixing two branches?
+    //kin_cut["sameSide"]=" (Evt.Vz<-10 && decay_Vz<-10)|| (Evt.Vz>10 && decay_Vz>10)";
+
    //kin_cut["decay_Vz"]="((decay_Vz<-5)||(decay_Vz>5))";
 
      //kin_cut["membrane"]="((decay_Vz<-0 && Evt.Vz>0)||(decay_Vz>0 && Evt.Vz<0))";
@@ -332,8 +406,8 @@ K3PiCut K3piCut_KaonTrackCut(){
 
    //ANALYSIS CUTS
    //res["kaon_DCA"]="d.PvtxDca_official[K_match]<1";
-   //res["kaon_DCA"]="PvtxDca_corrected<1";
-   //res["kaon_nhits"]=" d.nhits[K_match]>20";
+   res["kaon_DCA"]="PvtxDca_corrected<2";
+   res["kaon_nhits"]=" d.nhits[K_match]>20";
    //res["kaon_hits_ratio"]="(d.nhits[K_match]/d.nhits_pos[K_match])>0.5"; 
 
    //note: nhits/npos .... not tested yet the npos is not calculated correctly for track not reaching outer edge of TPC
@@ -423,6 +497,7 @@ void InitCuts(){
 
   NewVars.Clear();
   InitTriggerLists(); //done once per job
+  InitRunLists();
   InitPadRadii_iTPC();
 
 
@@ -431,7 +506,7 @@ void InitCuts(){
   AddNewVar("PvtxDcaXY_corrected","d.PvtxDcaXY_official[K_match]");
   AddNewVar("PvtxDca_corrected","d.PvtxDca_official[K_match]");
   
-  //AddNewVar("PvtxDcaXY_corrected","float((d.qaTruth[K_match]>0.0)?((d.PvtxDcaXY_official[K_match]*1.1+0.0456)):d.PvtxDcaXY_official[K_match])");
+  //AddNewVar("PvtxDcaXY_corrected","float((d.qaTruth[K_match]>0.0)?(((d.PvtxDcaXY_official[K_match]-0.04965)*1.1389+0.1458)):d.PvtxDcaXY_official[K_match])");
   //AddNewVar("PvtxDca_corrected","float(sqrt(PvtxDcaXY_corrected*PvtxDcaXY_corrected+d.PvtxDcaZ_official[K_match]*d.PvtxDcaZ_official[K_match]))");
 
 

@@ -83,15 +83,15 @@ void QA_matchedKaon(){
     auto Cut=MatchedKaon_cut+evCut;
      Res_EventPlots.resetPosition();
     Res_EventPlots_2D.resetPosition(); 
-    AddPlots4QA(Event_plots,kaons_node,Cut,Res_EventPlots,"per matched K+",files[order[iFile]].lable,rebin,false);
-    AddPlots4QA(Event_plots_2D,kaons_node,Cut,Res_EventPlots_2D,"per matched K+",files[order[iFile]].lable,rebin,false);
+    //AddPlots4QA(Event_plots,kaons_node,Cut,Res_EventPlots,"per matched K+",files[order[iFile]].lable,rebin,false);
+    //AddPlots4QA(Event_plots_2D,kaons_node,Cut,Res_EventPlots_2D,"per matched K+",files[order[iFile]].lable,rebin,false);
    
     //properties of 3pi vertex with matched K
     Res_3piPlots.resetPosition();
     Res_3piPlots_2D.resetPosition(); 
     //3pi vertex 
-    AddPlots4QA(RecoVtx_plots,after_evCut_node,MatchedKaon_cut,Res_3piPlots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
-    AddPlots4QA(RecoVtx_plots_2D,after_evCut_node,MatchedKaon_cut,Res_3piPlots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    //AddPlots4QA(RecoVtx_plots,after_evCut_node,MatchedKaon_cut,Res_3piPlots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    //AddPlots4QA(RecoVtx_plots_2D,after_evCut_node,MatchedKaon_cut,Res_3piPlots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
 
 
     //Properties of matched kaons
@@ -117,7 +117,7 @@ void QA_matchedKaon(){
  
 } //loop over files
 
-  TFile *f=new TFile("matchedComp_2019_all_noCuts.root","recreate");
+  TFile *f=new TFile("matchedComp_2019_noCuts,Vz_right,Vr_atDivide.root","recreate");
   f->mkdir("events");f->cd("events"); 
   DrawResults(Res_EventPlots);
   DrawResults(Res_EventPlots_2D); 

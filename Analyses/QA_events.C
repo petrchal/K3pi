@@ -93,7 +93,7 @@ void QA_events(){
  
 } //loop over files
 
-TFile *f=new TFile("eventsComp_2019_SL23_noCuts.root","recreate");
+TFile *f=new TFile("eventsComp_2019_SL23_runId+evtId_simple.root","recreate");
 DrawResults(Res_eventPlots);
 DrawResults(Res_eventPlots_2D);
 f->Write();
