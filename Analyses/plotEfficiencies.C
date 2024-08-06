@@ -48,7 +48,7 @@ using RNode = ROOT::RDF::RNode;
 */
     
   const Long64_t nEntriesLimit=TTree::kMaxEntries;;//1000000;//TTree::kMaxEntries;//100000;// -1;
-  const int rebin=4; 
+  const int rebin=1; 
   bool ignoreRange=false; // change to spot some outlayers
   
   
@@ -118,9 +118,10 @@ void plotEfficiencies(){
      //must be called after all cuts are read
      data_node=DefineNewVariables(data_node);
      //data_node=AddVariations(vary_EvtVz,data_node);
+   
      /*
      data_node=AddVariations(vary_lastPointDiff,data_node);
-     data_node=AddVariations(vary_Mother_chi2ndf,data_node);
+     data_node=AddVariations(vary_3piVtx_chi2ndf,data_node);
      data_node=AddVariations(vary_dpDecay,data_node);
      data_node=AddVariations(vary_Minv,data_node);
      data_node=AddVariations(vary_daughter_Nhits,data_node);
@@ -132,7 +133,8 @@ void plotEfficiencies(){
        evCut.Replace(files[order[iFile]].trigger);
     } 
     auto node_Events=data_node.Filter(evCut.Str());
-  
+    cout<<" cut used for event selection pion:"<<endl<<evCut.Str()<<endl<<endl;
+
 
     //common denominator: any 3pi vertex ..this should speed it up
     //now 3pi candidates ... all together MC and non MC, positive and negative !!!
@@ -143,7 +145,8 @@ void plotEfficiencies(){
     //3pi+  - adding PID  
     auto _3pi_cut=K3piCut_3piVtx_Kplus();
     RNode node_cut_found3pi= d_3piFound.Filter(_3pi_cut.Str()); 
- 
+    cout<<" cut used for 3pi selection pion:"<<endl<<_3pi_cut.Str()<<endl<<endl;
+
 
     //3pi+ from MC
     auto _3pi_MC_cut= _3pi_cut+ Setup_MCvertex();
@@ -152,6 +155,7 @@ void plotEfficiencies(){
     //matched kaon
     auto matched_cut=K3piCut_Matched_Kplus();
     RNode node_cut_K_helix= node_cut_found3pi.Filter(matched_cut.Str()); 
+    cout<<" cut used for matched pion:"<<endl<<matched_cut.Str()<<endl<<endl;
 
     //matched from MC   
     //The qa truth is important!!! similar cut as in data
@@ -187,10 +191,13 @@ void plotEfficiencies(){
 
   
 
-  TFile f("eff_2019_embedSL23vsData_test_Vz_Vr.root","recreate");
+  //TFile *f=new TFile("eff_2018_27GeV_eventZneg_longVr,nhits20,dca1.root","recreate");
+  //TFile *f=new TFile("eff,vary_2019_noCuts,Vz_left,Vr_long.root","recreate");
+  TFile *f=new TFile("eff_2019_Vr_long,nhits20,dca2.root","recreate");
   DrawEffs(Res_Plots);
-  f.Write();
-  f.Close();
+  f->Write();
+  f->Flush();
+  //f->Close(); //to see after closing
   return;
 }
 
@@ -319,7 +326,6 @@ gStyle->SetTickLength(0.02,"Y");
          hNum->SetLineColor(color[iii]);
          hNum->GetXaxis()->SetTitle(plot.def.axisTitle);
         
-          cout<<"CHP1"<<endl;
         //make the efficiencies
         hNum->Draw();hDen->Draw();
        

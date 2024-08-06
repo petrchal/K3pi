@@ -55,7 +55,7 @@ TPlotDefinitions Event_plots{
  
 
     TPlotDef{"d.qaTruth[0]+d.qaTruth[1]+d.qaTruth[2]","sum of daughter qaTruths","",0.,300.},
-  
+    //mact
     //first decay daugter 
     TPlotDef{"d.index[0]","daughter[0] index","index",-0.5,6.5},
     TPlotDef{"d.nhits[0]","daughter[0] nHitsFit","nHitsFit",-0.5,99.5,"nhits_daughters"},
@@ -141,15 +141,15 @@ TPlotDefinitions Event_plots{
 TPlotDefinitions Kaon_plots{
     TPlotDef{"d.nhits[K_match]","kaon nHitsFit","nHitsFit",-0.5,99.5,"kaon_nhits"},
     TPlotDef{"d.nhits_pos[K_match]","kaon nHitsPos (from MuDst)","nHitsPos",-0.5,99.5,},
-    TPlotDef{"d.nhits_dEdx[K_match]","kaon dEdx hits","nhit dEdx",-0.5,99.5},
+    TPlotDef{"d.nhits_dEdx[K_match]","kaon dEdx","nhit dEdx",-0.5,99.5},
     //DCA to PV
     TPlotDef{"d.PvtxDca_official[K_match]","kaon: Prim. vtx DCA","dca[cm]",-1,10,"kaon_DCA"},
     TPlotDef{"PvtxDca_corrected","corrected kaon Prim. vtx DCA","dca[cm]",-1,10,"kaon_DCA"},
     TPlotDef{"d.PvtxDcaXY_official[K_match]","kaon Prim. vtx DCA_XY","dca_xy[cm]",-3,3,"kaon_DCA"},
     TPlotDef{"PvtxDcaXY_corrected","corrected kaon Prim. vtx DCA_XY","dca_xy[cm]",-3,3,"kaon_DCA"},
-    TPlotDef{"PvtxDcaXY_corrected-d.PvtxDcaXY_official[K_match]","difference corrected - kaon Prim. vtx DCA_XY","dca_xy[cm]",-3,3,"kaon_DCA"},
+    TPlotDef{"PvtxDcaXY_corrected-d.PvtxDcaXY_official[K_match]","difference corrected - kaon Prim. vtx DCA_XY","dca_xy[cm]",-0.5,0.5,"kaon_DCA"},
     TPlotDef{"d.PvtxDcaZ_official[K_match]","kaon Prim. vtx DCA_Z","dca_z[cm]",-3,3,"kaon_DCA"},
-     //recalc
+    //recalc
     TPlotDef{"d.PvtxDca_mu[K_match]","recalc from helix Prim. vtx DCA ","dca[cm]",-1,10,"kaon_DCA"},
     TPlotDef{"d.PvtxDcaXY_mu[K_match]","recalc from helix Prim. vtx DCA XY ","dca_xy[cm]",-3,3,"kaon_DCA"},
    
@@ -192,7 +192,7 @@ TPlotDefinitions Kaon_plots{
      TPlotDef_2D{"d.lastPointR[4]", "decay_Vr","kaon - nhits measured vs r","lastPoint[cm]","r[cm]",0.,200.5,0.,200.,"decay_Vr"},
      TPlotDef_2D{"d.nhits_pos[4]", "MaxHits(decay_Vr)","kaon - nhits possible vs calculated max","nhits possible","MaxHits(Vr)",-0.5,99.5,-0.5,99.5,"decay_Vr"},
    
-
+      //matching related
   /*
     TPlotDef{"d.nhits[K_match]","kaon nHitsFit","nHitsFit",-0.5,99.5,"kaon_nhits"},
     TPlotDef{"d.nhits_pos[K_match]","kaon nHitsPos (from MuDst)","nHitsPos",-0.5,99.5,},
