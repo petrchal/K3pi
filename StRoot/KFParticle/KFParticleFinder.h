@@ -287,6 +287,7 @@ class KFParticleFinder
   //Functionality to change cuts, all cuts have default values set in the constructor
   void SetMaxDistanceBetweenParticlesCut(float cut) { fDistanceCut = cut; } ///< Sets cut on the distance between secondary tracks at the DCA point.
   void SetLCut(float cut) { fLCut = cut; } ///< Sets cut on the distance to the primary vertex from the decay vertex.
+  void SetMaxLCut(float cut) { fMaxLCut = cut; } ///< Sets cut on the distance (maximu) to the primary vertex from the decay vertex.
   
   void SetChiPrimaryCut2D(float cut) { fCuts2D[0] = cut; } ///< Sets cut on \f$\chi^2_{prim}\f$ of each track for 2-daughter decays.
   void SetChi2Cut2D(float cut)       { fCuts2D[1] = cut; } ///< Sets cut on \f$\chi^2_{geo}\f$ for 2-daughter decays.
@@ -327,6 +328,7 @@ class KFParticleFinder
      **/
     fDistanceCut = finder->fDistanceCut;
     fLCut = finder->fLCut;
+    fMaxLCut = finder->fMaxLCut;
     for(int iCut=0; iCut<3; iCut++)
       fCuts2D[iCut] = finder->fCuts2D[iCut];
     for(int iCut=0; iCut<3; iCut++)
@@ -349,6 +351,7 @@ class KFParticleFinder
   //Functionality to check the cuts
   const float GetMaxDistanceBetweenParticlesCut() const { return fDistanceCut; } ///< Returns cut on the distance between secondary tracks at the DCA point.
   const float GetLCut() const { return fLCut; } ///< Returns cut on the distance to the primary vertex from the decay vertex.
+  const float GetMaxLCut() const { return fMaxLCut; } ///< Returns cut on the maximum distance to the primary vertex from the decay vertex.
   
   const float GetChiPrimaryCut2D() const { return fCuts2D[0]; } ///< Returns cut on \f$\chi^2_{prim}\f$ of each track for 2-daughter decays.
   const float GetChi2Cut2D()       const { return fCuts2D[1]; } ///< Returns cut on \f$\chi^2_{geo}\f$ for 2-daughter decays.
@@ -394,6 +397,7 @@ class KFParticleFinder
   
   float fDistanceCut; ///< Cut on the distance between secondary tracks at the DCA point, is soft and used to speed up the algorithm only.
   float fLCut; ///< Cut on the distance to the primary vertex from the decay vertex. Is applied to \f$K^0_s\f$, \f$\Lambda\f$, \f$\Xi\f$, \f$\Omega\f$, hypernuclei and dibaryons.
+  float fMaxLCut; ///< Cut on the maximumdistance to the primary vertex from the decay vertex. Is applied to \f$K^0_s\f$, \f$\Lambda\f$, \f$\Xi\f$, \f$\Omega\f$, hypernuclei and dibaryons.
 
   float fCuts2D[3]; ///< Cuts on 2-daughter decays: \f$\chi^2_{prim}\f$, \f$\chi^2_{geo}\f$, \f$l/\Delta l\f$
   float fSecCuts[3]; ///< Cuts to select secondary and primary particle candidates: \f$\sigma_{M}\f$, \f$\chi^2_{topo}\f$, \f$l/\Delta l\f$

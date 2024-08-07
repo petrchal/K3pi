@@ -28,7 +28,7 @@ using std::vector;
 #include "KFPEmcCluster.h"
 
 KFParticleFinder::KFParticleFinder():
-  fNPV(-1),fNThreads(1),fDistanceCut(1.f),fLCut(-5.f),fCutCharmPt(0.2f),fCutCharmChiPrim(85.f),fCutLVMPt(0.0f),fCutLVMP(0.0f),fCutJPsiPt(1.0f),
+  fNPV(-1),fNThreads(1),fDistanceCut(1.f),fLCut(-5.f),fMaxLCut(200.f),fCutCharmPt(0.2f),fCutCharmChiPrim(85.f),fCutLVMPt(0.0f),fCutLVMP(0.0f),fCutJPsiPt(1.0f),
   fD0(0), fD0bar(0), fD04(0), fD04bar(0), fD0KK(0), fD0pipi(0), fDPlus(0), fDMinus(0), 
   fDPlus3Pi(0), fDMinus3Pi(0), fDsPlusK2Pi(0), fDsMinusK2Pi(0), fLcPlusP2Pi(0), fLcMinusP2Pi(0),
   fLPi(0), fLPiPIndex(0), fDPi(0), fDPiBar(0), fTPi(0), fTPiBar(0), fHe3Pi(0), fHe3PiBar(0), fHe4Pi(0), fHe4PiBar(0), 
@@ -781,7 +781,7 @@ inline void KFParticleFinder::ConstructV0(KFPTrackVector* vTracks,
     ldlMin( (ldl < ldlMin) && saveParticle) = ldl;
   }
 
-  saveParticle &= (lMin < 200.f);
+  saveParticle &= (lMin < fMaxLCut);
 #ifdef NonhomogeneousField  
   KFParticleSIMD motherTopo;
     ldlMin = 1.e8f;
@@ -1779,7 +1779,7 @@ void KFParticleFinder::ConstructTrackV0Cand(KFPTrackVector& vTracks,
     lMin( (l[iP] < lMin) && active) = l[iP];
     ldlMin( (ldl < ldlMin) && active) = ldl;
   }
-  saveParticle &= (lMin < 200.f);
+  saveParticle &= (lMin < fMaxLCut);
   saveParticle &= ((float_m(!isPrimary) && isParticleFromVertex) || float_m(isPrimary) );
   if( saveParticle.isEmpty() ) { return; }
 
@@ -2650,7 +2650,7 @@ void KFParticleFinder::SelectParticles(vector<KFParticle>& Particles,
       ldlMin( (ldl < ldlMin) && saveParticle) = ldl;
     }
     saveParticle &= ldlMin > cutLdL;
-    saveParticle &= (lMin < 200.f);
+    saveParticle &= (lMin < fMaxLCut);
     saveParticle &= isParticleFromVertex;
     if( saveParticle.isEmpty() ) continue;
 
@@ -2833,7 +2833,7 @@ void KFParticleFinder::CombinePartPart(vector<KFParticle>& particles1,
         ldlMin( (ldl < ldlMin) && active) = ldl;
       }
       saveParticle &= ( (float_m(!isPrimary) && ldlMin > cuts[0]) || float_m(isPrimary) );
-      saveParticle &= (lMin < 200.f);
+      saveParticle &= (lMin < fMaxLCut);
     
       int_m setLCut = abs(mother.PDG()) == 3000;
       saveParticle &= ( (simd_cast<float_m>(setLCut) && lMin > float_v(fLCut)) || simd_cast<float_m>(!setLCut) );
