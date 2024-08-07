@@ -103,7 +103,7 @@ class StKFParticleInterface: public TObject
   void SetChiPrimaryMaxCut(float cut)  { fChiPrimaryMaxCut = cut; }
   //Event cuts
   void CleanLowPVTrackEvents() { fCleanLowPVTrackEvents = true; }
-  void FixedTarget() { fIsFixedTarget = true; }
+  void FixedTarget();    //also turns off cut on mother track lenght
   void UseHFTTracksOnly()      { fUseHFTTracksOnly = true; }
   
   KFParticleFinder* GetKFParticleFinder();
