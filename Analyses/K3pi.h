@@ -24,7 +24,6 @@ class TDaughter : public TObject {
    public:
     TDaughter(){Clear();}
     void Clear();
-    //TODO pridat an naboj a pt projekci...
     //track properties
     Int_t 
       id=0,index=0,charge=0, 
@@ -41,16 +40,21 @@ class TDaughter : public TObject {
      
      //DCA and matching
      //isBest this is useful only for the parent track, otherwise -1
-     //
-    Int_t  isBest; 
+     // -1 ..was not touched
+     //0 .. was touched but, eventualy better candidate was found
+     // 1 .. best matched track by geometry
+     // 2 .. if matching was done via dca at decay vertex, not dp, this would not be the best candidate
+
+    Int_t  isBest=-1; 
     Float_t 
       //chi of matching the track to the 3pi vertex
       match_chi2=-1,
       //DCA to 3pi   vertex from KF and from muDst(picoDst)
       DecayDca_KF=0,DecayDca_mu=0,     
       //DCA to primary vertex vertex from KF and from muDst(picoDst)
-      PvtxDca_KF=0,PvtxDca_official=0, PvtxDcaXY_official=0,PvtxDcaZ_official=0,
-      PvtxDca_mu=0,PvtxDcaXY_mu=0,
+      PvtxDca_KF=0,
+      PvtxDca_official=0,  PvtxDcaXY_official=0, PvtxDcaZ_official=0,
+      PvtxDca_mu=0, PvtxDcaXY_mu=0,
       //difference in momemtum 3pi vertex and the track 
       dp_Decay=0,dp_decay_KF=0,dp_PVX=0,
      //information from helix 
@@ -58,6 +62,9 @@ class TDaughter : public TObject {
       //others
      pdg=0,idTruth=-5,qaTruth=-5;
 
+    //topomap
+    ULong64_t topoMap0=0,topoMap1=0,topoMap2=0; //topoMap2 is the iTPC info
+    
    ClassDef(TDaughter,1) 
    };
 
@@ -73,9 +80,7 @@ class TEvInfo: public TObject{
      void addTrigger(unsigned int);
      void addTriggers(std::vector<unsigned int> trigs);
      
-     int dd(){return 5;}
-
-      TVector3 primVtx_TVec(){return TVector3(Vx,Vy,Vz);}
+     TVector3 primVtx_TVec(){return TVector3(Vx,Vy,Vz);}
 
     // event properties   
      Int_t runId,eventId;

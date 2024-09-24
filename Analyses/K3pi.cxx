@@ -17,14 +17,14 @@ void TDaughter::Clear(){
     nhits=-1, nhits_dEdx=-1,nhits_pos=-1,dEdx=0,lastPointR=-1,
     p=0,pt=0,eta=0,phi=0, px=0,py=0,pz=0,
     match_chi2=-1,decay_p=0,decay_pt=0,decay_eta=0,decay_phi=0, decay_px=0,decay_py=0,decay_pz=0, phi_wrt_Vr=-2;
-    DecayDca_KF=10000,DecayDca_mu=10000,PvtxDca_KF=10000,PvtxDca_official=10000,PvtxDcaXY_official=10000,PvtxDcaZ_official=10000,
-    PvtxDca_mu=10000,PvtxDcaXY_mu=10000,isBest=-1,dp_Decay=-10000,dp_decay_KF=-10000,dp_PVX=-10000,
+    DecayDca_KF=10000,DecayDca_mu=10000,PvtxDca_KF=10000,PvtxDca_official=10000,
+    PvtxDca_mu=10000,isBest=-1,dp_Decay=-10000,dp_decay_KF=-10000,dp_PVX=-10000,
     helix_R=-1, helix_Cr=-1, helix_lowR=0,helix_hiR=0,
-    pdg=0,idTruth=-1,qaTruth=-1;
+    pdg=0,idTruth=-1,qaTruth=-1,topoMap0=0,topoMap1=0,topoMap2=0;
 }
 
 //======================================
-TK3pi::TK3pi():TObject(),Evt(),d("TDaughter", 5){
+TK3pi::TK3pi():TObject(),d("TDaughter", 5),Evt(){
       for (int i=0;i<5;i++){
        new (d[i]) TDaughter;
        daughter(i).Clear();
@@ -33,6 +33,7 @@ TK3pi::TK3pi():TObject(),Evt(),d("TDaughter", 5){
 
 void TK3pi::Clear(){
      mother_PID=-1; mother_isMc=-1;
+     matchedKF=0;Char_t matchedGeom=0;
      // decay position 
      decay_Vr=0; decay_Vx=0; decay_Vy=0; decay_Vz=0;
      //chi2 of the reconsturcted 3pi vertex
@@ -61,6 +62,8 @@ void TEvInfo::Clear(){
      refMult=-100; 
      gRefMult=-100;
      nBTOFMatch=-100;
+     nK3piP=0;
+     nK3piN=0;
 }
 
 
@@ -92,5 +95,4 @@ bool TEvInfo::isTrigger(std::vector<unsigned int> &trigs){
       std::sort(triggerIds.begin(), triggerIds.end());
     }
   
-
 
