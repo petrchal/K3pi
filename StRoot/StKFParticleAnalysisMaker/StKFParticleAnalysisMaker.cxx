@@ -556,6 +556,7 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
                 //last point radius - workaround from topology map
                //#if !defined (__TFG__VERSION__)
                StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->iTpcTopologyMap());
+               daughter.topoMap0=picotrack->topologyMap(0); daughter.topoMap1=picotrack->topologyMap(1);daughter.topoMap2=picotrack->iTpcTopologyMap();
                daughter.lastPointR=GetLastHitInTPC(map);
                /*#else
                StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->topologyMap(2));
@@ -571,6 +572,8 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
                 //daughter.lastPointR=mutrack->lastPoint().perp(); //from PV to last hist
                 //Since I cannot do the same in picoDST the I also go via topomap
                 StTrackTopologyMap trMap=mutrack->topologyMap();
+                daughter.topoMap0=trMap.data(0); daughter.topoMap1=trMap.data(1);daughter.topoMap2=trMap.data(2);
+                                
                 daughter.lastPointR=GetLastHitInTPC(trMap);
                 daughter.dEdx=mutrack->dEdx();
                 daughter.idTruth =mutrack->idTruth();
