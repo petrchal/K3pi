@@ -34,12 +34,14 @@ void FXT_QA_matchedKaon(){
   const bool normalize=false; //plot normalized
  
 
-  // structure for results
-  ResultList1D Res_Plots; 
-  ResultList1D Res_Plots_events; 
-  ResultList1D Res_Plots_vtx; 
+    // structure for results
+  ResultList1D Res_EventPlots;
+  ResultList2D Res_EventPlots_2D; 
+  ResultList1D Res_3piPlots;
+  ResultList2D Res_3piPlots_2D; 
+  ResultList1D Res_KaonPlots; 
+  ResultList2D Res_KaonPlots_2D; 
    
-  
   //loop over datasets
   for (int iFile=0;iFile<nFiles;iFile++){
    
@@ -61,7 +63,7 @@ void FXT_QA_matchedKaon(){
 
    //must be called after all cuts are read at least once
      kaons_node=DefineNewVariables(kaons_node);
-     //kaons_node=AddVariations(vary_EvtVz,kaons_node);
+     //kaons_node=AddVariationshits(vary_EvtVz,kaons_node);
      //kaons_node=AddVariations(vary_EvtVz,kaons_node);
      //kaons_node=AddVariations(vary_lastPointDiff,kaons_node);
    
@@ -79,19 +81,24 @@ void FXT_QA_matchedKaon(){
      
     // event plot per matched K
     auto Cut=MatchedKaon_cut+evCut;
-    auto CurrentPos_ev=Res_Plots_events.begin();
-    AddPlots4QA(Event_plots_FXT,kaons_node,Cut,Res_Plots_events,CurrentPos_ev,"per matched K+",files[order[iFile]].lable,rebin,false);
+    Res_EventPlots.resetPosition();
+    AddPlots4QA(Event_plots_FXT,kaons_node,Cut,Res_EventPlots,"per matched K+",files[order[iFile]].lable,rebin,false);
+    //AddPlots4QA(Event_plots_2D,kaons_node,Cut,Res_EventPlots_2D,"per matched K+",files[order[iFile]].lable,rebin,false);
    
     //properties of 3pi vertex with matched K
-    auto CurrentPos_vtx=Res_Plots_vtx.begin();
-    //3pi vertex 
-    AddPlots4QA(RecoVtx_plots,after_evCut_node,MatchedKaon_cut,Res_Plots_vtx,CurrentPos_vtx,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+     //3pi vertex 
+    Res_3piPlots.resetPosition();
+    Res_3piPlots_2D.resetPosition(); 
+    AddPlots4QA(RecoVtx_plots,after_evCut_node,MatchedKaon_cut,Res_3piPlots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(RecoVtx_plots_2D,after_evCut_node,MatchedKaon_cut,Res_3piPlots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
 
 
     //Properties of matched kaons
-    auto CurrentPos=Res_Plots.begin();
-    AddPlots4QA(MatchedKaon_plots,after_evCut_node,MatchedKaon_cut,Res_Plots,CurrentPos,"of matched K+",files[order[iFile]].lable,rebin,false);
-    
+    Res_KaonPlots.resetPosition();
+    Res_KaonPlots_2D.resetPosition(); 
+    AddPlots4QA(MatchedKaon_plots,after_evCut_node,MatchedKaon_cut,Res_KaonPlots,"of matched K+",files[order[iFile]].lable,rebin,false);
+    //AddPlots4QA(Kaon_plots_2D,after_evCut_node,MatchedKaon_cut,Res_KaonPlots_2D,"of matched K+",files[order[iFile]].lable,rebin,false);
+   
 
  // .. it is a problem, since histogram may come from different trees (nodes)
   //AddProgressBar(event_node);
@@ -108,17 +115,20 @@ void FXT_QA_matchedKaon(){
    delete chain_kaons;
  
 } //loop over file
-TFile f("matchedKaons_FXT.root","recreate");
+ 
+  TFile *f=new TFile("matched_FXT_2020_5p75.root","recreate");
+  f->mkdir("events");f->cd("events"); 
+  DrawResults(Res_EventPlots);
+ // DrawResults(Res_EventPlots_2D); 
+  f->mkdir("3pi");f->cd("3pi"); 
+  DrawResults(Res_3piPlots);
+  DrawResults(Res_3piPlots_2D); 
+  f->mkdir("kaons");f->cd("kaons"); 
+  DrawResults(Res_KaonPlots); 
+  //DrawResults(Res_KaonPlots_2D);
+  f->Write();
 
-f.mkdir("event info per found 3piVtx");f.cd("event info per found 3piVtx");
-DrawResults(Res_Plots_events);
-f.mkdir("3piVtxs");f.cd("3piVtxs");
-DrawResults(Res_Plots_vtx);
-f.mkdir("matched primary kaons");f.cd("matched primary kaons");
-DrawResults(Res_Plots);
-
-f.Write();
-f.Close();
+  f->Close();
 
 return;
 }
