@@ -28,7 +28,7 @@ void TDaughter::Clear(){
     DecayDca_KF=10000,DecayDca_mu=10000,PvtxDca_KF=10000,PvtxDca_official=10000,
     PvtxDca_mu=10000,isBest=-1,dp_Decay=-10000,dp_decay_KF=-10000,dp_PVX=-10000,
     helix_R=-1, helix_Cr=-1, helix_lowR=0,helix_hiR=0,
-    pdg=0,idTruth=-1,qaTruth=-1;
+    pdg=0,idTruth=-1,qaTruth=-1,topoMap0=0,topoMap1=0,topoMap2=0;
 }
 
 //======================================

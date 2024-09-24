@@ -16,7 +16,7 @@
 <command> 
   pwd
   set noPID=1 #ignore PID - usual behaviour
-  set isPico=0 #pico - data, MuDst-embedding
+  set isPico=1 #pico - data, MuDst-embedding
   set isFXT=1
 
 #processignal flag: {kAllTracks=0,kMcTracksOnly=1,kRealTracksOnly=2;
@@ -29,18 +29,18 @@
   #set geometry=y2018
   
   #auau19GeV 2019 => y2019
-  #set geometry=y2019
+  set geometry=y2019
   
   #auau54
   #set geometry=y2017
   
   #FXT
-  set geometry=y2020
+  #set geometry=y2020
   
   source ./setDEV2.csh
   #starver TFG21d
-  starver TFG22f
-  #starver TFG24c
+  #starver TFG22f
+  starver TFG24c
   cons
   root4star -l -b -q kfpAnalysis.C\(2000000000,$trkType,$isPico,$isFXT,$noPID,\"${FILELIST}\",\"\${JOBID}.root\",\"${geometry}\"\) &gt;&amp; ${SCRATCH}/${JOBID}B.log
 #         root4star -l -b -q kfpAnalysis.C\(50,$trkType,$isPico,$isFXT,$noPID,\"${FILELIST}\",\"\${JOBID}.root\",\"${geometry}\"\) &gt;&amp; ${SCRATCH}/${JOBID}B.log
@@ -122,9 +122,16 @@
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_31p2GeV_fixedTarget_2020,production=P23id,library=SL23d,filetype=daq_reco_picoDst" nFiles="all"/> -->
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_13p5GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_5p75GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
+<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_5p75GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
 <!-- TFG rerun -->
-<!--  <input URL="file:/gpfs01/star/data24/TpcAlignment/TFG24c/2020/RF/5p75GeV_fixedTarget/*/*/*picoDst.root" nFiles="all"/> -->
- <input URL="file:/gpfs01/star/data24/TpcAlignment/TFG24c/2020/RF/5p75GeV_fixedTarget/*/*/*MuDst.root" nFiles="all"/>
+<!-- <input URL="file:/gpfs01/star/data24/TpcAlignment/TFG24c/2020/RF/5p75GeV_fixedTarget/*/*/*picoDst.root" nFiles="all"/> -->
+<!-- <input URL="file:/gpfs01/star/data24/TpcAlignment/TFG24c/2020/RF/5p75GeV_fixedTarget/*/*/*MuDst.root" nFiles="all"/>  -->
+<!-- <input URL="file:/gpfs01/star/subsysg/TFG/reco/TFG24c/2019/RF/4p59GeV_fixedTarget/*/*/*MuDst.root" nFiles="all"/> -->
+<!-- the 4.59 Data set in three different reruns -->
+<!-- <input URL="file:/star/u/fisyak/TFG24c/2019/RF/4p59GeV_fixedTarget/*/*/*MuDst.root" nFiles="all"/> -->
+<!-- <input URL="file:/star/u/fisyak/TFG24d/2019/RF/4p59GeV_fixedTarget/*/*/*MuDst.root" nFiles="all"/> -->
+<input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_4p59GeV_fixedTarget_2019,production=P23id,library=SL23d,filetype=daq_reco_picoDst" nFiles="all"/> 
+
 
 <SandBox installer="ZIP">
    <Package name="LocalLibraries">

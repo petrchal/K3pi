@@ -64,6 +64,9 @@ class TDaughter : public TObject {
       //others
      pdg=0,idTruth=-5,qaTruth=-5;
 
+    //topomap
+    ULong64_t topoMap0=0,topoMap1=0,topoMap2=0; //topoMap2 is the iTPC info
+    
    ClassDef(TDaughter,1) 
    };
 
