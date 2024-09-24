@@ -68,7 +68,7 @@ void FXT_plotEfficiencies(){
    
     //TString TheCut=*cut[order[iFile]];
     TString fname=files[order[iFile]].fileName;
-     cout<<"opening file: "<<fname<<endl;
+     cout<<"opening file["<<order[iFile]<<"]: "<<fname<<endl;
 
     auto chain = new TChain("kaons");
     int nfiles=chain->Add(fname,nEntriefsLimit);
@@ -145,7 +145,7 @@ void FXT_plotEfficiencies(){
 
   
 
-  TFile *f=new TFile("FXT_eff.root","recreate");
+  TFile *f=new TFile("eff_FXT_2020_5p75.root","recreate");
   DrawEffs(Res_Plots);
   f->Write();
   f->Flush();

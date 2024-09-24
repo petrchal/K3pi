@@ -60,22 +60,22 @@
   
     //first decay daugter 
     TPlotDef{"d.index[0]","daughter[0] index","index",-0.5,6.5},
-    TPlotDef{"d.nhits[0]","daughter[0] nHitsFit","nHitsFit",-0.5,100.5,"nhits_daughters"},
-    TPlotDef{"d.nhits_pos[0]","daughter[0] NHits possible from DST","nHitsPos",-0.5,100.5,"nhits_possible"},
-   // TPlotDef{"MaxHitsDaughter","daughter[0] NHitsf possible from Vr","lastPoint - MaxHits(decay_V)",-0.5,100.5,"nhits_possible"},
+    TPlotDef{"d.nhits[0]","daughter[0] nHitsFit","nHitsFit",-0.5,99.5,"nhits_daughters"},
+    TPlotDef{"d.nhits_pos[0]","daughter[0] NHits possible from DST","nHitsPos",-0.5,99.5,"nhits_possible"},
+   // TPlotDef{"MaxHitsDaughter","daughter[0] NHitsf possible from Vr","lastPoint - MaxHits(decay_V)",-0.5,99.5,"nhits_possible"},
  
 
     //second decay daugter 
     //TPlotDef{"d.index[1]","daughter[1] index","index",-0.5,6.5},
-    TPlotDef{"d.nhits[1]","daughter[1] nHitsFit","nHitsFit",-0.5,100.5,"nhits_daughters"},
-    TPlotDef{"d.nhits_pos[1]","daughter[1] NHits possible from DST","nHitsPos",-0.5,100.5,"nhits_possible"},
-    //TPlotDef{"MaxHitsDaughter[1]","daughter[1] NHitsf possible from Vr","MaxHits(Vr)",-0.5,100.5,"nhits_possible"},
+    TPlotDef{"d.nhits[1]","daughter[1] nHitsFit","nHitsFit",-0.5,99.5,"nhits_daughters"},
+    TPlotDef{"d.nhits_pos[1]","daughter[1] NHits possible from DST","nHitsPos",-0.5,99.5,"nhits_possible"},
+    //TPlotDef{"MaxHitsDaughter[1]","daughter[1] NHitsf possible from Vr","MaxHits(Vr)",-0.5,99.5,"nhits_possible"},
  
     //thisrd decay daugter 
     //TPlotDef{"d.index[1]","daughter[1] index","index",-0.5,6.5},
-    TPlotDef{"d.nhits[2]","daughter[2] nHitsFit","nHitsFit",-0.5,100.5,"nhits_daughters"},
-    TPlotDef{"d.nhits_pos[2]","daughter[2] NHits possible from DST","nHitsPos",-0.5,100.5,"nhits_possible"},
-    //TPlotDef{"MaxHitsDaughter[2]","daughter[2] NHitsf possible from Vr","MaxHits(Vr)",-0.5,100.5,"nhits_possible"},
+    TPlotDef{"d.nhits[2]","daughter[2] nHitsFit","nHitsFit",-0.5,99.5,"nhits_daughters"},
+    TPlotDef{"d.nhits_pos[2]","daughter[2] NHits possible from DST","nHitsPos",-0.5,99.5,"nhits_possible"},
+    //TPlotDef{"MaxHitsDaughter[2]","daughter[2] NHitsf possible from Vr","MaxHits(Vr)",-0.5,99.5,"nhits_possible"},
  
  
 
@@ -107,10 +107,10 @@ TPlotDefinitions_2D RecoVtx_plots_2D{
     //daughters[0]
      TPlotDef_2D{"d.nhits_pos[0]", "d.nhits[0]","daughter[0] - nhits possible vs measured","nhits possible","hnits",-0.5,99.5,-0.5,99.5,"decay_Vr"},
      TPlotDef_2D{"d.nhits_pos[0]", "decay_Vr","daughter[0] - nhits possible vs r","nhits possible","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
-     TPlotDef_2D{"d.nhits[0]", "decay_Vr","daughter[0] - nhits measured vs r","nhits","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits[0]",     "decay_Vr","daughter[0] - nhits measured vs r","nhits","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
      TPlotDef_2D{"d.nhits_pos[0]", "d.lastPointR[0]","daughter[0] - nhits possible vs lastPointR","nhits possible","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
-     TPlotDef_2D{"d.nhits[0]", "d.lastPointR[0]","daughter[0] - nhits measured vs lastPointR","nhits","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
-     TPlotDef_2D{"d.lastPointR[0]", "decay_Vr","daughter[0] - nhits measured vs r","lastPoint[cm]","r[cm]",0.,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.nhits[0]",     "d.lastPointR[0]","daughter[0] - nhits measured vs lastPointR","nhits","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.lastPointR[0]", "decay_Vr","daughter[0] - lastPointR vs r","lastPoint[cm]","r[cm]",0.,200.5,0.,200.,"decay_Vr"},
      TPlotDef_2D{"d.nhits_pos[0]", "MaxHits(decay_Vr)","daughter[0] - nhits possible vs calculated max","nhits possible","MaxHits(Vr)",-0.5,99.5,-0.5,99.5,"decay_Vr"},
    
      TPlotDef_2D{"d.nhits_pos[1]", "d.nhits[1]","daughter[1] - nhits possible vs measured","nhits possible","hnits",-0.5,99.5,-0.5,99.5,"decay_Vr"},
@@ -118,7 +118,7 @@ TPlotDefinitions_2D RecoVtx_plots_2D{
      TPlotDef_2D{"d.nhits[1]", "decay_Vr","daughter[1] - nhits measured vs r","nhits","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
      TPlotDef_2D{"d.nhits_pos[1]", "d.lastPointR[1]","daughter[1] - nhits possible vs lastPointR","nhits possible","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
      TPlotDef_2D{"d.nhits[1]", "d.lastPointR[1]","daughter[1] - nhits measured vs lastPointR","nhits","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
-     TPlotDef_2D{"d.lastPointR[1]", "decay_Vr","daughter[1] - nhits measured vs r","lastPoint[cm]","r[cm]",0.,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.lastPointR[1]", "decay_Vr","daughter[1] - lastPointR vs r","lastPoint[cm]","r[cm]",0.,200.5,0.,200.,"decay_Vr"},
      TPlotDef_2D{"d.nhits_pos[1]", "MaxHits(decay_Vr)","daughter[1] - nhits possible vs calculated max","nhits possible","MaxHits(Vr)",-0.5,99.5,-0.5,99.5,"decay_Vr"},
     
      TPlotDef_2D{"d.nhits_pos[2]", "d.nhits[2]","daughter[2] - nhits possible vs measured","nhits possible","hnits",-0.5,99.5,-0.5,99.5,"decay_Vr"},
@@ -126,7 +126,7 @@ TPlotDefinitions_2D RecoVtx_plots_2D{
      TPlotDef_2D{"d.nhits[2]", "decay_Vr","daughter[2] - nhits measured vs r","nhits","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
      TPlotDef_2D{"d.nhits_pos[2]", "d.lastPointR[2]","daughter[2] - nhits possible vs lastPointR","nhits possible","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
      TPlotDef_2D{"d.nhits[2]", "d.lastPointR[2]","daughter[2] - nhits measured vs lastPointR","nhits","lastPoint[cm]",0,200.5,0.,200.,"decay_Vr"},
-     TPlotDef_2D{"d.lastPointR[2]", "decay_Vr","daughter[2] - nhits measured vs r","lastPoint[cm]","r[cm]",0.,200.5,0.,200.,"decay_Vr"},
+     TPlotDef_2D{"d.lastPointR[2]", "decay_Vr","daughter[2] - lastPointR vs r","lastPoint[cm]","r[cm]",0.,200.5,0.,200.,"decay_Vr"},
      TPlotDef_2D{"d.nhits_pos[2]", "MaxHits(decay_Vr)","daughter[2] - nhits possible vs calculated max","nhits possible","MaxHits(Vr)",-0.5,99.5,-0.5,99.5,"decay_Vr"},
    
 
@@ -159,9 +159,9 @@ TPlotDefinitions_2D RecoVtx_plots_2D{
 #define K_match 4
 
 TPlotDefinitions MatchedKaon_plots{
-    TPlotDef{"d.nhits[K_match]","kaon nHitsFit","nHitsFit",-0.5,100.5,"kaon_nhits"},
-    TPlotDef{"d.nhits_pos[K_match]","kaon nHitsPos (from MuDst)","nHitsPos",-0.5,100.5,},
-    TPlotDef{"d.nhits_dEdx[K_match]","kaon dEdx hist","nhit dEdx",-0.5,100.5},
+    TPlotDef{"d.nhits[K_match]","kaon nHitsFit","nHitsFit",-0.5,99.5,"kaon_nhits"},
+    TPlotDef{"d.nhits_pos[K_match]","kaon nHitsPos (from MuDst)","nHitsPos",-0.5,99.5,},
+    TPlotDef{"d.nhits_dEdx[K_match]","kaon dEdx hist","nhit dEdx",-0.5,99.5},
     TPlotDef{"d.PvtxDca_official[K_match]","kaon: Prim. vtx DCA","dca[cm]",-1,10,"kaon_DCA"},
     //TPlotDef{"PvtxDca_corrected","corrected kaon Prim. vtx DCA","dca[cm]",-1,10,"kaon_DCA"},
     TPlotDef{"d.PvtxDcaXY_official[K_match]","kaon Prim. vtx DCA_XY","dca_xy[cm]",-3,3,"kaon_DCA"},

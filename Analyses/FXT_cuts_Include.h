@@ -27,42 +27,20 @@ TCutVariation vary_DCAxy={"PvtxDcaXY_corrected",{"float(PvtxDcaXY_corrected+0.1)
 
 
 //------ trigger lists   ----------------------------------------
-std::vector<unsigned int> trigList_2019_19AuAu;  //2019 19GeV AuAu same as in embedding
-std::vector<unsigned int> trigList_2018_27AuAu;  //2018 27GeV AuAu same as in embedding
-std::vector<unsigned int> trigList_2017_54AuAu;
-std::vector<unsigned int> trigList_2021_7p7AuAu;
+std::vector<unsigned int> trigList_2020_FXT_5p75AuAu;
+std::vector<unsigned int> trigList_2019_FXT_4p59AuAu;
 
 void InitTriggerLists(){
   // no triggers for FXT sofar!!!
 
-  std::vector<unsigned int> tr27{610001,610011,610021,610031,610041,610051}; //2018 27GeV AuAu same as in embedding
+ //2020_FXT_5p75AuAu
+ //720000 (epde-or-bbce-or-vpde-tof1) [It is probably this one because that has a bigger data set]
+ //720007 (epde-or-bbce-or-vpde-tof1-etof) //not used so far - small statistics
+ trigList_2020_FXT_5p75AuAu= std::vector<unsigned int> {720000}; 
+ trigList_2019_FXT_4p59AuAu= std::vector<unsigned int> {}; //no triggers so far
   
-  std::vector<unsigned int> tr54_all{580001,580011,580021,580051,580054,580054}; //2017 54GeV AuAu 
-  std::vector<unsigned int> tr54_minb{580001,580011,580021}; //2017 54GeV AuAu 
-  //these are not mutually exclusive
-  //5800[0-2]1 minbias trigger, mainly 580021 - 1.1B evts 
-  //580051 - minbias-50-hlt   700M evts
-  //580054 - minbias-vpd-hlt  660M evts
-  //580055 - minbias-zdc-hlt  640M evst 
-
- //2019 19GeV AuAu
- std::vector<unsigned int> tr19_minb{640011,640021,640031,640041,640051}; //2019 19GeV AuAu minbias ...there are 1.3B according to web
- std::vector<unsigned int> tr19_hlt{640012,640022,640032}; //2019 19GeV AuAu hltgood ..shoudl be subset of minb
-
-//2021 7.7GeV AuAu 
- std::vector<unsigned int> tr7p7_minb{ 810010, 810020, 810030,810040}; 
-
-
-  trigList_2018_27AuAu=tr27;
-  trigList_2017_54AuAu=tr54_minb;
-  trigList_2019_19AuAu=tr19_minb;
-  trigList_2021_7p7AuAu=tr7p7_minb;
-  //for (unsigned int x : trigList_2018) cout <<"Trig="<< x << " "<<endl;
-  
-  std::sort(trigList_2018_27AuAu.begin(), trigList_2018_27AuAu.end());
-  std::sort(trigList_2017_54AuAu.begin(), trigList_2017_54AuAu.end());
-  std::sort(trigList_2019_19AuAu.begin(), trigList_2019_19AuAu.end());
-  std::sort(trigList_2021_7p7AuAu.begin(), trigList_2021_7p7AuAu.end());
+ std::sort(trigList_2020_FXT_5p75AuAu.begin(), trigList_2020_FXT_5p75AuAu.end());
+ std::sort(trigList_2019_FXT_4p59AuAu.begin(), trigList_2019_FXT_4p59AuAu.end());
 }
 
 //------EVENT CUTS here----------------------------------------
@@ -94,17 +72,32 @@ K3PiCut EventCut_2020_FXT(){ //so far empty cut
   K3PiCut Event_cut;
   Event_cut["trigger"]="1"; //pass all
 
-  //Event_cut["trigger"]="Evt.isTrigger(trigList_2021_7p7AuAu)"; //need to add propper trigger ids
+  Event_cut["trigger"]="Evt.isTrigger(trigList_2020_FXT_5p75AuAu)"; 
   Event_cut["Vz"]="(Evt.Vz>150)&&(Evt.Vz<250)"; //embedding width
  // Event_cut["VPDdif"]="fabs(Evt.vzVpd-Evt.Vz)<5"; //VPD cut ..not usable for FXT
 
 
   return Event_cut;
-}    
+}  
 
+
+//-------------
+K3PiCut EventCut_2019_FXT(){ //so far empty cut
+
+  K3PiCut Event_cut;
+  Event_cut["trigger"]="1"; //pass all
+
+  //no triggers sofar
+  Event_cut["Vz"]="(Evt.Vz>150)&&(Evt.Vz<250)"; //embedding width
+ // Event_cut["VPDdif"]="fabs(Evt.vzVpd-Evt.Vz)<5"; //VPD cut ..not usable for FXT
+
+
+  return Event_cut;
+}  
 //!!!!!!!assign which cut is globaly used!!!!
 //std::function<K3PiCut()> K3piCut_EventCut =EventCut_2021_7p7AuAu;
-std::function<K3PiCut()> K3piCut_EventCut =EventCut_2020_FXT;
+//std::function<K3PiCut()> K3piCut_EventCut =EventCut_2020_FXT;
+std::function<K3PiCut()> K3piCut_EventCut =EventCut_2019_FXT;
 
 //==========END of Event cuts =============================
 
@@ -151,10 +144,7 @@ K3PiCut Setup_3piVertexQA(){
     AddNewVar("cut_daugh_nhits","11.");
     VertexQA_cut["nhits_daughters"]="(d.nhits[0]>=cut_daugh_nhits && d.nhits[1]>=cut_daugh_nhits && d.nhits[2]>=cut_daugh_nhits)"; 
     
-    //spike
-    //VertexQA_cut["nhits_spike"]="(d.nhits[0]==50 || d.nhits[1]==50 || d.nhits[2]==50)"; 
-    //VertexQA_cut["nhits_spike"]="(d.nhits[0]==50)"; 
-   
+    
     //this seems to remove all short tracks - BAD seem the nhits_pos is not filled correctly for secondaries
     // 3piVtxQA_cut["nhits_posrat"]="((float)d.nhits[0]/(float)d.nhits_pos[0]>0.51)&&((float)d.nhits[1]/(float)d.nhits_pos[1]>0.51)&&((float)d.nhits[3]/(float)d.nhits_pos[3]>0.51)";
      
@@ -265,10 +255,10 @@ K3PiCut Setup_KaonMatching(){
     //should be Eequivalent to selecting matchedGeom==1
   
     AddNewVar("cut_lastPointDiff","5.");//5
-    KaonMatching_cut["K_lastR"]="((d.lastPointR[K_match]-decay_Vr)<cut_lastPointDiff)";// previously 15,10
+   KaonMatching_cut["K_lastR"]="((d.lastPointR[K_match]-decay_Vr)<cut_lastPointDiff)";// previously 15,10
 
-    AddNewVar("cut_dpDecay","0.1");
-    KaonMatching_cut["K_dp"]="(d.dp_Decay[K_match]<cut_dpDecay)";  //standard cut deduceed from pure simulations is 200MeV
+    AddNewVar("cut_dpDecay","0.1"); 
+    //KaonMatching_cut["K_dp"]="(d.dp_Decay[K_match]<cut_dpDecay)";  //standard cut deduceed from pure simulations is 200MeV
 
 
     return KaonMatching_cut;
