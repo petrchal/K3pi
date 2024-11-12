@@ -103,7 +103,7 @@ class TEvInfo: public TObject{
      int nK3piN;// number of K3pi - vertexex found with Vr>40 (id -100321)
   private:
      std::vector<unsigned int> triggerIds;
-     ClassDef(TEvInfo,1) 
+     ClassDef(TEvInfo,2) 
 };
 
 class TK3pi : public TObject {

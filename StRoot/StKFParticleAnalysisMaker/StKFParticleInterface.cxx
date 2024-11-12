@@ -16,6 +16,8 @@
 #include "StPicoEvent/StPicoEvent.h"
 #include "StPicoEvent/StPicoTrack.h"
 #include "StPicoEvent/StPicoBTofPidTraits.h"
+#include "StPicoEvent/StPicoTrackCovMatrix.h"
+
 
 #include "StBichsel/Bichsel.h"
 #include "StBichsel/StdEdxModel.h"
