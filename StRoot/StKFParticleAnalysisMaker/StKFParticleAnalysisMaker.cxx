@@ -553,15 +553,16 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
                daughter.idTruth =picotrack->idTruth();
                daughter.qaTruth =picotrack->qaTruth();
 
-                //last point radius - workaround from topology map
-               //#if !defined (__TFG__VERSION__)
-               StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->iTpcTopologyMap());
+               //last point radius - workaround from topology map
+               #if !defined (__TFG__VERSION__)
+                StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->iTpcTopologyMap());
                daughter.topoMap0=picotrack->topologyMap(0); daughter.topoMap1=picotrack->topologyMap(1);daughter.topoMap2=picotrack->iTpcTopologyMap();
-               daughter.lastPointR=GetLastHitInTPC(map);
-               /*#else
+               #else //this is what is actually used when compiling under TFG
                StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->topologyMap(2));
+               daughter.topoMap0=picotrack->topologyMap(0); daughter.topoMap1=picotrack->topologyMap(1);daughter.topoMap2=picotrack->topologyMap(2);
                #endif  
-               */
+               daughter.lastPointR=GetLastHitInTPC(map);
+               
             }//picoDst
               else {
                 mutrack = (StMuTrack *) fMuDst->globalTracks(iDataTrack); 
@@ -926,10 +927,6 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
  
           cout<<" match ok"<<endl;
           
-            //daughter.lastPointR=picotrack->lastPoint().perp(); //from PV to last hist
-          //this is special for picoDST since the last point is not saved - we need to go via hitmap
-          //#if !defined (__TFG__VERSION__)
-          StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->iTpcTopologyMap());
           /*
           cout<<"topo (mother kaon) NON-TFG data: "<<picotrack->topologyMap(0)<<" "<<picotrack->topologyMap(1)<<" "<<picotrack->iTpcTopologyMap()<<endl;
           std::cout<<" topologyMap[1]="<<std::bitset<32>(picotrack->topologyMap(1))<<" topologyMap[0]="<<std::bitset<32>(picotrack->topologyMap(0))<<
@@ -943,7 +940,14 @@ void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle){
           "topologyMap[2]="<<std::bitset<32>(picotrack->topologyMap(2))<<endl;
           #endif  
           */
-          daughter.lastPointR=GetLastHitInTPC(map); //from PV to last hist
+           #if !defined (__TFG__VERSION__)
+           StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->iTpcTopologyMap());
+           daughter.topoMap0=picotrack->topologyMap(0); daughter.topoMap1=picotrack->topologyMap(1);daughter.topoMap2=picotrack->iTpcTopologyMap();
+           #else
+           StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->topologyMap(2));
+           daughter.topoMap0=picotrack->topologyMap(0); daughter.topoMap1=picotrack->topologyMap(1);daughter.topoMap2=picotrack->topologyMap(2);
+           #endif  
+           daughter.lastPointR=GetLastHitInTPC(map); //from PV to last hist
          
 
         

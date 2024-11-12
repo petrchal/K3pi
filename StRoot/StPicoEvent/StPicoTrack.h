@@ -1,4 +1,4 @@
-/**
+/*
  * \class StPicoTrack
  * \brief Holds information about track parameters
  *
@@ -26,14 +26,7 @@
 #include "StPicoDst.h"
 #include "StarClassLibrary/SystemOfUnits.h"
 #include "StarClassLibrary/PhysicalConstants.h"
-#if defined(__TFG__VERSION__)
-#include "StPicoTrackCovMatrix.h"
-#endif /* __TFG__VERSION__ */
 #endif
-
-#if defined (__TFG__VERSION__)
-#include "StPicoTrackCovMatrix.h"
-#endif /* __TFG__VERSION__ */
 
 //_________________
 class StPicoTrack : public TObject {
@@ -117,12 +110,12 @@ class StPicoTrack : public TObject {
   /// Return a map of hits in HFT
   UInt_t  hftHitsMap() const             { return topologyMap(0) >> 1 & 0x7F; }
 #if !defined(__TFG__VERSION__)
-  /// Return dE/dx (GeV/cm) of the track
+  /// Return dE/dx (in keV/cm) of the track
   Float_t dEdx() const                   { return mDedx; }
-  /// Return dE/dx error of the track
+  /// Return relative dE/dx error of the track 
   Float_t dEdxError() const              { return mDedxError; }
 #else /* __TFG__VERSION__ */
-  /// Return dE/dx (GeV/cm) of the track
+  /// Return dE/dx (keV/cm) of the track
   Float_t dEdx(UChar_t fit = 1) const  { return (fit == 2) ? mDnDx : mDedx; }
   Float_t dEdxError(UChar_t fit = 1) const  { return (fit == 2) ?  mDnDxError: fgdEdxErrorScale*mDedxError; }
   static  void    setdEdxErrorScale(Float_t scale = 1) {fgdEdxErrorScale = scale;}
@@ -147,11 +140,11 @@ class StPicoTrack : public TObject {
   Float_t nSigmaElectron() const         { return (Float_t)mNSigmaElectron / 1000.f; }
 
   /// Return track topology map (return 0 in case when requested index is >1)
-  UInt_t  topologyMap(UInt_t idx) const  { return (idx>1) ? 0 : mTopologyMap[idx]; }
-//#if !defined (__TFG__VERSION__)
+  UInt_t  topologyMap(UInt_t idx) const  { return (idx>(eTopologyMap-1)) ? 0 : mTopologyMap[idx]; }
+#if !defined (__TFG__VERSION__)
   /// Return topology map for iTPC
   ULong64_t iTpcTopologyMap() const      { return mTopoMap_iTpc; }
-//#endif
+#endif
   
 
   /// Return if the track has an inner PXL hit
@@ -370,12 +363,12 @@ class StPicoTrack : public TObject {
   /// a match are stored as 0.
   Short_t  mBEmcMatchedTowerIndex;
 
-//#if !defined (__TFG__VERSION__)
+#if !defined (__TFG__VERSION__)
   /// Topology map for the iTPC
   ULong64_t mTopoMap_iTpc;
-//#else
+#else
     Char_t mStatus; // =1 if fitted in a vertex
-//#endif
+#endif
 
   /// MC track id
   UShort_t mIdTruth;

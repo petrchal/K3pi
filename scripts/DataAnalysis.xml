@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="150"  filesPerHour="50" simulateSubmission="false" copyInputLocally="true" fileListSyntax="xrootd">
+<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="150"  filesPerHour="20" simulateSubmission="true" copyInputLocally="true" fileListSyntax="xrootd">
 
 <Generator>
     <Location>./report/</Location>
@@ -123,14 +123,21 @@
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_13p5GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_5p75GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_5p75GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
-<!-- TFG rerun -->
+
+<!-- 2019 FXT TFG rerun -->
 <!-- <input URL="file:/gpfs01/star/data24/TpcAlignment/TFG24c/2020/RF/5p75GeV_fixedTarget/*/*/*picoDst.root" nFiles="all"/> -->
 <!-- <input URL="file:/gpfs01/star/data24/TpcAlignment/TFG24c/2020/RF/5p75GeV_fixedTarget/*/*/*MuDst.root" nFiles="all"/>  -->
 <!-- <input URL="file:/gpfs01/star/subsysg/TFG/reco/TFG24c/2019/RF/4p59GeV_fixedTarget/*/*/*MuDst.root" nFiles="all"/> -->
 <!-- the 4.59 Data set in three different reruns -->
+<!-- <input URL="file:/star/u/fisyak/TFG24c/2019/RF/4p59GeV_fixedTarget/*/*/*picoDst.root" nFiles="all"/> -->
+<!-- <input URL="filelist:/star/u/petrchal/kaons_KFP/scripts/lists/new_2019FXT_4p59_TFG24c_picoDst.list" nFiles="all"/> -->
 <!-- <input URL="file:/star/u/fisyak/TFG24c/2019/RF/4p59GeV_fixedTarget/*/*/*MuDst.root" nFiles="all"/> -->
+<!--  <input URL="filelist:/star/u/petrchal/kaons_KFP/scripts/lists/new_2019FXT_4p59_TFG24c_MuDst.list" nFiles="all"/> -->
+<!-- <input URL="file:/star/u/fisyak/TFG24d/2019/RF/4p59GeV_fixedTarget/*/*/*picoDst.root" nFiles="all"/> -->
+<!-- <input URL="filelist:/star/u/petrchal/kaons_KFP/scripts/lists/new_2019FXT_4p59_TFG24d_picoDst.list" nFiles="all"/> -->
 <!-- <input URL="file:/star/u/fisyak/TFG24d/2019/RF/4p59GeV_fixedTarget/*/*/*MuDst.root" nFiles="all"/> -->
-<input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_4p59GeV_fixedTarget_2019,production=P23id,library=SL23d,filetype=daq_reco_picoDst" nFiles="all"/> 
+<!-- <input URL="filelist:/star/u/petrchal/kaons_KFP/scripts/lists/new_2019FXT_4p59_TFG24d_MuDst.list" nFiles="all"/> -->
+<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_4p59GeV_fixedTarget_2019,production=P23id,library=SL23d,filetype=daq_reco_picoDst" nFiles="all"/> -->
 
 
 <SandBox installer="ZIP">

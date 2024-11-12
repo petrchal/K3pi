@@ -159,7 +159,7 @@ void StPicoTrack::setChi2(Float_t chi2) {
 
 //_________________
 void StPicoTrack::setDedx(Float_t dEdx) {
-  // In KeV/cm
+  // In keV/cm
   mDedx = dEdx * 1.e6;
 }
 
@@ -253,7 +253,7 @@ Float_t StPicoTrack::dEdxPull(Float_t mass, UChar_t fit, Int_t charge) const {
     dedx_resolution = dNdxError();
   }
   if (dedx_resolution <= 0) return z;
-  z = StdEdxPull::Eval(dedx_measured,dedx_resolution,betagamma,fit,charge);
+  z = StdEdxPull::Eval(dedx_measured,dedx_resolution,betagamma,fit,charge, mass);
   return z;
 }
 
