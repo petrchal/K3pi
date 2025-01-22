@@ -65,6 +65,7 @@ void StKFParticleInterface::SetBeamLine(KFParticle& p)
 
 void StKFParticleInterface::InitParticles()
 { 
+  cout<<"StKFParticleInterface::InitParticles()"<<endl;
   fKFParticleTopoReconstructor->Init( fParticles, &fParticlesPdg, &fNHftHits );
   Int_t NPV =  fKFParticleTopoReconstructor->NPrimaryVertices();
   fKFParticleTopoReconstructor->GetKFParticleFinder()->Init(NPV);
@@ -75,7 +76,7 @@ void StKFParticleInterface::InitParticles()
 void StKFParticleInterface::InitParticlesAtFirstAndLastHit()
 { 
 
-  //cout<<"StKFParticleInterface::InitParticlesAtFirstAndLastHit()"<<endl;
+  cout<<"StKFParticleInterface::InitParticlesAtFirstAndLastHit()"<<endl;
   KFPTrackVector ftracksAtFirstHit;
   KFPTrackVector ftracksAtLastHit;
   int nTracks = fParticlesAtLastHit.size();
@@ -109,9 +110,9 @@ void StKFParticleInterface::InitParticlesAtFirstAndLastHit()
     ftracksAtLastHit.SetQ(fParticlesAtLastHit[iTr].Q(), iTr);
     ftracksAtLastHit.SetPVIndex(-1, iTr);
     ftracksAtLastHit.SetNPixelHits(npixelhits,iTr);
-    //cout<<" i="<<iTr<<" fParticles[i].Id()="<<fParticles[iTr].Id()<<" pt="<<fParticles[iTr].GetPt()<<endl;
-    //cout<<"  at first (fParticles[i])         : pt="<<fParticles[iTr].GetPt()<<" R="<<R(fParticles[iTr].GetX(),fParticles[iTr].GetY())<<" phi="<<fParticles[iTr].GetPhi()<<";   "<<fParticles[iTr]<<endl;
-    //cout<<"  at last: (fParticlesAtLastHit[i]): pt="<<fParticlesAtLastHit[iTr].GetPt()<<" R="<<R(fParticlesAtLastHit[iTr].GetX(),fParticlesAtLastHit[iTr].GetY())<<" phi="<<fParticlesAtLastHit[iTr].GetPhi()<<";   "<<fParticlesAtLastHit[iTr]<<endl;
+    cout<<" i="<<iTr<<" fParticles[i].Id()="<<fParticles[iTr].Id()<<" pt="<<fParticles[iTr].GetPt()<<endl;
+    cout<<"  at first (fParticles[i])         : pt="<<fParticles[iTr].GetPt()<<" R="<<R(fParticles[iTr].GetX(),fParticles[iTr].GetY())<<" phi="<<fParticles[iTr].GetPhi()<<";   "<<fParticles[iTr]<<endl;
+    cout<<"  at last: (fParticlesAtLastHit[i]): pt="<<fParticlesAtLastHit[iTr].GetPt()<<" R="<<R(fParticlesAtLastHit[iTr].GetX(),fParticlesAtLastHit[iTr].GetY())<<" phi="<<fParticlesAtLastHit[iTr].GetPhi()<<";   "<<fParticlesAtLastHit[iTr]<<endl;
   }
   fKFParticleTopoReconstructor->Init( ftracksAtFirstHit, ftracksAtLastHit );
   //cout<<"------------------po topo init-------"<<endl;
@@ -704,7 +705,7 @@ void StKFParticleInterface::AddTrackToParticleList(const KFPTrack& track, int nH
   std::vector<int>& primaryTrackList, std::vector<int>& nHftHits, std::vector<int>& particlesPdg, std::vector<KFParticle>& particles, int& nPartSaved,
   const KFPTrack* trackAtLastHit, std::vector<KFParticle>* particlesAtLastHit)
 {
-
+   cout<<"StKFParticleInterface::AddTrackToParticleList"<<endl;
    for(unsigned int iPDG=0; iPDG<totalPDG.size(); iPDG++)
   {
     if( fTriggerMode && (nHftHitsInTrack < 3) ) continue;
@@ -778,9 +779,9 @@ void StKFParticleInterface::AddTrackToParticleList(const KFPTrack& track, int nH
     nHftHits[nPartSaved] = 0;
     
     KFParticle particle(trackPDG, pdg);
-    //cout<<particle<<endl;
+    cout<<particle<<endl;
     float chiPrim = particle.GetDeviationFromVertex(pv);
-    //cout<<"  chiPrim="<<chiPrim<<"  ? "<<fChiPrimaryCut<<"  triggermode="<<fTriggerMode<<endl;
+    cout<<"  chiPrim="<<chiPrim<<"  ? "<<fChiPrimaryCut<<"  triggermode="<<fTriggerMode<<endl;
     if(chiPrim < fChiPrimaryCut)
     {
       if(fTriggerMode) continue;
@@ -1023,7 +1024,7 @@ void StKFParticleInterface::ResizeTrackPidVectors(const int nTracks)
 
 bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& triggeredTracks)
 {
-  cout<<"StKFParticleInterface::ProcessEvent - picoDst"<<endl;
+  cout<<"StKFParticleInterface::ProcessEvent - picoDst, evt. Id="<<picoDst->event()->eventId()<<endl;
   triggeredTracks.resize(0);
   
   //read PV from pico Event
@@ -1044,6 +1045,7 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
   primVtx_tmp.SetCovarianceMatrix( dx*dx, 0, dy*dy, 0, 0, dz*dz );
   primaryVertex = KFVertex(primVtx_tmp);
 
+  cout<<"  PV properties: "<<primaryVertex<<endl;
 //   if(!IsGoodPV(primaryVertex)) return 0;
   
   Int_t nGlobalTracks = picoDst->numberOfTracks( );
@@ -1061,9 +1063,12 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
  
 
   for (Int_t iTrack = 0; iTrack < nGlobalTracks; iTrack++) 
-  {
+  { 
+    cout<<"iTrack="<<iTrack<<endl;
     StPicoTrack *gTrack = picoDst->track(iTrack);
     if (! gTrack)            continue;
+    //cout<<" gTrack="<<*gTrack<<endl;
+    
     if (! gTrack->charge())  continue;
     //if (  gTrack->nHitsFit() < 15) continue;
     if (  gTrack->nHitsFit() < 10) continue; //changed by Petr
@@ -1156,6 +1161,7 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
     
     int nPartSaved0 = nPartSaved;
     unsigned int nPrimaryTracks = primaryTrackList.size();
+    cout<<" adding track .."<<iTrack<<" nPrimaryTracks ="<< nPrimaryTracks<<endl;
     AddTrackToParticleList(track, nHftHitsInTrack, id, totalPDG, primaryVertex, primaryTrackList, fNHftHits, fParticlesPdg, fParticles, nPartSaved); 
     
     if(nPartSaved > nPartSaved0) 
@@ -1230,9 +1236,9 @@ bool StKFParticleInterface::ProcessEvent(StPicoDst* picoDst, std::vector<int>& t
 bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTracks, vector<int>& mcIndices,
  StKFParticleAnalysisMaker::cProcessSignal processSignal)
 {  
-  cout<<"StKFParticleInterface::ProcessEvent - MuDst, processSignal="<<processSignal<<endl;
-  cout<<" muDst->numberOfGlobalTracks()="<< muDst->numberOfGlobalTracks()<<endl;
-  cout<<" muDst->numberOfMcTracks()="<< muDst->numberOfMcTracks()<<endl;
+  cout<<"StKFParticleInterface::ProcessEvent - MuDst, event Id="<< muDst->event()->eventId()<<", processSignal="<<processSignal<<endl;
+  cout<<"  muDst->numberOfGlobalTracks()="<< muDst->numberOfGlobalTracks()<<endl;
+  cout<<"  muDst->numberOfMcTracks()="<< muDst->numberOfMcTracks()<<endl;
  
   mcTracks.resize(muDst->numberOfMcTracks());
   for (unsigned int iMCTrack=0; iMCTrack<muDst->numberOfMcTracks(); iMCTrack++) 
@@ -1251,7 +1257,7 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
   float bestRank=-1000000;
   int bestPV=-100000;
   double dx = 0., dy = 0., dz = 0.;
-  cout<<" mu - # primary vertices="<<muDst->numberOfPrimaryVertices()<<endl;
+  cout<<"mu - # primary vertices="<<muDst->numberOfPrimaryVertices()<<endl;
   for(unsigned int iPV=0; iPV<muDst->numberOfPrimaryVertices(); iPV++) 
   {
     StMuPrimaryVertex *Vtx = muDst->primaryVertex(iPV);
@@ -1277,7 +1283,7 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
     primaryVertex.SetId(bestPV); 
   } 
    cout<<"  bestPV="<<bestPV<<endl;
-   cout<<"   "<<primaryVertex<<endl;
+   cout<<"  PV properties: "<<primaryVertex<<endl;
 //   if(!IsGoodPV(primaryVertex)) return 0;
 
   Int_t nGlobalTracks = muDst->numberOfGlobalTracks();
@@ -1296,7 +1302,10 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
   for (Int_t iTrack = 0; iTrack < nGlobalTracks; iTrack++) 
   {
     StMuTrack *gTrack = muDst->globalTracks(iTrack);
-    if (! gTrack)            continue;
+    cout<<"iTrack="<<iTrack<<endl;
+    if (! gTrack)         continue;
+    cout<<" gTrack="<<*gTrack<<endl;
+   
     if (! gTrack->charge())  continue;
     if (  gTrack->flag() < 100 ||  gTrack->flag()%100 == 11) continue; // bad fit or short track pointing to EEMC
     if (  gTrack->flag() > 1000) continue;  // pile up track in TPC
@@ -1330,9 +1339,9 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
 #ifdef __kfpAtFirstHit__
     KFPTrack track = gTrack->kfpTrackAtFirstHit();
     KFPTrack trackAtLastHit  = gTrack->kfpTrackAtLastHit();
-    //cout<<"  KF at first point: pt="<<track.GetPt()<<"  R="<<R(track.GetX(),track.GetY())<<endl;
+    cout<<"  KF at first point: pt="<<track.GetPt()<<"  R="<<R(track.GetX(),track.GetY())<<endl;
     //cout<<track<<endl;
-    //cout<<"  KF at last  point: pt="<<trackAtLastHit.GetPt()<<"  R="<<R(trackAtLastHit.GetX(),trackAtLastHit.GetY())<<endl;
+    cout<<"  KF at last  point: pt="<<trackAtLastHit.GetPt()<<"  R="<<R(trackAtLastHit.GetX(),trackAtLastHit.GetY())<<endl;
     //cout<<trackAtLastHit<<endl;
    #else
     Int_t dcaGeometryIndex = gTrack->index2Cov();
@@ -1412,7 +1421,7 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
     
     int nPartSaved0 = nPartSaved;
     unsigned int nPrimaryTracks = primaryTrackList.size();
-    //cout<<" adding track .."<<iTrack<<endl;
+    cout<<" adding track .."<<iTrack<<" nPrimaryTracks ="<< nPrimaryTracks<<endl;
 #ifdef __kfpAtFirstHit__
     AddTrackToParticleList(track, nHftHitsInTrack, id, totalPDG, primaryVertex, primaryTrackList, fNHftHits, fParticlesPdg, fParticles, nPartSaved, &trackAtLastHit, &fParticlesAtLastHit);
   #else
@@ -1444,21 +1453,24 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
 #endif
   fParticlesPdg.resize(nPartSaved);
   fNHftHits.resize(nPartSaved);
-  //cout<<"chp0"<<endl;
+  cout<<"chp0 nUsedTracks="<<nUsedTracks<<endl;
  
   if(nUsedTracks==0) return 0;
+  cout<<"chp0.1"<<endl;
+ 
   const int nPrimary = primaryTrackList.size();
+  cout<<" nPrimary="<<nPrimary<<endl;
   if(fCollectTrackHistograms)
   {
     fTrackHistograms[2]->Fill( double(nPrimary)/double(nUsedTracks) );
     fTrackHistograms2D[7]->Fill( nPrimary, (nUsedTracks - nPrimary) );
   }
   
-  //cout<<"nPrimary="<<nPrimary<<" nUsedTracks=="<<nUsedTracks<<endl;
+  cout<<"nPrimary="<<nPrimary<<" nUsedTracks=="<<nUsedTracks<<endl;
   if( fCleanLowPVTrackEvents && ( 10*nPrimary < (nUsedTracks - nPrimary) ) ) return 0;  
-  //cout<<"chp0.1"<<endl;
+  cout<<"chp1.1"<<endl;
   if( fCleanLowPVTrackEvents && sqrt(dx*dx + dy*dy) > 0.45 ) return 0;
-  //cout<<"chp1"<<endl;
+  cout<<"chp2"<<endl;
   if (fIsFixedTarget){
     if( fCleanLowPVTrackEvents && !(primaryVertex.Z() > 196. && primaryVertex.Z() < 204.) ) return 0;
     if( fCleanLowPVTrackEvents && !(primaryVertex.X() > -2.5 && primaryVertex.X() < 2.  ) ) return 0;
@@ -1468,7 +1480,8 @@ bool StKFParticleInterface::ProcessEvent(StMuDst* muDst, vector<KFMCTrack>& mcTr
   }
   else
   {// collider
-    if( fCleanLowPVTrackEvents && primaryVertex.GetR() > 2.5 ) return 0;
+
+    if( fCleanLowPVTrackEvents && primaryVertex.GetR() > 2.5 ) { cout<<"return on primaryVertex.GetR()=primaryVertex.GetR()"<<endl; return 0;}
   //   if( fCleanLowPVTrackEvents && fabs(primaryVertex.Z()) > 75. ) return 0;
   }
 

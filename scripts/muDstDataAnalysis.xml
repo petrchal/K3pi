@@ -24,7 +24,8 @@
   
   #7p7 
   #set geometry=y2021
-    #auau27GeV 2018 => y2018a
+  
+  #auau27GeV 2018 => y2018a
   #set geometry=y2018
   
   #auau19GeV 2019 => y2019

@@ -16,7 +16,7 @@
 <command> 
   pwd
   set noPID=1 #ignore PID - usual behaviour
-  set isPico=0 #1=pico - data, 0=MuDst-embedding
+  set isPico=1 #1=pico - data, 0=MuDst-embedding
   set isFXT=0
 
 #processignal flag: {kAllTracks=0,kMcTracksOnly=1,kRealTracksOnly=2;
@@ -24,7 +24,8 @@
   
   #7p7 
   #set geometry=y2021
-    #auau27GeV 2018 => y2018a
+  
+  #auau27GeV 2018 => y2018a
   #set geometry=y2018
   
   #auau19GeV 2019 => y2019
@@ -95,7 +96,7 @@
 <!-- FULL STATISTICS: -->
 <!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_*_*/P23id.SL23d/2019/*/*/*picoDst.root" nFiles="all"/> -->
 <!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_*_*/P23id.SL23d/2019/*/*/*MuDst.root" nFiles="20"/> -->
-<input URL="filelist:/star/u/petrchal/kaons_KFP/scripts/lists/emb_2019_MuDst_P23id_SL23d.list" nFiles="1"/>
+<input URL="filelist:/star/u/petrchal/kaons_KFP/scripts/lists/emb_2019_picoDst_P23id_SL23d.list" nFiles="1"/>
 
 
 <!-- ========================= end ====================================== -->
