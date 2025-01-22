@@ -175,7 +175,7 @@ void KFTopoPerformance::CheckMCTracks()
   }
 } // void KFTopoPerformance::CheckMCTracks()
 
-void KFTopoPerformance::GetMCParticles()
+void KFTopoPerformance::GetMCParticles()   //TODO
 {
   /** Fills information on relations between Monte Carlo particles. */
 
@@ -198,25 +198,26 @@ void KFTopoPerformance::GetMCParticles()
     if(mtra.PDG()==1003004)
       mtra.SetPDG(3012);
     KFMCParticle part;
-    part.SetMCTrackID( iMC );
-    part.SetMotherId ( mtra.MotherId() );
+    part.SetMCTrackID( iMC ); //iMC is the id
+    part.SetMotherId ( mtra.MotherId() ); //if primary, sets the pr. Vert. id
     part.SetPDG      ( mtra.PDG() );
     vMCParticles.push_back( part );
   }
   // find relations between mother and daughter MC particles
   const int nMCParticles = vMCParticles.size();
-  for (int iP = 0; iP < nMCParticles; iP++ ) {
-    KFMCParticle &part = vMCParticles[iP];
-    int motherId = part.GetMotherId();
-    if(motherId < 0) continue;
-    if(motherId >= nMCParticles)
+  for (int iP = 0; iP < nMCParticles; iP++ ) 
     {
-      std::cout << "ERROR!!!!!  KF Particle Performance: MC track mother Id is out of range." << std::endl;
-      exit(1);
+      KFMCParticle &part = vMCParticles[iP];
+      int motherId = part.GetMotherId();
+      if(motherId < 0) continue;
+      if(motherId >= nMCParticles)
+       {
+          std::cout << "ERROR!!!!!  KF Particle Performance: MC track mother Id is out of range." << std::endl;
+          exit(1);
+        }
+      KFMCParticle &motherPart = vMCParticles[motherId];
+      motherPart.AddDaughter(iP);
     }
-    KFMCParticle &motherPart = vMCParticles[motherId];
-    motherPart.AddDaughter(iP);
-  }
   
   fNeutralIndex.clear();
   fNeutralIndex.resize(nMCParticles, -1);
@@ -227,20 +228,22 @@ void KFTopoPerformance::GetMCParticles()
     part.SetMCTrackID( iMC );
   }
   
-  const int NmmPDG = 7;
+  const int NmmPDG = 8;
   vector<int> mmMotherPDG(NmmPDG); //PDG for particles found by the missing mass method
   vector<int> mmChargedDaughterPDG(NmmPDG);
   vector<int> mmNeutralDaughterPDG(NmmPDG);
   vector<int> newMotherPDG(NmmPDG);
   vector<int> newNeutralPDG(NmmPDG);
   
-  mmMotherPDG[ 0] = 3112; mmChargedDaughterPDG[ 0] =  211; mmNeutralDaughterPDG[ 0] = 2112;
+  mmMotherPDG[ 0] = 3112; mmChargedDaughterPDG[ 0] =  211; mmNeutralDaughterPDG[ 0] = 2112; //where is pion to mu+neutrino??? //where we add neutrino
   mmMotherPDG[ 1] = 3222; mmChargedDaughterPDG[ 1] =  211; mmNeutralDaughterPDG[ 1] = 2112;
   mmMotherPDG[ 2] = 3312; mmChargedDaughterPDG[ 2] =  211; mmNeutralDaughterPDG[ 2] = 3122;
   mmMotherPDG[ 3] = 3334; mmChargedDaughterPDG[ 3] =  211; mmNeutralDaughterPDG[ 3] = 3322;
   mmMotherPDG[ 4] =  321; mmChargedDaughterPDG[ 4] =  211; mmNeutralDaughterPDG[ 4] =  111;
   mmMotherPDG[ 5] = 3334; mmChargedDaughterPDG[ 5] =  321; mmNeutralDaughterPDG[ 5] = 3122;
   mmMotherPDG[ 6] = 3222; mmChargedDaughterPDG[ 6] = 2212; mmNeutralDaughterPDG[ 6] =  111;
+  mmMotherPDG[ 7] =  321; mmChargedDaughterPDG[ 7] =  211; mmNeutralDaughterPDG[ 7] =  211; //K->3pi
+
   
   newMotherPDG[ 0] = 7003112; newNeutralPDG[ 0] = 7002112;
   newMotherPDG[ 1] = 7003222; newNeutralPDG[ 1] = 8002112;
@@ -249,10 +252,12 @@ void KFTopoPerformance::GetMCParticles()
   newMotherPDG[ 4] = 9000321; newNeutralPDG[ 4] = 9000111;
   newMotherPDG[ 5] = 8003334; newNeutralPDG[ 5] = 8003122;
   newMotherPDG[ 6] = 8003222; newNeutralPDG[ 6] = 8000111;
+  newMotherPDG[ 7] = 8000321; newNeutralPDG[ 7] = 8000211; //K->3pi
+ 
     
-  //add neutrinos, if they are not saved
   for(int iMC=0; iMC<nMCParticles; iMC++)
   {
+    //add neutrinos, if they are not saved
     if( abs(vMCParticles[iMC].GetPDG()) == 211 || abs(vMCParticles[iMC].GetPDG()) == 321 )
     {
       int muonIndex = -1;
@@ -260,7 +265,7 @@ void KFTopoPerformance::GetMCParticles()
         if( abs(vMCParticles[vMCParticles[iMC].GetDaughterIds()[iD]].GetPDG()) == 13 )
           muonIndex = vMCParticles[iMC].GetDaughterIds()[iD];
 
-      if(muonIndex > -1)
+      if(muonIndex > -1) //(for decays with muon daughter) we have to manually add and save MC neutrinos
       {
         int newPDG = 0;
         if(vMCParticles[iMC].GetPDG() >0)
@@ -270,8 +275,8 @@ void KFTopoPerformance::GetMCParticles()
         KFMCParticle motherPart = vMCParticles[iMC];
         KFMCTrack motherTrack = vMCTracks[motherPart.GetMCTrackID()];
         motherTrack.SetPDG(newPDG);
-        motherTrack.SetNotReconstructed();
-        int newMotherIndex = vMCTracks.size();
+        motherTrack.SetNotReconstructed();     //???????
+        int newMotherIndex = vMCTracks.size(); //???????
         motherPart.SetPDG(newPDG);
         motherPart.SetMCTrackID(newMotherIndex);
 
@@ -303,10 +308,10 @@ void KFTopoPerformance::GetMCParticles()
         motherPart.CleanDaughters();
         motherPart.AddDaughter(muonIndex);
         motherPart.AddDaughter(neutrinoIndex);
-        motherPart.SetInitialParticleId(iMC);
+        motherPart.SetInitialParticleId(iMC); //????
         vMCTracks.push_back(motherTrack);
         vMCParticles.push_back(motherPart);
-        fNeutralIndex.push_back(-1);
+        fNeutralIndex.push_back(-1);  //?????
         
         neutrinoPart.SetMCTrackID(neutrinoIndex);
         neutrinoPart.SetMotherId(newMotherIndex);
@@ -317,11 +322,11 @@ void KFTopoPerformance::GetMCParticles()
         vMCParticles.push_back(neutrinoPart);
         fNeutralIndex.push_back(-1);
         
-        vMCParticles[iMC].SetAsReconstructable(4);
+        vMCParticles[iMC].SetAsReconstructable(4);  //even if out of the acceptance??? //answer: in 4pi for mmm
         vMCParticles[muonIndex].SetAsReconstructable(4);
       }
     }
-    // add sigmas, omegas, xis ...
+    // add sigmas, omegas, xis ...   
     if( vMCParticles[iMC].NDaughters() >= 2 && 
         (abs(vMCParticles[iMC].GetPDG()) == 3112 || 
          abs(vMCParticles[iMC].GetPDG()) == 3222 || 
@@ -329,16 +334,16 @@ void KFTopoPerformance::GetMCParticles()
          abs(vMCParticles[iMC].GetPDG()) == 3334 || 
          abs(vMCParticles[iMC].GetPDG()) ==  321) )
     {
-      int neutralDaughterId = -1, chargedDaughterId = -1;
+      int neutralDaughterId = -1, chargedDaughterId = -1, chargedDaughter2Id = -1;
 
       int newPDG = 0;
       int neutralPDG = 0;
 
-      for(int iPDG=0; iPDG<NmmPDG; iPDG++)
+      for(int iPDG=7; iPDG<NmmPDG; iPDG++)
       {
         if(abs(vMCParticles[iMC].GetPDG()) == mmMotherPDG[iPDG])
         {
-          bool isDaughter[2] = {0,0};
+          bool isDaughter[3] = {0,0,0}; //2->3 for K->3pi
 
           vector<float> xDaughter;
           vector<float> yDaughter;
@@ -362,7 +367,7 @@ void KFTopoPerformance::GetMCParticles()
               isNewDecayPoint &= !isSamePoint;
             }
             
-            if(isNewDecayPoint)
+            if(isNewDecayPoint) //true only for the first daughter
             {
               xDaughter.push_back(vMCTracks[vMCParticles[iMC].GetDaughterIds()[iMCDaughter]].X());
               yDaughter.push_back(vMCTracks[vMCParticles[iMC].GetDaughterIds()[iMCDaughter]].Y());
@@ -373,26 +378,36 @@ void KFTopoPerformance::GetMCParticles()
             }
           }
           
-          for(unsigned int iPoint = 0; iPoint<nDaughtersAtPoint.size(); iPoint++)
+          for(unsigned int iPoint = 0; iPoint<nDaughtersAtPoint.size(); iPoint++) //should be only 1 point if no delta electrons 
           {
-            if(nDaughtersAtPoint[iPoint].size() == 2)
+            //case for K->3pi
+           if (nDaughtersAtPoint[iPoint].size() == 3 && abs(vMCParticles[iMC].GetPDG()) == 321)  //case for K->3pi
             {
               for(unsigned int iDaughter=0; iDaughter<nDaughtersAtPoint[iPoint].size(); iDaughter++)
               {
                 int iMCDaughter = nDaughtersAtPoint[iPoint][iDaughter];
-                if(abs(vMCParticles[vMCParticles[iMC].GetDaughterIds()[iMCDaughter]].GetPDG()) == mmChargedDaughterPDG[iPDG])
+
+                if((vMCParticles[vMCParticles[iMC].GetDaughterIds()[iMCDaughter]].GetPDG()) == 211)
                 {
-                  isDaughter[0] = 1;
-                  chargedDaughterId = vMCParticles[iMC].GetDaughterIds()[iMCDaughter];
+                  if (chargedDaughterId == -1)
+                    {
+                      isDaughter[0] = 1; //first charged pion
+                      chargedDaughterId = vMCParticles[iMC].GetDaughterIds()[iMCDaughter];
+                    }
+                  else
+                    {
+                      isDaughter[1] = 1; //second charged pion
+                      chargedDaughter2Id = vMCParticles[iMC].GetDaughterIds()[iMCDaughter];
+                    }
                 }
-                if(abs(vMCParticles[vMCParticles[iMC].GetDaughterIds()[iMCDaughter]].GetPDG()) == mmNeutralDaughterPDG[iPDG])
+                if((vMCParticles[vMCParticles[iMC].GetDaughterIds()[iMCDaughter]].GetPDG()) == -211)
                 {
-                  isDaughter[1] = 1;
+                  isDaughter[2] = 1;     // "neutral" charged pion
                   neutralDaughterId = vMCParticles[iMC].GetDaughterIds()[iMCDaughter];
                 }
               }
-              
-              if(isDaughter[0] && isDaughter[1])
+
+              if(isDaughter[0] && isDaughter[1] && isDaughter[2])
               {
                 int signPDG = vMCParticles[iMC].GetPDG()/abs(vMCParticles[iMC].GetPDG());
                 newPDG     = signPDG * newMotherPDG[iPDG];
@@ -403,53 +418,58 @@ void KFTopoPerformance::GetMCParticles()
         }
       }
 
-      if(newPDG != 0)
+      if(newPDG != 0) //only mothers as iMC in this scope
       {
         KFMCParticle motherPart = vMCParticles[iMC];
-        KFMCTrack motherTrack = vMCTracks[motherPart.GetMCTrackID()];
+        KFMCTrack motherTrack = vMCTracks[motherPart.GetMCTrackID()]; //create and get a copy of a track
         motherTrack.SetPDG(newPDG);
-        motherTrack.SetNotReconstructed();
+        motherTrack.SetNotReconstructed(); //just reset
         int newMotherIndex = vMCTracks.size();
-        motherPart.SetPDG(newPDG);
-        motherPart.SetMCTrackID(newMotherIndex);
 
-        int neutrinoIndex = vMCTracks.size()+1;
-        fNeutralIndex[iMC] = neutrinoIndex;
-        
+        motherPart.SetPDG(newPDG);
+        motherPart.SetMCTrackID(newMotherIndex); //no parameters in KFMCParticles, only relations// TODO read docs
+
+        int neutralIndex = vMCTracks.size()+1;
+        fNeutralIndex[iMC] = neutralIndex;
+
         KFMCTrack neutralTrack = vMCTracks[neutralDaughterId];
         neutralTrack.SetMotherId(newMotherIndex);
         neutralTrack.SetPDG(neutralPDG);
 
         motherPart.CleanDaughters();
         motherPart.AddDaughter(chargedDaughterId);
-        motherPart.AddDaughter(neutrinoIndex);
+        if (chargedDaughter2Id != -1)    //K->3pi
+        motherPart.AddDaughter(chargedDaughter2Id);
+        motherPart.AddDaughter(neutralIndex);
         motherPart.SetInitialParticleId(iMC);
         vMCTracks.push_back(motherTrack);
         vMCParticles.push_back(motherPart);
         fNeutralIndex.push_back(-1);
         
         KFMCParticle neutralPart;
-        neutralPart.SetMCTrackID(neutrinoIndex);
+        neutralPart.SetMCTrackID(neutralIndex);
         neutralPart.SetMotherId(newMotherIndex);
         neutralPart.SetPDG(neutralPDG);
-        neutralPart.AddDaughter(iMC);
+        neutralPart.AddDaughter(iMC); //mother's id
         neutralPart.AddDaughter(chargedDaughterId);
+        if (chargedDaughter2Id != -1)    //K->3pi
+        neutralPart.AddDaughter(chargedDaughter2Id);
         vMCTracks.push_back(neutralTrack);
         vMCParticles.push_back(neutralPart);
         fNeutralIndex.push_back(-1);
         
         vMCParticles[iMC].SetAsReconstructable(4);
         vMCParticles[chargedDaughterId].SetAsReconstructable(4);
+        if (chargedDaughter2Id != -1)    //K->3pi
+        vMCParticles[chargedDaughter2Id].SetAsReconstructable(4);
       }
     }
   }
   
-  //clean Lambda c daughters
+  //clean Lambda c daughters //something with intermediate daughters not being saved
   for(unsigned int iMC=0; iMC < vMCParticles.size(); iMC++)
   {
     KFMCParticle &part = vMCParticles[iMC];
-
-//     if(abs(part.GetPDG()) == 4122)
     {
       //add daughters into one pool
       vector<int> newDaughters;
@@ -476,7 +496,6 @@ void KFTopoPerformance::GetMCParticles()
           }
         }
         else
-//         if(d.GetDaughterIds().size() == 0 || abs(d.GetPDG())==310 || abs(d.GetPDG())==3122)
           newDaughters.push_back(part.GetDaughterIds()[iD]);
       }
       part.CleanDaughters();
@@ -541,7 +560,7 @@ void KFTopoPerformance::CheckMCParticleIsReconstructable(KFMCParticle &part)
 {
   /** Checks if the given Monte Carlo particle can be reconstructed. */
   if ( part.IsReconstructable(0) ) return;
-  if ( vMCTracks[part.GetMCTrackID()].IsOutOfDetector() ) return;
+  if ( vMCTracks[part.GetMCTrackID()].IsOutOfDetector() ) return; //where defined???
   
   if( abs(part.GetPDG()) ==        211 ||
       abs(part.GetPDG()) ==       2212 ||
@@ -715,7 +734,7 @@ void KFTopoPerformance::FindReconstructableMCVertices()
 void KFTopoPerformance::MatchParticles()
 {
   /** Matches Monte Carlo and reconstructed particles. */
-  MCtoRParticleId.clear();
+  MCtoRParticleId.clear();      //index or reconstructed
   RtoMCParticleId.clear();
   MCtoRParticleId.resize(vMCParticles.size());
   RtoMCParticleId.resize(fTopoReconstructor->GetParticles().size() );
@@ -725,21 +744,20 @@ void KFTopoPerformance::MatchParticles()
   {
     const KFParticle &rPart = fTopoReconstructor->GetParticles()[iRP];
 
-    if (rPart.NDaughters() != 1) continue;
+    if (rPart.NDaughters() != 1) continue; // TOASK daughter to itself? //id of its track(only for part built from tracks)
 
     const int rTrackId = rPart.DaughterIds()[0];
     const int mcTrackId = fTrackMatch[rTrackId];
-
     if(mcTrackId < 0) continue;
 
     KFMCParticle &mPart = vMCParticles[mcTrackId];
-    if( mPart.GetPDG() == rPart.GetPDG() ) 
+    if( mPart.GetPDG() == rPart.GetPDG() )            //same track, same pdg
     {
-      MCtoRParticleId[mcTrackId].ids.push_back(iRP);
+      MCtoRParticleId[mcTrackId].ids.push_back(iRP); 
       RtoMCParticleId[iRP].ids.push_back(mcTrackId);
     }
     else {
-      MCtoRParticleId[mcTrackId].idsMI.push_back(iRP);
+      MCtoRParticleId[mcTrackId].idsMI.push_back(iRP); //same track but wrong pdg, MI - missidentificated
       RtoMCParticleId[iRP].idsMI.push_back(mcTrackId);
     }
   }
@@ -751,15 +769,30 @@ void KFTopoPerformance::MatchParticles()
     
     if (NRDaughters < 2) continue;
 
-    bool isMissingMass = ((abs(rPart.GetPDG()) == 7000211)||(abs(rPart.GetPDG()) == 7000321)||(abs(rPart.GetPDG()) == 7003112) || (abs(rPart.GetPDG()) == 7003222)|| (abs(rPart.GetPDG()) == 7003312)|| (abs(rPart.GetPDG()) == 7003334)|| (abs(rPart.GetPDG()) == 9000321)|| (abs(rPart.GetPDG()) == 8003334)||(abs(rPart.GetPDG()) == 8003222));
-    
-    //missing mass method
-    if ( (abs(rPart.GetPDG()) == 7000014 ) || (abs(rPart.GetPDG()) == 8000014 ) || (abs(rPart.GetPDG()) == 7002112 ) ||
-         (abs(rPart.GetPDG()) == 8002112 ) || (abs(rPart.GetPDG()) == 7003122 ) || (abs(rPart.GetPDG()) == 7003322 ) ||
-         (abs(rPart.GetPDG()) == 9000111 ) || (abs(rPart.GetPDG()) == 8003122 ) || (abs(rPart.GetPDG()) == 8000111 ) )
-    {
-      //During the reconstruction 1st daughter - mother particle, 2nd daughter - charged daughter
+    bool isMissingMass = abs(rPart.GetPDG()) == 7000211 ||
+                         abs(rPart.GetPDG()) == 7000321 ||
+                         abs(rPart.GetPDG()) == 7003112 ||
+                         abs(rPart.GetPDG()) == 7003222 ||
+                         abs(rPart.GetPDG()) == 7003312 ||
+                         abs(rPart.GetPDG()) == 7003334 ||
+                         abs(rPart.GetPDG()) == 9000321 ||
+                         abs(rPart.GetPDG()) == 8003334 ||
+                         abs(rPart.GetPDG()) == 8003222 ||
+                         abs(rPart.GetPDG()) == 8000321;  //K->3pi
 
+    //missing mass method 
+    //2 daughters case
+    if (abs(rPart.GetPDG()) == 7000014 ||  //list of neutrals
+        abs(rPart.GetPDG()) == 8000014 ||
+        abs(rPart.GetPDG()) == 7002112 ||
+        abs(rPart.GetPDG()) == 8002112 ||
+        abs(rPart.GetPDG()) == 7003122 ||
+        abs(rPart.GetPDG()) == 7003322 ||
+        abs(rPart.GetPDG()) == 9000111 ||
+        abs(rPart.GetPDG()) == 8003122 ||
+        abs(rPart.GetPDG()) == 8000111)
+    {
+      //During the reconstruction for the neutral 1st daughter - mother particle, 2nd daughter - charged daughter
       int mcNeutralDaughterId = -1;
       const int recoMotherId = rPart.DaughterIds()[0];
       if ( !RtoMCParticleId[recoMotherId].IsMatched() ) continue;
@@ -775,7 +808,7 @@ void KFTopoPerformance::MatchParticles()
       if(chargedDaughter.GetMotherId() != mcMotherId) continue;
       const KFMCParticle& mother = vMCParticles[mcMotherId];
 
-      if(fNeutralIndex[mcMotherId] > -1)
+      if(fNeutralIndex[mcMotherId] > -1)      //check if mmm!?
         mcNeutralDaughterId = fNeutralIndex[mcMotherId];
 
       if(mcNeutralDaughterId > -1)
@@ -790,7 +823,7 @@ void KFTopoPerformance::MatchParticles()
         if( neutralDaughter.GetPDG()     == rPart.GetPDG()     &&
             neutralDaughter.NDaughters() == rPart.NDaughters() &&
             allCorrectDaughters) {
-          MCtoRParticleId[mcNeutralDaughterId].ids.push_back(iRP);
+          MCtoRParticleId[mcNeutralDaughterId].ids.push_back(iRP); //Matched
           RtoMCParticleId[iRP].ids.push_back(mcNeutralDaughterId);
         }
         else {
@@ -800,6 +833,58 @@ void KFTopoPerformance::MatchParticles()
       }
     }
     
+    //3 daughters case
+    else if (abs(rPart.GetPDG()) == 8000211) //missing pi from K->3pi
+    {
+      int mcNeutralDaughterId = -1;
+      const int recoMotherId = rPart.DaughterIds()[0];
+      if ( !RtoMCParticleId[recoMotherId].IsMatched() ) continue;
+
+      const int mcMotherId = RtoMCParticleId[recoMotherId].GetBestMatch();
+      
+      const int recoChargedDaughterId = rPart.DaughterIds()[1];
+      if ( !RtoMCParticleId[recoChargedDaughterId].IsMatched() ) continue;
+
+      const int recoChargedDaughter2Id = rPart.DaughterIds()[2];
+      if ( !RtoMCParticleId[recoChargedDaughter2Id].IsMatched() ) continue;
+
+      const int mcChargedDaughterId = RtoMCParticleId[recoChargedDaughterId].GetBestMatch();
+      const KFMCParticle& chargedDaughter = vMCParticles[mcChargedDaughterId];
+
+      const int mcChargedDaughter2Id = RtoMCParticleId[recoChargedDaughter2Id].GetBestMatch();
+      const KFMCParticle& chargedDaughter2 = vMCParticles[mcChargedDaughter2Id];
+
+
+      if(chargedDaughter.GetMotherId() != mcMotherId || chargedDaughter2.GetMotherId() != mcMotherId) continue;
+
+      const KFMCParticle& mother = vMCParticles[mcMotherId];
+
+      if(fNeutralIndex[mcMotherId] > -1)      
+        mcNeutralDaughterId = fNeutralIndex[mcMotherId];
+
+      if(mcNeutralDaughterId > -1)
+      {
+        KFMCParticle &neutralDaughter = vMCParticles[mcNeutralDaughterId];
+        
+        int iParticle = fParteff.GetParticleIndex(rPart.GetPDG());
+        
+        bool allCorrectDaughters = mother.GetPDG()          == fParteff.partDaughterPdg[iParticle][0] &&
+                                   chargedDaughter.GetPDG() == fParteff.partDaughterPdg[iParticle][1] && //TODO: check charge signs
+                                   chargedDaughter2.GetPDG()== fParteff.partDaughterPdg[iParticle][2];
+
+        if( neutralDaughter.GetPDG()     == rPart.GetPDG()     &&
+            neutralDaughter.NDaughters() == rPart.NDaughters() &&
+            allCorrectDaughters) {
+
+          MCtoRParticleId[mcNeutralDaughterId].ids.push_back(iRP); //Matched
+          RtoMCParticleId[iRP].ids.push_back(mcNeutralDaughterId);
+        }
+        else {
+          MCtoRParticleId[mcNeutralDaughterId].idsMI.push_back(iRP);
+          RtoMCParticleId[iRP].idsMI.push_back(mcNeutralDaughterId);
+        }
+      }
+    }
     
     
     //normal decays
@@ -826,7 +911,7 @@ void KFTopoPerformance::MatchParticles()
         if(isMissingMass)
         {
           const KFMCParticle &neutralDaughter = vMCParticles[mdId];
-          if(mmId != vMCParticles[neutralDaughter.GetMotherId()].InitialParticleId()) break;
+          if(mmId != vMCParticles[neutralDaughter.GetMotherId()].InitialParticleId()) break;//TODO
           mmId = neutralDaughter.GetMotherId();
         }
         
@@ -845,8 +930,9 @@ void KFTopoPerformance::MatchParticles()
       
       if ( iD == NRDaughters && mmId > -1 ) { // match is found and it is not primary vertex
         KFMCParticle &mmPart = vMCParticles[mmId];
-        
-        if( mmPart.GetPDG()     == rPart.GetPDG()     &&
+        const bool isK3pi = ((rPart.GetPDG() == 100321 && mmPart.GetPDG() == 321) || (rPart.GetPDG() == -100321 && mmPart.GetPDG() == -321));
+
+        if(( mmPart.GetPDG()     == rPart.GetPDG() || isK3pi)     &&
             mmPart.NDaughters() == rPart.NDaughters() ) {
           MCtoRParticleId[mmId].ids.push_back(iRP);
           RtoMCParticleId[iRP].ids.push_back(mmId);        
@@ -1567,6 +1653,8 @@ void KFTopoPerformance::FillParticleParameters(KFParticle& TempPart,
 
   histoParameters2D[0][iParticle][0]->Fill(Rapidity,Pt,1);
   histoParameters2D[0][iParticle][3]->Fill(Rapidity,M_t,1);
+  histoParameters2D[0][iParticle][4]->Fill(X,Y,1);
+
   
   const bool drawZR = IsCollectZRHistogram(iParticle);
   if(histoParameters2D[0][iParticle][1] && drawZR)
@@ -2019,7 +2107,10 @@ void KFTopoPerformance::FillHistos()
     int iParticle = fParteff.GetParticleIndex(fTopoReconstructor->GetParticles()[iP].GetPDG());
     if(iParticle < 0) continue;
     KFParticle TempPart = fTopoReconstructor->GetParticles()[iP];
-    
+    if (TempPart.GetPDG()==8000321)
+      std::cout<<"Kaon is with us\n";
+    if (TempPart.GetPDG()==8000211)
+      std::cout<<"Pion is with us\n";
     FillParticleParameters(TempPart,iParticle, iP, 0, hPartParam, hPartParam2D, hPartParam3D,
                            hFitQA, hFitDaughtersQA, hDSToParticleQA, multiplicities);
   }

@@ -1,0 +1,29 @@
+<job name="MuAnalysis" minFilesPerProcess="1" maxFilesPerProcess="7" filesPerHour="10" simulateSubmission="false" copyInputLocally="false" fileListSyntax="paths">
+
+    <stdout URL="file:/gpfs01/star/pwg/pkisel/kaons_KFP/log/$JOBID.log" />
+    <stderr URL="file:/gpfs01/star/pwg/pkisel/kaons_KFP/log/$JOBID.err" />
+
+    <command>
+
+        cp -rf ${SUBMITTINGDIRECTORY}/Template/.sl73_x8664_gcc485/ .
+        cp ${SUBMITTINGDIRECTORY}/Template/kfpAnalysis.C .
+        cp ${SUBMITTINGDIRECTORY}/Template/lMuDst.C .
+
+        cat ${FILELIST} | xargs -I % cp % .
+
+        root -l -b -q 'kfpAnalysis.C(1000000, 0, 0, 0, 1, "./*.MuDst.root","./$JOBID.root")' &gt;&amp; ./${JOBID}B.log
+
+    </command>
+
+    <input
+   
+URL="file:/gpfs01/star/pwg_tasks/TF_TrkEff/reco/2021/RF/TFG21c.B/7p7GeV_2021/*/*/*MuDst.root" nFiles="1000"/>
+    <!-- <input URL="file:/gpfs/mnt/gpfs01/star/pwg_tasks/TF_TrkEff/kaons_sim/2022-01-18_11-20_1M_2018_hiMult_TGF/production/*MuDst.root" /> -->
+
+    <output fromScratch="$JOBID.root" toURL="file:/gpfs01/star/pwg/pkisel/kaons_KFP/toglue/" />
+    <output fromScratch="${JOBID}B.log" toURL="file:/gpfs01/star/pwg/pkisel/kaons_KFP/rootlog/" />
+
+</job>
+
+<!-- <input
+URL="file:/gpfs01/star/pwg_tasks/TF_TrkEff/reco/2021/RF/TFG21c.B/7p7GeV_2021/032/*/*MuDst.root" nFiles="1"/> -->

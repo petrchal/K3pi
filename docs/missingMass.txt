@@ -1,0 +1,40 @@
+This is an initial version for searching pions from K->3pi using the Missing Mass Method. 
+It is done by calling SubtractV0FromTrack() in KFParticleFinder.cxx which I added.
+Matching is added in KFParticlePerformance/KFTopoPerformance.cxx.
+
+The code is at
+/gpfs01/star/pwg/pkisel/kaons_KFP (/Template/StRoot/)
+
+
+Running requires MuDst with parameters in first and last points and also __kfpAtFirstHit__ to be defined in StRoot/StEvent/StTrackTopologyMap.h (look at the kfp flag in your compile.sh, I used the "old way" by simply doing cons from the start in TFG22f)
+This flag means first and last hits are used.
+
+I also added "XY" histo for decay points. (use with "colz" option)
+
+Local runs could be done with:
+cd /gpfs01/star/pwg/pkisel/kaons_KFP/Template
+root -l kfpAnalysis.C
+(output mu.root)
+
+There are two test files present there as an input: mc and non mc (kfpAnalysis->ProcessSignal(); for mc)
++-8000321 are Kaons,  
++-8000211 are "missing" Pions
+Full list of particles as always is at KFPartEfficiencies.h
+K shorts (310) should be enabled, as they are used as temporary pi+pi- "particles".
+
+Condor runs with
+star-submit MuAnalysis.xml (/gpfs01/star/pwg/pkisel/kaons_KFP/)
+
+I recreated my own structure of folders for output, but you could use your own. Just replace StRoot folder,
+or these 7 files in particular:
+
+KFParticle/KFParticleFinder.cxx .h,
+KFParticlePerformance/KFTopoPerformance.cxx .h,
+KFParticlePerformance/KFParticlePerformanceBase.cxx .h,
+KFParticlePerformance/KFPartEfficiencies.h
+
+Keep in mind that Kaons have duplicates in their folder as 1st kaon is filled for 1st pion and second time -- for 2nd pion from the same decay. They go as pairs.
+
+
+
+Pavel for Petr

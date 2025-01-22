@@ -141,7 +141,7 @@ class KFParticlePerformanceBase
   TH1F *hPartParamSecondary[nParametersSet][KFPartEfficiencies::nParticles][nHistoPartParam]; ///< Parameters of secondary candidates.
   TH1F *hPartParamSecondaryMass[nParametersSet][KFPartEfficiencies::nParticles][nHistoPartParam]; ///< Parameters of secondary candidates with mass constraint.
 
-  static const int nHistoPartParam2D = 4; ///< Number of 2D histograms: 0 - y-pt, 1 - z-r, 2 - armenteros, 3- y-mt.
+  static const int nHistoPartParam2D = 5; ///< Number of 2D histograms: 0 - y-pt, 1 - z-r, 2 - armenteros, 3- y-mt, 4- X-Y.
   TH2F *hPartParam2D[nParametersSet][KFPartEfficiencies::nParticles][nHistoPartParam2D]; ///< 2D histograms for all candidates.
   TH2F *hPartParam2DPrimary[nParametersSet][KFPartEfficiencies::nParticles][nHistoPartParam2D]; ///< 2D for primary candidates.
   TH2F *hPartParam2DPrimaryMass[nParametersSet][KFPartEfficiencies::nParticles][nHistoPartParam2D]; ///< 2D for primary candidates with mass constraint.

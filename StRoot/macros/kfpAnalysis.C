@@ -7,22 +7,16 @@ void kfpAnalysis(
      char isPico=false, 
      char isFXT=false, 
      char noPID=true, 
-     const Char_t *input = ,
-     const Char_t *output,
-     const Char_t *triggerSet //force user to set it ...  = "y2019"
+   //  const Char_t *input = "/gpfs/mnt/gpfs01/star/pwg_tasks/TF_TrkEff/kaons_sim/2022-01-18_11-20_1M_2018_hiMult_TGF/production/K3pi_25_1_20.MuDst.root", 
+     const Char_t *input = "/gpfs/mnt/gpfs01/star/pwg_tasks/TF_TrkEff/reco/2021/RF/TFG21c.B/7p7GeV_2021/031/22031052/hlt_22031052_12_01_000.MuDst.root", 
+     const Char_t *output = "mu.root"
      ) {
 #if !defined(__CINT__)
   std::cout << "This code cannot be compiled" << std::endl;
 #else
   //  gSystem->SetFPEMask(kInvalid | kDivByZero | kOverflow );
   gROOT->LoadMacro("lMuDst.C");
-  TString Chain("r");
-  Chain += triggerSet;
-  if (! isPico) Chain += ",RMuDst";
-  //if (! isPico) {Chain += ",RMuDst,PicoWrite";}//  isPico = kTRUE;}
-  else          Chain += ",RpicoDst";
-  Chain += ",kfpAna,mysql,detDb,nodefault,quiet";
-  lMuDst(-1,input,Chain,output);
+ lMuDst(-1,input,"ry2021,picoEvt,RMuDst,mysql,kfpAna,quiet,nodefault",output);
 
   StKFParticleAnalysisMaker* kfpAnalysis = (StKFParticleAnalysisMaker*) StMaker::GetTopChain()->Maker("KFParticleAnalysis");
   if (isPico) kfpAnalysis->AnalysePicoDst();
@@ -35,13 +29,19 @@ void kfpAnalysis(
   kfpAnalysis->SetProcessSignal(TrkType);  //enable for simulations
 
 //   kfpAnalysis->CollectPIDHistograms();
-  kfpAnalysis->CollectTrackHistograms();
+ // kfpAnalysis->CollectTrackHistograms();
 
   kfpAnalysis->AddDecayToReconstructionList( 310); //Kshort
   kfpAnalysis->AddDecayToReconstructionList( 100321); //K->3pi
   kfpAnalysis->AddDecayToReconstructionList(-100321);
   kfpAnalysis->AddDecayToReconstructionList( 200321);
   kfpAnalysis->AddDecayToReconstructionList(-200321);
+  
+  kfpAnalysis->AddDecayToReconstructionList( 8000321); ////K+ -> 3pi mmm
+  kfpAnalysis->AddDecayToReconstructionList( 8000211);
+  kfpAnalysis->AddDecayToReconstructionList(-8000321);
+  kfpAnalysis->AddDecayToReconstructionList(-8000211);
+  
   kfpAnalysis->AddDecayToReconstructionList( 3122); //lambda
   kfpAnalysis->AddDecayToReconstructionList(-3122);
   kfpAnalysis->AddDecayToReconstructionList( 3312);//xi
@@ -79,14 +79,14 @@ void kfpAnalysis(
   if (isFXT) StKFParticleInterface::instance()->FixedTarget();
   
   StKFParticleInterface::instance()->SetSoftKaonPIDMode();
-  if (noPID) StKFParticleInterface::instance()->SetAllIsKaonPIDMode();
+//  if (noPID) StKFParticleInterface::instance()->SetAllIsKaonPIDMode();
   StKFParticleInterface::instance()->SetSoftTofPidMode();
 
   
   StKFParticleInterface::instance()->SetChiPrimaryCut(12);
   
   StKFParticleInterface::instance()->SetMaxDistanceBetweenParticlesCut(1);
-  StKFParticleInterface::instance()->SetLCut(0.3f);
+  StKFParticleInterface::instance()->SetLCut(0.0f);
 
     
   StKFParticleInterface::instance()->SetChiPrimaryCut2D(0);
