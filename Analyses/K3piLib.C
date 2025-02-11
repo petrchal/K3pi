@@ -340,7 +340,7 @@ public:
 
 ROOT::RDF::RNode TNewVariables::DefineNewVariables(ROOT::RDF::RNode nod){
     for (auto v: m){
-        cout<<"Defining new variable: "<<v.first<<endl;
+        cout<<"Defining new variable: "<<v.first<<"="<<v.second<<endl;
         nod=nod.Define(v.first,v.second);
     }
    return nod;
