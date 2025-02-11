@@ -129,8 +129,8 @@ K3PiCut Setup_3piVertexQA(){
 
      AddNewVar("MaxHitsDaughter","MaxHitsDaughter(decay_Vr)");
 
-     AddNewVar("cut_mom_ch2ndf","1.");
-     VertexQA_cut["3piVtx_chi"]="(mother_chi2ndf<cut_mom_ch2ndf)"; //30 -cut off in extraction, the DNF shoudl be 5?
+     AddNewVar("cut_3pi_ch2ndf","1.");
+     VertexQA_cut["3piVtx_chi"]="(mother_chi2ndf<cut_3pi_ch2ndf)"; //30 -cut off in extraction, the DNF shoudl be 5?
      //3piVtxQA_cut["3piVtx_chi"]="(mother_chi2ndf<1.5)&&(mother_chi2ndf>0.8)"; //30 -cut off in extraction, the DNF shoudl be 5?
      
      //TODO - possible to include

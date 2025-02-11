@@ -23,7 +23,7 @@ void FXT_QA_3piVtx(){
   ROOT::EnableImplicitMT(); //enambe multi threading - application must be MT safe ..your job
 
   //one must setup (Call) cuts here - the varibles get defined here
-  K3piCut_EventCut =EventCut_2020_FXT; //just in case override 
+  //K3piCut_EventCut =EventCut_2020_FXT; //just in case override 
   InitCuts();
   //these cannot be inititalized in InitCuts
   K3piCut_3piVtx_Kplus(); 
@@ -34,6 +34,7 @@ void FXT_QA_3piVtx(){
   int rebin=1;
   //ignires ranges set in plot definitions
   bool ignoreRange=false; // change to spot some outlayers
+  gIgnoreCutMods=true;
   //const bool normalize=false; //plot normalized
  
 
@@ -87,8 +88,8 @@ void FXT_QA_3piVtx(){
 
     // event plot per found 3pi+
     auto Cut=Reco3piVtx_cut+evCut;
-    AddPlots4QA(Event_plots_FXT,kaons_node,Cut,Res_eventPlots,"events",files[order[iFile]].lable,rebin,false);
-    AddPlots4QA(Event_plots_2D_FXT,kaons_node,Cut,Res_eventPlots_2D,"events",files[order[iFile]].lable,rebin,false);
+    //AddPlots4QA(Event_plots_FXT,kaons_node,Cut,Res_eventPlots,"events",files[order[iFile]].lable,rebin,false);
+    //AddPlots4QA(Event_plots_2D_FXT,kaons_node,Cut,Res_eventPlots_2D,"events",files[order[iFile]].lable,rebin,false);
     cout<<endl<<"Cut used:  "<<endl<<  Cut.Str()<<endl<<endl;
  
 
@@ -97,7 +98,7 @@ void FXT_QA_3piVtx(){
   
     //3pi vertex 
    AddPlots4QA(RecoVtx_plots,after_evCut_node,Reco3piVtx_cut,Res_Plots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
-   AddPlots4QA(RecoVtx_plots_2D,after_evCut_node,Reco3piVtx_cut,Res_Plots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+   //AddPlots4QA(RecoVtx_plots_2D,after_evCut_node,Reco3piVtx_cut,Res_Plots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
       
  
 
@@ -114,7 +115,7 @@ void FXT_QA_3piVtx(){
 } //loop over files
 
 //save results
-TFile *f=new TFile("3pi_FXT2019_5p75.root","recreate");
+TFile *f=new TFile("ch2check_3pi_FXT2019_4p59.root","recreate");
 
 f->mkdir("event info per found 3piVtx");f->cd("event info per found 3piVtx");
 DrawResults(Res_eventPlots);
