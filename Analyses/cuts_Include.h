@@ -8,6 +8,7 @@
 #include <map>
 #include "tpcPadPlanes.C"
 #include "K3piLib.C"
+//#include "inputs.h" //for automatization
 
 
 void AddNewVar(const char* var, const char *val) {
@@ -112,7 +113,7 @@ void InitRunLists(){
   std::sort(runList_2019_19AuAu.begin(), runList_2019_19AuAu.end());
 }
 
-bool goodRunId(unsigned int id) {
+bool goodRunId2019(unsigned int id) {
   //cout<<" petr runId="<<id<<endl;
   bool res= std::find(runList_2019_19AuAu.begin(), runList_2019_19AuAu.end(), id) != runList_2019_19AuAu.end();
   //TString s=" petr runId=";s+=id;s+=" found=";s+=res;
@@ -127,39 +128,31 @@ K3PiCut EventCut_2019_19AuAu(){
 
   K3PiCut Event_cut;
 
+  //temporary
+  Event_cut["rId"]="Evt.runId<20068000";
+
   Event_cut["trigger"]="Evt.isTrigger(trigList_2019_19AuAu)";
-  
-  //2019 has rather wide Vz distribution, I'm loosing about 60%
-  AddNewVar("cut_Vz","80."); //50 alows cut variation
- //cumulative loss of 70% for 2019
+  //extracted from emebedding - using exatly same data
+  Event_cut["runId"]="goodRunId2019(Evt.runId)";
+ 
+
+  //2019 has rather wide Vz distribution, I'm loosing about 60% at 50cm cut
+  AddNewVar("cut_Vz","80."); //can go up to 80, but 50 alows cut variation
+  //cumulative loss of 70% for 2019
+
+  //always on  
   Event_cut["Vz"]="(Evt.Vz>-cut_Vz)&&(Evt.Vz<cut_Vz)"; //embedding width
-  //Event_cut["Vz"]="(Evt.Vz>20)&&(Evt.Vz<80)"; //right half
-  //Event_cut["Vz"]="(Evt.Vz<-20)&&(Evt.Vz>-80)"; //left half
+  //override from inputs.h
+  #ifdef _rightSIDE
+    Event_cut["Vz"]="(Evt.Vz>10)&&(Evt.Vz<cut_Vz)"; //right half
+  #endif
+  #ifdef _leftSIDE
+     Event_cut["Vz"]="(Evt.Vz<-10)&&(Evt.Vz>-cut_Vz)"; //left half
+  #endif
   
   Event_cut["VPDdif"]="fabs(Evt.vzVpd-Evt.Vz)<5"; //VPD cut ..maybe to tight, but ok .. takes off another 30%
 
-  //Event_cut["nK3piP"]="Evt.nK3piP<=1"; //"there is a significant change from SL21 to SL23"
  
-  //extracted from emebedding - using exatly same data
-  Event_cut["runId"]="goodRunId(Evt.runId)";
- 
- /*
-  //optimization for 27GeV data
-  Event_cut["BBC"]="(Evt.BBCx<500000)";
-  Event_cut["ZDC"]="(Evt.ZDCx>800) && (Evt.ZDCx<1800)";
-  Event_cut["gRefMult"]="(Evt.gRefMult<320)";
-  Event_cut["TOFmatch"]="(Evt.nBTOFMatch<340)";
-  */
-
- //optimization for 19GeV data
- //Event_cut["gRefMult"]="(Evt.gRefMult<420)";
- //Event_cut["TOFmatch"]="(Evt.nBTOFMatch<460)&&(Evt.nBTOFMatch>100)";
-
-  //Event_cut["ZDC"]="(Evt.ZDCx>50) && (Evt.ZDCx<800)";
-  //Event_cut["ZDC"]="(Evt.ZDCx>200) && (Evt.ZDCx<600)";
-  //Event_cut["eventId"]="(Evt.eventId<1200000)";
-
-
   return Event_cut;
 } 
 
@@ -328,13 +321,13 @@ K3PiCut Setup_3piVtxKinematics(){
   K3PiCut kin_cut;
 
   //base cut
-  kin_cut["pt"]="(mother_pt_PVX>0.25)&&(mother_pt_PVX<0.9)"; //bellow 200MeV it is bad ,above 1GeV  also , but not sure why
+  kin_cut["pt"]="(mother_pt_PVX>0.25)&&(mother_pt_PVX<1.0)"; //bellow 200MeV it is bad ,above 1GeV  also , but not sure why
   
   //kin_cut["pt"]="(mother_pt_PVX>0.25)&&(mother_pt_PVX<0.4)";
   //pt="&&(mother_pt_PVX>0.2)&&(mother_pt_PVX<1.)"; //basic pt cut
     
-   //kin_cut["eta"]="(fabs(mother_eta_PVX)<0.8)"; //standard
-    kin_cut["eta"]="(fabs(mother_eta_PVX)<1.2)";
+   kin_cut["eta"]="(fabs(mother_eta_PVX)<1)"; //standard embedding done to 1.2
+   //kin_cut["eta"]="(fabs(mother_eta_PVX)<1.2)";
    
    // 110cm -base cut for old TPC - nor 3pi bellow 110cm
    //kin_cut["decay_Vr"]="(decay_Vr>110)"; //simulation cutoff for flat pt
@@ -347,7 +340,7 @@ K3PiCut Setup_3piVtxKinematics(){
    //kin_cut["decay_Vr"]="(decay_Vr>140)&&(decay_Vr<160)"; //170
  
    // long track with iTPC: from 2019 up
-   kin_cut["decay_Vr"]="(decay_Vr>130)&&(decay_Vr<160)"; //160 may be safer, could go to 120
+   //kin_cut["decay_Vr"]="(decay_Vr>130)&&(decay_Vr<160)"; //160 may be safer, could go to 120
    //kin_cut["decay_Vr"]="(decay_Vr<120)&&(decay_Vr>80)"; //short tracks
  
    // inner/outer divide
@@ -360,10 +353,13 @@ K3PiCut Setup_3piVtxKinematics(){
    //short tracks
    //kin_cut["decay_Vr"]="(decay_Vr<110)"; //160 may be safer, could go to 120
    
-   //--Vz---
+   //--decay_Z---
+   //close central membrane 
+   //kin_cut["decay_Z"]="fabs(decay_Vz)<15";
    //skip central membrane
    //tmp["decay_Z"]="(fabs(decay_Vz)<130)&&(fabs(decay_Vz)>30)";
-   // kin_cut["decay_Z"]="decay_Vz>10";
+   
+   //kin_cut["decay_Z"]="decay_Vz>10";
    //this does not work ...not sure why ..mixing two branches?
     //kin_cut["sameSide"]=" (Evt.Vz<-10 && decay_Vz<-10)|| (Evt.Vz>10 && decay_Vz>10)";
 
@@ -374,42 +370,31 @@ K3PiCut Setup_3piVtxKinematics(){
   return kin_cut;
 }
 
-//--------------FXT---------------------
-//IMPORTANT: hence all kinematics cuts are done at after back propagation to primary vertex!!!
-K3PiCut Setup_FXT_3piVtxKinematics(){
-
-  K3PiCut kin_cut;
-
-  //base cut
-  kin_cut["pt"]="(mother_pt_PVX>0.2)&&(mother_pt_PVX<0.9)"; 
-  kin_cut["eta"]="mother_eta_PVX>-2.)&&(mother_eta_PVX)<0.)";
-  
-  //nor sure what the Vr cut should be for FXT
-   // long track without iTPC: 2018
-   //kin_cut["decay_Vr"]="(decay_Vr>140)&&(decay_Vr<165)"; //170
- 
-   // long track with iTPC: from 2019 up
-   //kin_cut["decay_Vr"]="(decay_Vr>130)&&(decay_Vr<160)"; //160 may be safer, could go to 120
-   //kin_cut["decay_Vr"]="(decay_Vr>120)&&(decay_Vr<160)";
-   //kin_cut["decay_Vr"]="(decay_Vr>150)"; //160 may be safer, could go to 120
-  
-   
-  return kin_cut;
-}
 
 
 //-----------------------------
 //this is THE analysis like cut on track propertie
 //Watch out - this must NOT include the kinematics cuts (pt,eta, phi)
-K3PiCut K3piCut_KaonTrackCut(){
+K3PiCut K3piCut_KaonAnalysisCut(){
    K3PiCut res;
+   //using inputs.h
+   TString s;
 
-   //ANALYSIS CUTS
-   //res["kaon_DCA"]="d.PvtxDca_official[K_match]<1";
-   res["kaon_DCA"]="PvtxDca_corrected<2";
-   res["kaon_nhits"]=" d.nhits[K_match]>20";
+   //external overrides
+   //s=std::to_string(c_DCA);AddNewVar("cut_kaonDCA",s);
+   //s=std::to_string(c_nhits);AddNewVar("cut_kaonNhits",s);
+  
+   //AddNewVar("cut_kaonDCA","1");
+   //AddNewVar("cut_kaonNhits","20");
+  
+  
+   //res["kaon_DCA"]="d.PvtxDca_official[K_match]<cut_kaonDCA";
+   //res["kaon_DCA"]="PvtxDca_corrected<cut_kaonDCA";
+   
+   //res["kaon_nhits"]=" d.nhits[K_match]>cut_kaonNhits";
+  
+
    //res["kaon_hits_ratio"]="(d.nhits[K_match]/d.nhits_pos[K_match])>0.5"; 
-
    //note: nhits/npos .... not tested yet the npos is not calculated correctly for track not reaching outer edge of TPC
    //res["nhits_dEdx"]="";
 
@@ -451,10 +436,10 @@ K3PiCut Setup_KaonMatching(){
     KaonMatching_cut["K_best"]="(d.isBest[K_match]>=0)"; //this should not be necessary..but is .there is some bug...there are isBest=-1 in the data
     //should be Eequivalent to selecting matchedGeom==1
   
-    AddNewVar("cut_lastPointDiff","5.");//5
-    KaonMatching_cut["K_lastR"]="((d.lastPointR[K_match]-decay_Vr)<cut_lastPointDiff)";// previously 15,10
+    AddNewVar("cut_lastPointDiff","5.");//standard is 5cm
+    KaonMatching_cut["K_lastR"]="((d.lastPointR[K_match]-decay_Vr)<cut_lastPointDiff)";
 
-    AddNewVar("cut_dpDecay","0.1");
+    AddNewVar("cut_dpDecay","0.2");
     KaonMatching_cut["K_dp"]="(d.dp_Decay[K_match]<cut_dpDecay)";  //standard cut deduceed from pure simulations is 200MeV
 
 
@@ -486,12 +471,12 @@ K3PiCut K3piCut_3piVtx_Kminus(){
 
 //-----------------------------
 K3PiCut K3piCut_Matched_Kplus(){
-   K3PiCut res=K3piCut_3piVtx_Kplus()+Setup_KaonMatching()+K3piCut_KaonTrackCut();
+   K3PiCut res=K3piCut_3piVtx_Kplus()+Setup_KaonMatching()+K3piCut_KaonAnalysisCut();
    return res;
 }
 
 
-void InitCuts(){
+void InitCuts(bool kaonBranch=true){
 
   gROOT->ProcessLine(".L K3pi.cxx+"); //this allows to use isStrigger
 
@@ -502,28 +487,34 @@ void InitCuts(){
 
 
   //for DCA adjustments - move and smear embedding
-  //this should be done in a smarter way - separately for each data set
+  if (kaonBranch){
   AddNewVar("PvtxDcaXY_corrected","d.PvtxDcaXY_official[K_match]");
   AddNewVar("PvtxDca_corrected","d.PvtxDca_official[K_match]");
-  
+
+  //smearing
+  //this should be done in a smarter way - separately for each data set
   //AddNewVar("PvtxDcaXY_corrected","float((d.qaTruth[K_match]>0.0)?(((d.PvtxDcaXY_official[K_match]-0.04965)*1.1389+0.1458)):d.PvtxDcaXY_official[K_match])");
   //AddNewVar("PvtxDca_corrected","float(sqrt(PvtxDcaXY_corrected*PvtxDcaXY_corrected+d.PvtxDcaZ_official[K_match]*d.PvtxDcaZ_official[K_match]))");
-
+  }
 
   //print all cuts for information: also to define variable
   cout<<endl<<"EventCut:"<<endl;
   cout<<"  "<<K3piCut_EventCut().Str()<<endl;
 
+
   cout<<"3piVtxKinematics:"<<endl;
   cout<<"  "<<Setup_3piVtxKinematics().Str()<<endl;
   cout<<"Setup_3piVtxQA:"<<endl;
-  //cout<<"  "<<Setup_3piVertexQA().Str()<<endl;
-  cout<<"Setup_KaonMatching:"<<endl;
-  //cout<<"  "<<Setup_KaonMatching().Str()<<endl;
-  cout<<"Setup_MCvertex:"<<endl;
-  //cout<<"  "<<Setup_MCvertex().Str()<<endl;
-  
-  cout<<endl<<endl;
+  if ( kaonBranch){
+    cout<<"  "<<Setup_3piVertexQA().Str()<<endl;
+    cout<<"Setup_KaonMatching:"<<endl;
+    cout<<"  "<<Setup_KaonMatching().Str()<<endl;
+    cout<<"Setup_Kaon Analysis cuts:"<<endl;
+    cout<<"  "<<K3piCut_KaonAnalysisCut().Str()<<endl;
+    cout<<"Setup_MCvertex:"<<endl;
+    cout<<"  "<<Setup_MCvertex().Str()<<endl;
+  }
+    cout<<endl<<endl;
  
   
 }

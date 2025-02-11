@@ -118,7 +118,7 @@ void QA_3piVtx(){
  
 } //loop over files
 
-TFile *f=new TFile("3piComp_2019_all_noCuts.root","recreate");
+TFile *f=new TFile("3piComp_2019_SL24_noCuts.root","recreate");
   f->mkdir("events");f->cd("events"); 
   DrawResults(Res_EventPlots);
   DrawResults(Res_EventPlots_2D); 

@@ -32,7 +32,7 @@ void QA_events(){
   ROOT::EnableImplicitMT(); //enambe multi threading - application must be MT safe ..your job
  
   //initilaize variables
-  InitCuts();
+  InitCuts(false);
 
  //K3piCut_EventCut =EventCut_2019_19AuAu; //just in case override 
 
@@ -93,7 +93,7 @@ void QA_events(){
  
 } //loop over files
 
-TFile *f=new TFile("eventsComp_2019_SL23_runId+evtId_simple.root","recreate");
+TFile *f=new TFile("eventsComp_2019_19GeV_shortId.root","recreate");
 DrawResults(Res_eventPlots);
 DrawResults(Res_eventPlots_2D);
 f->Write();

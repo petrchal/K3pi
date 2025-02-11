@@ -76,22 +76,23 @@ void QA_matchedKaon(){
     auto MatchedKaon_cut=K3piCut_Matched_Kplus();
     //for MC filed I only add cut on MC vertex !!!!not on the KAON - allows to study mis matches
     if (files[order[iFile]].isMc) {MatchedKaon_cut=K3piCut_Matched_Kplus() + Setup_MCvertex();}
-    cout<<endl<<" K+ Mother cut used:  "<<endl<< MatchedKaon_cut.Str()<<endl<<endl;
+    cout<<endl<<"matched K+ 3piVtx_ cut used:  "<<endl<< MatchedKaon_cut.Str()<<endl<<endl;
  
      
     // event plot per matched K
     auto Cut=MatchedKaon_cut+evCut;
-     Res_EventPlots.resetPosition();
+    Res_EventPlots.resetPosition();
     Res_EventPlots_2D.resetPosition(); 
-    //AddPlots4QA(Event_plots,kaons_node,Cut,Res_EventPlots,"per matched K+",files[order[iFile]].lable,rebin,false);
-    //AddPlots4QA(Event_plots_2D,kaons_node,Cut,Res_EventPlots_2D,"per matched K+",files[order[iFile]].lable,rebin,false);
+    //this takes long
+    AddPlots4QA(Event_plots,kaons_node,Cut,Res_EventPlots,"per matched K+",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(Event_plots_2D,kaons_node,Cut,Res_EventPlots_2D,"per matched K+",files[order[iFile]].lable,rebin,false);
    
     //properties of 3pi vertex with matched K
     Res_3piPlots.resetPosition();
     Res_3piPlots_2D.resetPosition(); 
     //3pi vertex 
-    //AddPlots4QA(RecoVtx_plots,after_evCut_node,MatchedKaon_cut,Res_3piPlots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
-    //AddPlots4QA(RecoVtx_plots_2D,after_evCut_node,MatchedKaon_cut,Res_3piPlots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(RecoVtx_plots,after_evCut_node,MatchedKaon_cut,Res_3piPlots,"per matched K+",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(RecoVtx_plots_2D,after_evCut_node,MatchedKaon_cut,Res_3piPlots_2D,"per atched K+",files[order[iFile]].lable,rebin,false);
 
 
     //Properties of matched kaons
@@ -101,13 +102,12 @@ void QA_matchedKaon(){
     AddPlots4QA(Kaon_plots_2D,after_evCut_node,MatchedKaon_cut,Res_KaonPlots_2D,"of matched K+",files[order[iFile]].lable,rebin,false);
    
 
- // .. it is a problem, since histogram may come from different trees (nodes)
-  //AddProgressBar(event_node);
 
    cout<<"trigger lazy evaluation"<<endl;
  
    auto ct= kaons_node.Count();
-   
+   ct.OnPartialResult(/*every */100000/* events*/,
+                           [](auto c) { std::cout << c << '\n'; });
    cout<<*ct<<endl;
 
    cout<<"trigger DONE"<<endl;
@@ -117,7 +117,7 @@ void QA_matchedKaon(){
  
 } //loop over files
 
-  TFile *f=new TFile("matchedComp_2019_noCuts,Vz_right,Vr_atDivide.root","recreate");
+  TFile *f=new TFile("matchedComp_2019_SL24_noCuts.root","recreate");
   f->mkdir("events");f->cd("events"); 
   DrawResults(Res_EventPlots);
   DrawResults(Res_EventPlots_2D); 

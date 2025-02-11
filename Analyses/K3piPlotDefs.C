@@ -40,7 +40,8 @@ TPlotDefinitions Event_plots{
     TPlotDef{"mother_isMc","Is 3pi MC","",-5,5},
     TPlotDef{"matchedKF","matched by KF","",-5,5},
     TPlotDef{"matchedGeom","matched by dp","",-5,5},
-    TPlotDef{"mother_chi2ndf","3piVtx_chi2ndf","xi/ndf",0,0,"cut_3pi_ch2ndf"},
+    TPlotDef{"mother_chi2ndf","3piVtx_chi2ndf","xi/ndf",0,0,"3piVtx_chi"},
+    TPlotDef{"mother_chi2ndf","3piVtx_chi2ndf detail","xi/ndf",0,2,"3piVtx_chi"},
     TPlotDef{"mother_PV_chi2","3piVtx_PV_chi2","xi/ndf",0,150}, //note in data are values ..-600
     TPlotDef{"mother_PV_l","3piVtx_PV_l","l[cm]",0,15},
     TPlotDef{"mother_PV_dl","3piVtx_PV_dl","\sigma l[cm]",0,10},
@@ -58,12 +59,12 @@ TPlotDefinitions Event_plots{
     //mact
     //first decay daugter 
     TPlotDef{"d.index[0]","daughter[0] index","index",-0.5,6.5},
-    TPlotDef{"d.nhits[0]","daughter[0] nHitsFit","nHitsFit",-0.5,99.5,"nhits_daughters"},
+    TPlotDef{"d.nhits[0]","daughter[0] nHitsFit","nHitsFit ()",-0.5,99.5,"nhits_daughters"},
     TPlotDef{"d.nhits_pos[0]","daughter[0] NHits possible from DST","nHitsPos",-0.5,99.5,"nhits_possible"},
-    TPlotDef{"MaxHitsDaughter","daughter[0] NHitsf possible from Vr","nHitsPos",-0.5,99.5,"nhits_possible"},
+    TPlotDef{"MaxHitsDaughter","daughter[0] NHits possible from Vr","nHitsPos",-0.5,99.5,"nhits_possible"},
  
     TPlotDef{"(float)d.nhits[0]/(float)d.nhits_pos[0]","daughter[0] NHits/possible","nHitsFit/nHitsPos",-0.5,2,"nhits_posrat"},
-    TPlotDef{"(float)d.nhits[0]/(float)MaxHitsDaughter","daughter[0] NHits/possible recalc","nHitsFit/nHitsPos recalculated",-0.5,2,"nhits_posrat"},
+    TPlotDef{"(float)d.nhits[0]/(float)MaxHitsDaughter","daughter[0] NHits/possible(from Vr)","nHitsFit/nHitsPos",-0.5,2,"nhits_posrat"},
     TPlotDef{"d.PvtxDca_official[0]","daughter[0] Prim. vtx DCA","dca[cm]",-1,100},
     TPlotDef{"d.PvtxDcaXY_official[0]","daughter[0] Prim. vtx DCA_XY","dca_xy[cm]",-1,10},
     TPlotDef{"d.PvtxDcaZ_official[0]","daughter[0] Prim. vtx DCA_Z","dca_z[cm]",-10,10},

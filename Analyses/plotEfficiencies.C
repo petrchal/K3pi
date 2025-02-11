@@ -22,14 +22,6 @@ using RNode = ROOT::RDF::RNode;
 
   //
 
-/*
-  RNode *node_cut_found3pi;
- // RNode *node_cut_found3pi_single; //add requirement of N3piP==1
-  RNode *node_cut_found3pi_MC;
-  RNode *node_cut_K_helix;
-  //RNode *node_cut_K_helix_single;  //add requirement of N3piP==1
-  RNode *node_cut_K_helix_MC;
-*/
 
   const int   color[]={kBlack,kBlue,kRed,kGreen};
   //!!!!the _MC is important
@@ -145,7 +137,7 @@ void plotEfficiencies(){
     //3pi+  - adding PID  
     auto _3pi_cut=K3piCut_3piVtx_Kplus();
     RNode node_cut_found3pi= d_3piFound.Filter(_3pi_cut.Str()); 
-    cout<<" cut used for 3pi selection pion:"<<endl<<_3pi_cut.Str()<<endl<<endl;
+    cout<<" cut used for 3pi selection:"<<endl<<_3pi_cut.Str()<<endl<<endl;
 
 
     //3pi+ from MC
@@ -155,7 +147,7 @@ void plotEfficiencies(){
     //matched kaon
     auto matched_cut=K3piCut_Matched_Kplus();
     RNode node_cut_K_helix= node_cut_found3pi.Filter(matched_cut.Str()); 
-    cout<<" cut used for matched pion:"<<endl<<matched_cut.Str()<<endl<<endl;
+    cout<<" cut used for matched kaon:"<<endl<<matched_cut.Str()<<endl<<endl;
 
     //matched from MC   
     //The qa truth is important!!! similar cut as in data
@@ -164,10 +156,12 @@ void plotEfficiencies(){
    
 
 
+    
     if (files[order[iFile]].isMc)
       AddEffPlots(PlotDefs,node_cut_K_helix_MC,node_cut_found3pi_MC,Res_Plots,"");
     else
       AddEffPlots(PlotDefs,node_cut_K_helix,node_cut_found3pi,Res_Plots,"");
+   
 
     /* does not work... not sure why
     cout<<"triggering evaluation"<<endl;
@@ -189,11 +183,19 @@ void plotEfficiencies(){
 
   } //file loop
 
-  
-
-  //TFile *f=new TFile("eff_2018_27GeV_eventZneg_longVr,nhits20,dca1.root","recreate");
-  //TFile *f=new TFile("eff,vary_2019_noCuts,Vz_left,Vr_long.root","recreate");
-  TFile *f=new TFile("eff_2019_Vr_long,nhits20,dca2.root","recreate");
+  /*
+  TString side; 
+   #ifdef _rightSIDE
+    side="_rightVz";
+  #endif
+  #ifdef _leftSIDE
+     side="_leftVz";
+  #endif
+  TString nm="eff_2019_AuAu19GeV_SL23";nm+=side;nm+="_DCA";nm+=c_DCA;nm+="_nhits";nm+=c_nhits;nm+=".root";
+  */
+  TString nm="eff_2019_AuAu19GeV_SL24_wEmb_1_20.root";
+  cout<<"saving to"<<nm<<endl;
+  TFile *f=new TFile(nm,"recreate");
   DrawEffs(Res_Plots);
   f->Write();
   f->Flush();
@@ -318,7 +320,7 @@ gStyle->SetTickLength(0.02,"Y");
          hDen->SetLineColor(color[iii]);
          hDen->SetLineColor(kBlack);
          hDen->GetXaxis()->SetTitle(plot.def.axisTitle);
-         nm="num of ";nm+=hNum->GetTitle();nm+= currentKey;
+         nm="num of ";nm+=hNum->GetTitle();nm+=" "; nm+= currentKey;
          hNum->SetName(nm);
          hNum->SetTitle(nm);
          hNum->SetDirectory(0); //must be after the MakeRatioPlot
@@ -346,7 +348,8 @@ gStyle->SetTickLength(0.02,"Y");
          ef->SetLineColor(color[hi]);
 
          auto hr=MakeRatioPlot(hNum,hDen);
-         nm="eff:";nm+=hi;nm+=" of ";nm+=hNum->GetTitle();nm+= currentKey;
+         TString r="eff:";nm+=hi;nm+=" of ";
+         nm=hNum->GetTitle(); nm.ReplaceAll("num of ",r);
          hr->SetName(nm);
          hr->SetTitle(nm);
         
@@ -496,6 +499,9 @@ THStack *plotStackRatios(THStack * stack, bool plotNormalized, bool plotNormaliz
   l->SetHeader(hDen->GetTitle(),"C");
   for (int i=1;i<nl->GetEntries();i++){
         TH1 *hNum=(TH1*)nl->At(i)->Clone();
+        TString nm= hNum->GetName();
+        nm="normrat: "+nm;
+        hNum->SetName(nm);
         hNum->Divide(hDen);
         ratios->Add(hNum);
       }
@@ -554,21 +560,10 @@ void AddEffPlots(TPlotDefinitions& plotDefs, RNode numerator_node, RNode denom_n
  //std::vector<TEffFromSingleDef<TH1D>>::iterator &iter){
  {
     auto iter=Res.begin();
-    for (auto def:plotDefs){
-        //if collumn name existed I woudl not need to do the Define.. but how to simply find out?
-        TString var="tmpVar";var+=tmpVarCount++;
-        // I could also use
-        //it(iterator) - vec.begin()
-        TString title=prefix; title+=def.title;title+=";"; title+=def.axisTitle;
-        auto h_num=numerator_node.Define(var.Data(),def.expr) //this must be done for calculated variables
-        .Histo1D(ROOT::RDF::TH1DModel(def.expr,title, 100/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),var.Data()); 
-        auto h_den=denom_node.Define(var.Data(),def.expr) //this must be done for calculated variables
-        .Histo1D(ROOT::RDF::TH1DModel(def.expr,title, 100/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),var.Data()); 
-        
-        //h_num->DrawClone();
-        //h_den->DrawClone("same");
-        
-        //for fist file this means to create the structure for others only add histogram
+
+     for (auto def:plotDefs){
+
+       //for fist file this means to create the structure for others only add histogram
         if (iter==Res.end()){ 
             // THstack *s=new THStack(plotDefs[v].var,nm); ...coul be done here
             TEffFromSingleDef<TH1D> r;
@@ -578,21 +573,32 @@ void AddEffPlots(TPlotDefinitions& plotDefs, RNode numerator_node, RNode denom_n
             iter=Res.end();--iter;
         }
 
-    
-        //now add the numerator adn denumerator for the current file
-        //for fist file this means to create the structure for others only add histogram
-      
-        //TEffResult<TH1D> rs;
-        //rs.num.push_back(ROOT::RDF::Experimental::VariationsFor(h_num));
-        //rs.den.push_back(ROOT::RDF::Experimental::VariationsFor(h_den));
-         //iter->
+
+        //if collumn name existed I woudl not need to do the Define.. but how to simply find out?
+        TString var="tmpVar";var+=tmpVarCount++;
+        // I could also use
+        //it(iterator) - vec.begin()
+        TString title=prefix; title+=def.title;title+=";"; title+=def.axisTitle;
+        try{
+         auto h_num=numerator_node.Histo1D(ROOT::RDF::TH1DModel(def.expr,title, 100/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),def.expr);
          iter->numMap.push_back(ROOT::RDF::Experimental::VariationsFor(h_num));
-         //cout<<"after num.push_back size="<<iter->num.size()<<endl;
-         //iter->
-         iter->denMap.push_back(ROOT::RDF::Experimental::VariationsFor(h_den));
-         // rs.eff=NULL;
-        // rs.ratio=NULL;
-        //iter->res.push_back(rs);
+        }
+        catch (const std::runtime_error &e) { //must Define the variable
+         auto h_num=numerator_node.Define(var.Data(),def.expr) //this must be done for calculated variables
+                    .Histo1D(ROOT::RDF::TH1DModel(def.expr,title, 100/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),var.Data()); 
+         iter->numMap.push_back(ROOT::RDF::Experimental::VariationsFor(h_num));
+       }
+
+       try{
+        auto h_den=denom_node.Histo1D(ROOT::RDF::TH1DModel(def.expr,title, 100/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),def.expr); 
+        iter->denMap.push_back(ROOT::RDF::Experimental::VariationsFor(h_den));
+        }
+        catch (const std::runtime_error &e) { //must Define the variable
+         auto h_den=denom_node.Define(var.Data(),def.expr) 
+        .Histo1D(ROOT::RDF::TH1DModel(def.expr,title, 100/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),var.Data()); 
+        iter->denMap.push_back(ROOT::RDF::Experimental::VariationsFor(h_den));
+       }
+
        
         //cout<<" currently at "<<it1D->def.var<<" "<<it1D-Res1D.begin()<<endl;
         iter++;
@@ -678,6 +684,9 @@ void plotEffStack(TEffFromSingleDef<TH1D> &results){
     for (int i=1;i<nSets;i++){ //loop over datasets(file) - usually MC and data
         TH1 *hNum=(TH1*)effres->ratio[i]->Clone();
         AllEffs->Add((TH1*)hNum->Clone());
+        TString nm= hNum->GetName();
+        nm="rat: "+nm;
+        hNum->SetName(nm);
         hNum->Divide(hDen);
         results.stack_ratio.Add(hNum);
       }
