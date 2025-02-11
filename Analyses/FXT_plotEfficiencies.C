@@ -145,7 +145,7 @@ void FXT_plotEfficiencies(){
 
   
 
-  TFile *f=new TFile("eff_FXT_2020_5p75.root","recreate");
+  TFile *f=new TFile("chi2check_eff_FXT_2019_4p59.root","recreate");
   DrawEffs(Res_Plots);
   f->Write();
   f->Flush();
