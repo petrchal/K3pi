@@ -249,7 +249,7 @@ void KFParticleTopoReconstructor::Init(AliHLTTPCCAGBTracker* tracker, vector<int
 } // void KFParticleTopoReconstructor::Init(AliHLTTPCCAGBTracker* tracker)
 #endif
 
-void KFParticleTopoReconstructor::Init(vector<KFParticle> &particles, vector<int>* pdg, vector<int>* nPixelHits)
+void KFParticleTopoReconstructor::Init(vector<KFParticle> &particles, vector<int>* pdg, vector<int>* nPixelHits, bool initPVTracks)
 {
 #ifdef USE_TIMERS
   timer.Start();
@@ -293,7 +293,8 @@ void KFParticleTopoReconstructor::Init(vector<KFParticle> &particles, vector<int
     fTracks[0].SetNPixelHits(npixelhits,iTr);
   }
 
-  fKFParticlePVReconstructor->Init( &fTracks[0], nTracks );
+  if(initPVTracks)
+    fKFParticlePVReconstructor->Init( &fTracks[0], nTracks );
   
 #ifdef USE_TIMERS
   timer.Stop();
@@ -532,12 +533,16 @@ void KFParticleTopoReconstructor::SortTracks()
     }
   }
   
-  std::cout<<"fTracks[2].Size()="<<fTracks[2].Size()<<" fTracks[6].Size()="<<fTracks[6].Size()<<std::endl;
-  std::cout<<"fTracks[3].Size()="<<fTracks[2].Size()<<" fTracks[7].Size()="<<fTracks[7].Size()<<std::endl;
-  if (fTracks[6].Size()>0) for(int iTrack=0; iTrack<fTracks[2].Size(); iTrack++)
-    fTracks[6].SetPVIndex(fTracks[2].PVIndex()[iTrack], iTrack);
-   if (fTracks[6].Size()>0) for(int iTrack=0; iTrack<fTracks[3].Size(); iTrack++)
-    fTracks[7].SetPVIndex(fTracks[3].PVIndex()[iTrack], iTrack);
+  if(fTracks[6].Size() > 0)
+  {
+    for(int iTrack=0; iTrack<fTracks[2].Size(); iTrack++)
+      fTracks[6].SetPVIndex(fTracks[2].PVIndex()[iTrack], iTrack);
+  }
+  if(fTracks[7].Size() > 0)
+  {
+    for(int iTrack=0; iTrack<fTracks[3].Size(); iTrack++)
+      fTracks[7].SetPVIndex(fTracks[3].PVIndex()[iTrack], iTrack);
+  }
   
   fChiToPrimVtx[0].resize(fTracks[0].Size(), -1);
   fChiToPrimVtx[1].resize(fTracks[1].Size(), -1);
@@ -656,7 +661,8 @@ bool UseParticleInCompetition(int PDG)
              (abs(PDG) == 3334) ||   //Omega
              (abs(PDG) == 3103) ||   //LambdaNN
              (abs(PDG) == 3203) ||   //LLn
-             (abs(PDG) >= 3003 && abs(PDG) <= 3027); //hypernuclei
+             (abs(PDG) >= 3003 && abs(PDG) <= 3040); //hypernuclei
+  use &= PDG != 3008;
   return use;
 }
 
@@ -692,7 +698,7 @@ void KFParticleTopoReconstructor::SelectParticleCandidates()
     {
       KFParticle tmp = fParticles[iParticle];
       tmp.SetProductionVertex(GetPrimVertex(iPV));
-      if(tmp.Chi2()/tmp.NDF()<3)
+      if(tmp.Chi2()/tmp.NDF()<3.)
         isSecondary=0;
     }
     if(isSecondary)

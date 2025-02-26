@@ -7,6 +7,7 @@
 //--- Mu classes ---
 #include "StMuDSTMaker/COMMON/StMuDst.h"
 #include "StMuDSTMaker/COMMON/StMuTrack.h"
+#include "StMuDSTMaker/COMMON/StMuPrimaryVertex.h"
 #include "StEvent/StBTofHeader.h"
 //--- pico classes ---
 #include "StPicoEvent/StPicoDst.h"

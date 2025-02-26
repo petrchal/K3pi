@@ -49,7 +49,7 @@ class KFParticleFinder
  public:
 
   KFParticleFinder();
-  virtual ~KFParticleFinder() {};
+  ~KFParticleFinder() {}
   
   void Init(int nPV);
   void SetNThreads(short int n) { fNThreads = n;} ///< Sets the number of threads to by run in parallel. Currently not used.
@@ -84,6 +84,15 @@ class KFParticleFinder
                     std::vector<KFParticle>* vMotherSec = 0
                   ) __attribute__((always_inline));
   
+  void ConstructResonance(const std::vector<KFParticle>& particles1,
+                          const std::vector<KFParticle>& particles2,
+                          const int motherPdg,
+                          std::vector<KFParticle>& output);
+
+  void ConstructResonances2D(KFPTrackVector* vTracks,
+                             std::vector<KFParticle>& Particles,
+                             std::vector<KFParticleSIMD, KFPSimdAllocator<KFParticleSIMD> >& PrimVtx);
+
   void SaveV0PrimSecCand(KFParticleSIMD& mother,
                           int& NParticles,
                           KFParticle& mother_temp,
@@ -118,7 +127,11 @@ class KFParticleFinder
                           const float* secCuts,
                           std::vector< std::vector<KFParticle> >* vMotherPrim,
                           std::vector<KFParticle>* vMotherSec );
-  
+
+  void Find2DaughterDecayOneSign(KFPTrackVector& vTracks,
+                                 std::vector<KFParticle>& Particles,
+                                 std::vector<KFParticleSIMD, KFPSimdAllocator<KFParticleSIMD> >& PrimVtx);
+
   void ConstructPrimaryBG(KFPTrackVector* vTracks,
                           std::vector<KFParticle>& Particles,
                           std::vector<KFParticleSIMD, KFPSimdAllocator<KFParticleSIMD> >& PrimVtx,
@@ -142,6 +155,15 @@ class KFParticleFinder
                         kfvector_float* ChiToPrimVtx = 0,
                         std::vector< std::vector<KFParticle> >* vMotherPrim = 0,
                         std::vector<KFParticle>* vMotherSec = 0);
+
+  void FindLL(const int motherPDG,
+              const int correctTrackPDG,
+              const std::vector<KFParticle>& vParticles,
+              const KFPTrackVector& vTracks,
+              const int firstTrack,
+              const int lastTrack,
+              const KFParticleSIMD& PrimVtx,
+              std::vector<KFParticle>& Particles);
 
   void SelectParticles(std::vector<KFParticle>& Particles,
                        std::vector<KFParticle>& vCandidates,
@@ -169,9 +191,6 @@ class KFParticleFinder
   void MatchKaons(KFPTrackVector* vTracks, 
                   std::vector<KFParticleSIMD, KFPSimdAllocator<KFParticleSIMD> >& PrimVtx,
                   std::vector<KFParticle>& Particles);
-  
-  //Turn on/off kaond PID for k->3pi macthing
-  //void SetKaonPIDinK3pi(char isOn){fKaonPIDinK3pi=isOn;}
 
   //Set Emc clusters containing gammas
   void SetEmcClusters(KFPEmcCluster* clusters) { fEmcClusters = clusters; } ///< Set a pointer to the gamma-clusters from the electromagnetic calorimeter.
@@ -287,7 +306,6 @@ class KFParticleFinder
   //Functionality to change cuts, all cuts have default values set in the constructor
   void SetMaxDistanceBetweenParticlesCut(float cut) { fDistanceCut = cut; } ///< Sets cut on the distance between secondary tracks at the DCA point.
   void SetLCut(float cut) { fLCut = cut; } ///< Sets cut on the distance to the primary vertex from the decay vertex.
-  void SetMaxLCut(float cut) { fMaxLCut = cut; } ///< Sets cut on the distance (maximu) to the primary vertex from the decay vertex.
   
   void SetChiPrimaryCut2D(float cut) { fCuts2D[0] = cut; } ///< Sets cut on \f$\chi^2_{prim}\f$ of each track for 2-daughter decays.
   void SetChi2Cut2D(float cut)       { fCuts2D[1] = cut; } ///< Sets cut on \f$\chi^2_{geo}\f$ for 2-daughter decays.
@@ -328,7 +346,6 @@ class KFParticleFinder
      **/
     fDistanceCut = finder->fDistanceCut;
     fLCut = finder->fLCut;
-    fMaxLCut = finder->fMaxLCut;
     for(int iCut=0; iCut<3; iCut++)
       fCuts2D[iCut] = finder->fCuts2D[iCut];
     for(int iCut=0; iCut<3; iCut++)
@@ -351,7 +368,6 @@ class KFParticleFinder
   //Functionality to check the cuts
   const float GetMaxDistanceBetweenParticlesCut() const { return fDistanceCut; } ///< Returns cut on the distance between secondary tracks at the DCA point.
   const float GetLCut() const { return fLCut; } ///< Returns cut on the distance to the primary vertex from the decay vertex.
-  const float GetMaxLCut() const { return fMaxLCut; } ///< Returns cut on the maximum distance to the primary vertex from the decay vertex.
   
   const float GetChiPrimaryCut2D() const { return fCuts2D[0]; } ///< Returns cut on \f$\chi^2_{prim}\f$ of each track for 2-daughter decays.
   const float GetChi2Cut2D()       const { return fCuts2D[1]; } ///< Returns cut on \f$\chi^2_{geo}\f$ for 2-daughter decays.
@@ -397,7 +413,6 @@ class KFParticleFinder
   
   float fDistanceCut; ///< Cut on the distance between secondary tracks at the DCA point, is soft and used to speed up the algorithm only.
   float fLCut; ///< Cut on the distance to the primary vertex from the decay vertex. Is applied to \f$K^0_s\f$, \f$\Lambda\f$, \f$\Xi\f$, \f$\Omega\f$, hypernuclei and dibaryons.
-  float fMaxLCut; ///< Cut on the maximumdistance to the primary vertex from the decay vertex. Is applied to \f$K^0_s\f$, \f$\Lambda\f$, \f$\Xi\f$, \f$\Omega\f$, hypernuclei and dibaryons.
 
   float fCuts2D[3]; ///< Cuts on 2-daughter decays: \f$\chi^2_{prim}\f$, \f$\chi^2_{geo}\f$, \f$l/\Delta l\f$
   float fSecCuts[3]; ///< Cuts to select secondary and primary particle candidates: \f$\sigma_{M}\f$, \f$\chi^2_{topo}\f$, \f$l/\Delta l\f$
@@ -445,8 +460,10 @@ class KFParticleFinder
   std::vector<KFParticle> fTPiBar;   ///< Temporary t- pi+ combinations
   std::vector<KFParticle> fHe3Pi;    ///< Temporary He3+ pi- combinations
   std::vector<KFParticle> fHe3PiBar; ///< Temporary He3- pi+ combinations
+  std::vector<KFParticle> fHe3PPi;   ///< Temporary He3+ p pi- combinations
   std::vector<KFParticle> fHe4Pi;    ///< Temporary He4+ pi- combinations
   std::vector<KFParticle> fHe4PiBar; ///< Temporary He4- pi+ combinations
+  std::vector<KFParticle> fHe4PPi;   ///< Temporary He4+ p pi- combinations
   std::vector<KFParticle> fHe4L;     ///< Vector with temporary He4_Lambda->He3 p pi- candidates
   std::vector<KFParticle> fHe5L;     ///< Vector with temporary He4_Lambda->He4 p pi- candidates
   std::vector<KFParticle> fLLn;      ///< Vector with temporary H3_Lambda pi- candidates
@@ -486,7 +503,6 @@ class KFParticleFinder
   
   KFParticleFinder(const KFParticleFinder&); ///< Copying is disabled for this class.
   KFParticleFinder& operator=(const KFParticleFinder&); ///< Copying is disabled for this class.
-
 };
 
 #endif /* !KFParticleFinder_h */

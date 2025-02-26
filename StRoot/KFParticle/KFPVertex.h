@@ -40,7 +40,7 @@ class KFPVertex
 {
  public:
   KFPVertex();
-  virtual ~KFPVertex() { }
+  ~KFPVertex() { }
 
 /*  KFPVertex(const KFPVertex& vVert); 
   KFPVertex& operator=(const KFPVertex& vVert);*/
@@ -123,7 +123,7 @@ class KFPVertex
   }
 
  private:
-  int   fId;  
+
   float fP[3];  ///< Coordinates of the vertex.
   float fC[6];  ///< Covariance matrix of the vertex parameters.
   float fChi2;  ///< Chi-square of the vertex fit.
