@@ -555,10 +555,11 @@ bool StKFParticleAnalysisMaker::FillKFDaughters(KFParticle& particle){
 
                //last point radius - workaround from topology map
                #if !defined (__TFG__VERSION__)
-                StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->iTpcTopologyMap());
+               StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->iTpcTopologyMap());
                daughter.topoMap0=picotrack->topologyMap(0); daughter.topoMap1=picotrack->topologyMap(1);daughter.topoMap2=picotrack->iTpcTopologyMap();
                #else //this is what is actually used when compiling under TFG
                StTrackTopologyMap map(picotrack->topologyMap(0),picotrack->topologyMap(1),picotrack->topologyMap(2));
+               cout<<"Petr - test picotrack->topologyMap(2)="<<picotrack->topologyMap(2)<<endl;
                daughter.topoMap0=picotrack->topologyMap(0); daughter.topoMap1=picotrack->topologyMap(1);daughter.topoMap2=picotrack->topologyMap(2);
                #endif  
                daughter.lastPointR=GetLastHitInTPC(map);
@@ -742,7 +743,7 @@ void StKFParticleAnalysisMaker::Fill_KaonNtuples() {
 
       if(particle.NDaughters() != nDaughters[iPDG]) {
         cout << "Wrong number of daughters! for"<< particlesPDG[iPDG] << " expected "<< nDaughters[iPDG]<<" but found "<< particle.NDaughters()<<endl;
-        return false;
+        return;
       }
 
       //start fillig

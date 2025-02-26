@@ -109,7 +109,7 @@ protected:
   //K->3p
   bool FillKFDaughters(KFParticle &particle);
   void Fill_KaonNtuples();
-  void StKFParticleAnalysisMaker::MatchMotherKaon(KFParticle& particle);
+  void MatchMotherKaon(KFParticle& particle);
  
   bool fStoreCandidates;
   KFParticle fPartcileCandidate;
