@@ -11,6 +11,7 @@ cd $productionId
 #copy needed folders
 cp -r $codeDir/.sl73* ./
 cp -Lr $codeDir/StRoot ./
+cp -Lr $codeDir/mgr ./
 cp $codeDir/StRoot/macros/kfpAnalysis.C ./
 cp $codeDir/StRoot/macros/lMuDst.C ./
 cp $codeDir/setDEV2.csh ./

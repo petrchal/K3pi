@@ -1312,7 +1312,7 @@ Bfc_st BFC[] = { // standard chains
   {"MuDST"       ,"" ,"","MuDSTDeps,EmcUtil,TofUtil,BTofUtil,PmdUtil",""
    ,                                                   "StMuDSTMakerNoStrange","Load MuDST library",kFALSE},
 #endif /* __NoStrangeMuDst__ */
-  {"PicoDeps"    ,"","","MuDSTDeps",    "", "StPicoEvent,StPicoDstMaker","Load PicoDST dependences",kFALSE},
+  {"PicoDeps"    ,"","","MuDST",    "", "StPicoEvent,StPicoDstMaker","Load PicoDST dependences",kFALSE},
   {"picoEvt"    ,"","","StEvent,Stu","",            "StPicoEvent","Load picoEvent and dependencies",kFALSE},
   {"picoDst"    ,"","","picoEvt,EmcUtil,TofUtil,BTofUtil,PmdUtil",""
    ,                                                        "StPicoDstMaker","Load PicoDST library",kFALSE},

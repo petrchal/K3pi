@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="1"  filesPerHour="20" simulateSubmission="true" copyInputLocally="true" fileListSyntax="xrootd">
+<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="1"  filesPerHour="20" simulateSubmission="true" copyInputLocally="false" fileListSyntax="xrootd">
 
 <Generator>
     <Location>./report/</Location>
@@ -37,12 +37,13 @@
   #FXT
   #set geometry=y2020
   
-  source ./setDEV2.csh
+  #source ./setDEV2.csh
   #starver TFG21d
   #starver TFG22f
   #starver TFG24c
-  starver TFG24e
-  cons 
+  #starver TFG24e
+  stardev
+  #cons 
   root4star -l -b -q kfpAnalysis.C\(2000000000,$trkType,$isPico,$isFXT,$noPID,\"${FILELIST}\",\"\${JOBID}.root\",\"${geometry}\"\) &gt;&amp; ${SCRATCH}/${JOBID}B.log
 #         root4star -l -b -q kfpAnalysis.C\(50,$trkType,$isPico,$isFXT,$noPID,\"${FILELIST}\",\"\${JOBID}.root\",\"${geometry}\"\) &gt;&amp; ${SCRATCH}/${JOBID}B.log
 </command>
@@ -147,6 +148,7 @@
 <SandBox installer="ZIP">
    <Package name="LocalLibraries">
     <File>file:./*.C</File>
+    <File>file:./mgr/</File>
     <File>file:./setDEV2.csh</File>
     <File>file:./StRoot/</File>
     <File>file:./.sl*/</File>
