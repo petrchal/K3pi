@@ -22,7 +22,9 @@
 #include "KFPTrack.h"
 
 #ifdef __ROOT__
-ClassImp(KFPTrack);
+#include "Riostream.h"
+#include "TString.h"
+#include "TMath.h"
 #endif
 
 void KFPTrack::RotateXY( float alpha )
@@ -92,3 +94,23 @@ void KFPTrack::RotateXY( float alpha )
   fC[20] = cov[20];
 
 }
+
+#ifdef __ROOT__ //for the STAR experiment
+//________________________________________________________________________________
+void KFPTrack::Print(Option_t *opt) const {  std::cout << *this << std::endl; }
+std::ostream&  operator<<(std::ostream& os, KFPTrack const & track) {
+  static const Char_t *vn[14] = {"x","y","z","px","py","pz","E","S","M","t","p","Q","Chi2","NDF"};
+  os << Form("t(%4i)",track.Id());
+  for (Int_t i = 0; i < 6; i++) {
+    if (i == 6) continue;                                    // E
+    if (i == 7 && track.GetParameter(i) <= 0.0) continue; // S
+    if (track.GetParameter(i) == 0. && track.GetCovariance(i*((i+1)/2+1)) == 0) continue;
+    if (track.GetCovariance(i*((i+1)/2+1)) > 0) 
+      os << Form(" %s:%8.3f+/-%6.3f", vn[i], track.GetParameter(i), TMath::Sqrt(track.GetCovariance(i*((i+1)/2+1))));
+    else 
+      os << Form(" %s:%8.3f", vn[i], track.GetParameter(i));
+  }
+  os << Form(" Q:%2i  chi2/NDF :%8.2f/%2i",track.Charge(),track.GetChi2(),track.GetNDF());
+  return os;
+}
+#endif /* __ROOT__ */

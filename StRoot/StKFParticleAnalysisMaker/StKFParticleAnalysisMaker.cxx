@@ -23,6 +23,7 @@
 #include "StPicoEvent/StPicoTrack.h"
 #include "StPicoEvent/StPicoBTofPidTraits.h"
 //--- Mu classes ---
+#include "StMuDSTMaker/COMMON/StMuDstMaker.h"
 #include "StMuDSTMaker/COMMON/StMuDst.h"
 #include "StMuDSTMaker/COMMON/StMuTrack.h"
 //--- TMVA classes ---
@@ -309,9 +310,14 @@ Int_t StKFParticleAnalysisMaker::Make()
   }
   else
   {  
+#ifdef __TFG__VERSION__
     fMuDst = StMuDst::instance();
-    if(!fMuDst) return kStOK;
-    else { if(StMuDst::instance()->numberOfPrimaryVertices() == 0 ) return kStOK; }
+#else /* !__TFG__VERSION__ */
+  StMuDstMaker *muDstMaker = (StMuDstMaker *)GetTopChain()->GetMakerInheritsFrom("StMuDstMaker");
+  if (muDstMaker)  fMuDst = muDstMaker->muDst();
+#endif /* __TFG__VERSION__ */
+    if(! fMuDst) return kStOK;
+    else { if(fMuDst->numberOfPrimaryVertices() == 0 ) return kStOK; }
   }
   
   //find max global track index
@@ -672,7 +678,7 @@ void StKFParticleAnalysisMaker::GetDaughterParameters(const int iReader, int& iD
     fTMVAParticleParameters[iReader][fDaughterNames[iReader].size()*fNTrackTMVACuts + iDaughterParticle*3] = particle.Chi2()/particle.NDF();  
     
     KFParticleSIMD tempSIMDParticle(particle);
-    float_v l,dl;
+    float32_v l,dl;
     KFParticleSIMD pv(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
     tempSIMDParticle.GetDistanceToVertexLine(pv, l, dl);
     fTMVAParticleParameters[iReader][fDaughterNames[iReader].size()*fNTrackTMVACuts + iDaughterParticle*3 + 1] = l[0]/dl[0];
@@ -701,7 +707,7 @@ void StKFParticleAnalysisMaker::GetParticleParameters(const int iReader, KFParti
   fTMVAParticleParameters[iReader][nDaughterParticleCut]   = particle.Chi2()/particle.NDF();  
   
   KFParticleSIMD tempSIMDParticle(particle);
-  float_v l,dl;
+  float32_v l,dl;
   KFParticleSIMD pv(fStKFParticleInterface->GetTopoReconstructor()->GetPrimVertex());
   tempSIMDParticle.GetDistanceToVertexLine(pv, l, dl);
   fTMVAParticleParameters[iReader][nDaughterParticleCut + 1] = l[0]/dl[0];
