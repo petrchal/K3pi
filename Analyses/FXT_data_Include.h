@@ -48,7 +48,8 @@
     {"../../ntup/2019FXT_4p59_TFG24c_MuDst/*.root","TFG24c MuDst",0,NULL}, 
     {"../../ntup/2019FXT_4p59_TFG24d_picoDst//*.root","TFG24d picoDst",0,NULL}, 
     {"../../ntup/2019FXT_4p59_TFG24d_MuDst/*.root","TFG24d MuDst",0,NULL}, 
-};
+    {"../../ntup/2019FXT_4p59_TFG2_picoDst/2019_FXT_4p59_SL24_devKFP/*.root","TFG24y",0,NULL}, 
+  };
 
 
 
@@ -59,8 +60,8 @@
   //TFileDescription* files=data_2020_FXT;
   TFileDescription* files=data_2019_FXT_4p59;
  
-  const int nFiles=5; //for efficiency plots only nFiles<=2 possible
-  const int order[]={0,1,2,3,4};//{0,1,2};
+  const int nFiles=2; //for efficiency plots only nFiles<=2 possible
+  const int order[]={1,5};//{0,1,2,3,4};//{0,1,2};
   const Long64_t nEntriefsLimit=TTree::kMaxEntries;//# or your number of entrie
 
 

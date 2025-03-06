@@ -129,6 +129,8 @@ K3PiCut Setup_3piVertexQA(){
 
      AddNewVar("MaxHitsDaughter","MaxHitsDaughter(decay_Vr)");
 
+     cout<<"Petr -CHP1"<<endl;
+
      AddNewVar("cut_3pi_ch2ndf","1.");
      VertexQA_cut["3piVtx_chi"]="(mother_chi2ndf<cut_3pi_ch2ndf)"; //30 -cut off in extraction, the DNF shoudl be 5?
      //3piVtxQA_cut["3piVtx_chi"]="(mother_chi2ndf<1.5)&&(mother_chi2ndf>0.8)"; //30 -cut off in extraction, the DNF shoudl be 5?
@@ -185,6 +187,7 @@ K3PiCut Setup_FXT_3piVtxKinematics(){
     kin_cut["eta"]="(mother_eta_PVX>-2.)&&(mother_eta_PVX<0.)";
   
    //should always be on  - nothing is macthed below 80 
+   //is this true for FXT?
    kin_cut["decay_Vr"]="(decay_Vr>80)";
 
    //not sure what the Vr cut should be for FXT
