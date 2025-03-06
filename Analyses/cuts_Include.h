@@ -8,8 +8,12 @@
 #include <map>
 #include "tpcPadPlanes.C"
 #include "K3piLib.C"
-//#include "inputs.h" //for automatization
 
+#define __EXTERNAl_OVERRIDE__
+
+#ifdef __EXTERNAl_OVERRIDE__
+  #include "inputs.h" //for automatization
+#endif
 
 void AddNewVar(const char* var, const char *val) {
     cout<<"Adding variable: "<<var<<"="<<val<<endl;
@@ -129,7 +133,7 @@ K3PiCut EventCut_2019_19AuAu(){
   K3PiCut Event_cut;
 
   //temporary
-  Event_cut["rId"]="Evt.runId<20068000";
+  //Event_cut["rId"]="Evt.runId<20068000";
 
   Event_cut["trigger"]="Evt.isTrigger(trigList_2019_19AuAu)";
   //extracted from emebedding - using exatly same data
@@ -143,13 +147,18 @@ K3PiCut EventCut_2019_19AuAu(){
   //always on  
   Event_cut["Vz"]="(Evt.Vz>-cut_Vz)&&(Evt.Vz<cut_Vz)"; //embedding width
   //override from inputs.h
-  #ifdef _rightSIDE
-    Event_cut["Vz"]="(Evt.Vz>10)&&(Evt.Vz<cut_Vz)"; //right half
-  #endif
-  #ifdef _leftSIDE
-     Event_cut["Vz"]="(Evt.Vz<-10)&&(Evt.Vz>-cut_Vz)"; //left half
-  #endif
   
+  #ifdef __EXTERNAl_OVERRIDE__
+   #ifdef _rightSIDE
+    Event_cut["Vz"]="(Evt.Vz>10)&&(Evt.Vz<cut_Vz)"; //right half
+   #endif
+   #ifdef _leftSIDE
+     Event_cut["Vz"]="(Evt.Vz<-10)&&(Evt.Vz>-cut_Vz)"; //left half
+   #endif
+  #endif 
+
+  //Event_cut["Vz"]="(Evt.Vz>10)&&(Evt.Vz<cut_Vz)"; //right half
+
   Event_cut["VPDdif"]="fabs(Evt.vzVpd-Evt.Vz)<5"; //VPD cut ..maybe to tight, but ok .. takes off another 30%
 
  
@@ -340,7 +349,7 @@ K3PiCut Setup_3piVtxKinematics(){
    //kin_cut["decay_Vr"]="(decay_Vr>140)&&(decay_Vr<160)"; //170
  
    // long track with iTPC: from 2019 up
-   //kin_cut["decay_Vr"]="(decay_Vr>130)&&(decay_Vr<160)"; //160 may be safer, could go to 120
+   kin_cut["decay_Vr"]="(decay_Vr>130)&&(decay_Vr<160)"; //160 may be safer, could go to 120
    //kin_cut["decay_Vr"]="(decay_Vr<120)&&(decay_Vr>80)"; //short tracks
  
    // inner/outer divide
@@ -380,16 +389,18 @@ K3PiCut K3piCut_KaonAnalysisCut(){
    //using inputs.h
    TString s;
 
-   //external overrides
-   //s=std::to_string(c_DCA);AddNewVar("cut_kaonDCA",s);
-   //s=std::to_string(c_nhits);AddNewVar("cut_kaonNhits",s);
-  
+#ifdef __EXTERNAl_OVERRIDE__
+    //external overrides
+   s=std::to_string(c_DCA);AddNewVar("cut_kaonDCA",s);
+   s=std::to_string(c_nhits);AddNewVar("cut_kaonNhits",s);
+ #else 
    //AddNewVar("cut_kaonDCA","1");
    //AddNewVar("cut_kaonNhits","20");
+  #endif
+
   
-  
-   //res["kaon_DCA"]="d.PvtxDca_official[K_match]<cut_kaonDCA";
-   //res["kaon_DCA"]="PvtxDca_corrected<cut_kaonDCA";
+   res["kaon_DCA"]="d.PvtxDca_official[K_match]<cut_kaonDCA";
+   res["kaon_DCA"]="PvtxDca_corrected<cut_kaonDCA";
    
    //res["kaon_nhits"]=" d.nhits[K_match]>cut_kaonNhits";
   

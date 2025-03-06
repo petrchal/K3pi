@@ -40,7 +40,7 @@ using RNode = ROOT::RDF::RNode;
 */
     
   const Long64_t nEntriesLimit=TTree::kMaxEntries;;//1000000;//TTree::kMaxEntries;//100000;// -1;
-  const int rebin=1; 
+  const int rebin=2; 
   bool ignoreRange=false; // change to spot some outlayers
   
   
@@ -111,13 +111,13 @@ void plotEfficiencies(){
      data_node=DefineNewVariables(data_node);
      //data_node=AddVariations(vary_EvtVz,data_node);
    
-     /*
+     
      data_node=AddVariations(vary_lastPointDiff,data_node);
      data_node=AddVariations(vary_3piVtx_chi2ndf,data_node);
      data_node=AddVariations(vary_dpDecay,data_node);
      data_node=AddVariations(vary_Minv,data_node);
      data_node=AddVariations(vary_daughter_Nhits,data_node);
-     */
+     
 
     //start filtering event
     auto  evCut=K3piCut_EventCut();
@@ -183,7 +183,8 @@ void plotEfficiencies(){
 
   } //file loop
 
-  /*
+#ifdef __EXTERNAl_OVERRIDE__
+
   TString side; 
    #ifdef _rightSIDE
     side="_rightVz";
@@ -192,8 +193,11 @@ void plotEfficiencies(){
      side="_leftVz";
   #endif
   TString nm="eff_2019_AuAu19GeV_SL23";nm+=side;nm+="_DCA";nm+=c_DCA;nm+="_nhits";nm+=c_nhits;nm+=".root";
-  */
-  TString nm="eff_2019_AuAu19GeV_SL24_wEmb_1_20.root";
+  #else
+  
+  TString nm="eff_2019_AuAu19GeV_SL24_rightHalf_10_DCA1_Nhits20.root";
+ #endif
+
   cout<<"saving to"<<nm<<endl;
   TFile *f=new TFile(nm,"recreate");
   DrawEffs(Res_Plots);
