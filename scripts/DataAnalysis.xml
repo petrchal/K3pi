@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="1"  filesPerHour="20" simulateSubmission="true" copyInputLocally="false" fileListSyntax="xrootd">
+<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="5"  filesPerHour="10" simulateSubmission="false" copyInputLocally="true" fileListSyntax="xrootd">
 
 <Generator>
     <Location>./report/</Location>
@@ -17,7 +17,7 @@
   pwd
   set noPID=1 #ignore PID - usual behaviour
   set isPico=1 #pico - data, MuDst-embedding
-  set isFXT=0
+  set isFXT=1
 
 #processignal flag: {kAllTracks=0,kMcTracksOnly=1,kRealTracksOnly=2;
   set trkType=0
@@ -29,21 +29,29 @@
   #set geometry=y2018
   
   #auau19GeV 2019 => y2019
-  set geometry=y2019
+  #set geometry=y2019
   
   #auau54
   #set geometry=y2017
   
   #FXT
-  #set geometry=y2020
+  set geometry=y2020
   
+  #under TFG
   #source ./setDEV2.csh
   #starver TFG21d
   #starver TFG22f
   #starver TFG24c
   #starver TFG24e
-  stardev
-  #cons 
+  
+  #under dev
+  setup 64bits 
+  starver dev
+  echo CHP: after starver
+  setup 64bits
+  echo CHP: starting cons
+  cons 
+  echo CHP: after cons
   root4star -l -b -q kfpAnalysis.C\(2000000000,$trkType,$isPico,$isFXT,$noPID,\"${FILELIST}\",\"\${JOBID}.root\",\"${geometry}\"\) &gt;&amp; ${SCRATCH}/${JOBID}B.log
 #         root4star -l -b -q kfpAnalysis.C\(50,$trkType,$isPico,$isFXT,$noPID,\"${FILELIST}\",\"\${JOBID}.root\",\"${geometry}\"\) &gt;&amp; ${SCRATCH}/${JOBID}B.log
 </command>
@@ -72,14 +80,14 @@
 <!-- <input URL="file:/star/u/petrchal/kaons_simulated/2022-01-30_18-08_hiMult_SL19b/production/*MuDst.root" nFiles="10" /> -->
 
 
-<!-- official data -->
+<!-- 2019 19 GeV official data -->
 <!-- 19GeV collider year19 official muDst and picoDst SL21 production-->
 <!-- <input URL="catalog:star.bnl.gov?production=P21ic,trgsetupname=production_19GeV_2019,filetype=daq_reco_MuDst,filename~st_phys,storage!=HPSS" nFiles="500"/>   -->
 <!-- <input URL="catalog:star.bnl.gov?production=P21ic,trgsetupname=production_19GeV_2019,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
 <!--SL23 full REproduction -->
 <!--  <input URL="catalog:star.bnl.gov?production=P23id,trgsetupname=production_19GeV_2019,library=SL23d,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
 <!--SL24y reproduction -->
-<input URL="catalog:star.bnl.gov?production=P24iy,trgsetupname=production_19GeV_2019,storage=local,filetype=daq_reco_picodst,filename~st_phys,storage!=HPSS" nFiles="5"/>  
+<!-- <input URL="catalog:star.bnl.gov?production=P24iy,library=SL24y,trgsetupname=production_19GeV_2019,storage=local,filetype=daq_reco_picodst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
 
 <!-- 27GeV collider year18 official picDst collider mode -->
 <!-- <input URL="catalog:star.bnl.gov?production=P19ib,trgsetupname=27GeV_production_2018,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
@@ -124,7 +132,7 @@
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_13p5GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_5p75GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
 <!--  P24y rerun -->
-<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_5p75GeV_fixedTarget_2020,production=P24iy,filetype=daq_reco_picoDst" nFiles="all"/> -->
+<input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_5p75GeV_fixedTarget_2020,production=P24iy,library=SL24y,filetype=daq_reco_picoDst" nFiles="all"/> 
 
 
 <!-- 2019 FXT TFG rerun -->
@@ -142,7 +150,7 @@
 <!-- <input URL="filelist:/star/u/petrchal/kaons_KFP/scripts/lists/new_2019FXT_4p59_TFG24d_MuDst.list" nFiles="all"/> -->
 <!-- official 2019 4p59 FXT -->
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_4p59GeV_fixedTarget_2019,production=P23id,library=SL23d,filetype=daq_reco_picoDst" nFiles="all"/> -->
-<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_4p59GeV_fixedTarget_2019,production=P24iy,filetype=daq_reco_picoDst" nFiles="all"/> -->
+<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_4p59GeV_fixedTarget_2019,production=P24iy,library=SL24y,filetype=daq_reco_picoDst" nFiles="all"/>  -->
 
 
 <SandBox installer="ZIP">
