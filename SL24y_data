@@ -1,0 +1,16 @@
+get_file_list.pl -keys "grp(trgsetupname)" -cond "filename~st_phys,production=P24iy,filetype=daq_reco_muDst" -distinct
+production_19GeV_2019
+production_3p85GeV_fixedTarget_2021
+production_4p59GeV_fixedTarget_2019
+production_5p75GeV_fixedTarget_2020
+production_7p3GeV_fixedTarget_2020
+production_9p8GeV_fixedTarget_2020
+
+get_file_list.pl -keys "grp(trgsetupname)" -cond "filename~st_phys,production=P24iy,filetype=daq_reco_picoDst" -distinct
+production_19GeV_2019
+production_3p85GeV_fixedTarget_2021
+production_4p59GeV_fixedTarget_2019
+production_5p75GeV_fixedTarget_2020
+production_7p3GeV_fixedTarget_2020
+production_9p8GeV_fixedTarget_2020
+
