@@ -7,7 +7,8 @@ use warnings;
 #my @nhits = (10, 15, 20, 25);    # Example nhits values, modify as needed
 
 my @DCA = (0.5, 1., 2,);  # Example DCA values, modify as needed
-my @nhits = (10,  20);    # Example nhits values, modify as needed
+my @nhits = (10);    # Example nhits values, modify as needed
+my @nhits_dEdx = (10,15,20);    # Example nhits values, modify as needed
 
 
 # Header file name
@@ -20,6 +21,7 @@ my $current_progress = 0;
 # Loop over all combinations of DCA and nhits
 foreach my $dca (@DCA) {
     foreach my $hit (@nhits) {
+      foreach my $hit_dEdx (@nhits_dEdx) {
         foreach my $side ("left", "right") {
             # Update progress
             $current_progress++;
@@ -34,6 +36,7 @@ foreach my $dca (@DCA) {
             print $header_fh "$macro\n";
             print $header_fh "const float c_DCA=$dca;\n";
             print $header_fh "const int c_nhits=$hit;\n";
+            print $header_fh "const int c_nhits_dEdx=$hit_dEdx;\n";
             close($header_fh);
 
             # Build the command to execute ROOT
@@ -47,6 +50,7 @@ foreach my $dca (@DCA) {
             # Clean up the header file (optional, depending on your needs)
             unlink $header_file if -e $header_file;
         }
+      }
     }
 }
 

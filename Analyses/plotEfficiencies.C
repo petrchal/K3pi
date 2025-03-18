@@ -192,7 +192,7 @@ void plotEfficiencies(){
   #ifdef _leftSIDE
      side="_leftVz";
   #endif
-  TString nm="eff_2019_AuAu19GeV_SL23";nm+=side;nm+="_DCA";nm+=c_DCA;nm+="_nhits";nm+=c_nhits;nm+=".root";
+  TString nm="eff_2019_AuAu19GeV_SL23";nm+=side;nm+="_DCA";nm+=c_DCA;nm+="_nhits";nm+=c_nhits;nm+="_nhitsdEdx";nm+=c_nhits_dEdx;nm+=".root";
   #else
   
   TString nm="eff_2019_AuAu19GeV_SL24_rightHalf_10_DCA1_Nhits20.root";
