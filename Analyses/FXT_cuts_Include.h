@@ -73,7 +73,7 @@ K3PiCut EventCut_2020_FXT(){ //so far empty cut
   Event_cut["trigger"]="1"; //pass all
 
   Event_cut["trigger"]="Evt.isTrigger(trigList_2020_FXT_5p75AuAu)"; 
-  Event_cut["Vz"]="(Evt.Vz>150)&&(Evt.Vz<250)"; //embedding width
+  Event_cut["Vz"]="(Evt.Vz>150)&&(Evt.Vz<250)"; // not much sense...
  // Event_cut["VPDdif"]="fabs(Evt.vzVpd-Evt.Vz)<5"; //VPD cut ..not usable for FXT
 
 
@@ -127,13 +127,18 @@ K3PiCut Setup_3piVertexQA(){
   
      K3PiCut VertexQA_cut;
 
+     VertexQA_cut["failed_KFP"]="(mother_phi_PVX!=0.)&&(mother_PV_l!=0)";
+     
+
      AddNewVar("MaxHitsDaughter","MaxHitsDaughter(decay_Vr)");
 
-     AddNewVar("cut_3pi_ch2ndf","1.");
-     VertexQA_cut["3piVtx_chi"]="(mother_chi2ndf<cut_3pi_ch2ndf)"; //30 -cut off in extraction, the DNF shoudl be 5?
+     AddNewVar("cut_3pi_ch2ndf","1."); //1.
+     VertexQA_cut["3piVtx_chi"]="(mother_chi2ndf<cut_3pi_ch2ndf)"; //30 -cut off in extraction?
      //3piVtxQA_cut["3piVtx_chi"]="(mother_chi2ndf<1.5)&&(mother_chi2ndf>0.8)"; //30 -cut off in extraction, the DNF shoudl be 5?
      
-     //TODO - possible to include
+
+    VertexQA_cut["3piVtx_dL_sanity"]="(mother_PV_dl<1000)";
+    //TODO - possible to include
      //3piVtx_PV_l;
      //3piVtx_PV_dl;
      //3piVtx_PV_chi2;
@@ -181,11 +186,17 @@ K3PiCut Setup_FXT_3piVtxKinematics(){
   K3PiCut kin_cut;
 
    //base cut
-    kin_cut["pt"]="(mother_pt_PVX>0.2)&&(mother_pt_PVX<0.9)"; 
+    kin_cut["pt"]="(mother_pt_PVX>0.2)&&(mother_pt_PVX<1.2)"; // in collier mode I go only to 0.9 
     kin_cut["eta"]="(mother_eta_PVX>-2.)&&(mother_eta_PVX<0.)";
   
    //should always be on  - nothing is macthed below 60
    kin_cut["decay_Vr"]="(decay_Vr>60)";
+
+   // TPC sections
+   //kin_cut["Z_decay"]="(decay_Vz>10)";
+   kin_cut["Z_decay"]="(decay_Vz<-5)&&(decay_Vz>-100)";
+   kin_cut["decay_Vr2"]="(decay_Vr>120)";
+ 
 
    //not sure what the Vr cut should be for FXT
    // long track without iTPC: 2018

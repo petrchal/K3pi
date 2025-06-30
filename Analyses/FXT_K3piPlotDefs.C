@@ -42,7 +42,8 @@
     TPlotDef{"mother_isMc","Is 3pi MC","",-5,5},
     TPlotDef{"matchedKF","matched by KF","",-5,5},
     TPlotDef{"matchedGeom","matched by dp","",-5,5},
-    TPlotDef{"mother_chi2ndf","3piVtx_chi2ndf","xi/ndf",0,0,"3piVtx_chi"},
+    TPlotDef{"mother_chi2ndf","3piVtx_chi2ndf","xi/ndf",0,40.,"3piVtx_chi"},
+    TPlotDef{"mother_chi2ndf","3piVtx_chi2ndf_detail","xi/ndf",0,2.,"3piVtx_chi"},
     TPlotDef{"mother_PV_chi2","3piVtx_PV_chi2","xi/ndf",0,150}, //note in data are values ..-600
     TPlotDef{"mother_PV_l","3piVtx_PV_l","l[cm]",0,15},
     TPlotDef{"mother_PV_dl","3piVtx_PV_dl","\sigma l[cm]",0,10},
@@ -192,7 +193,7 @@ TPlotDefinitions MatchedKaon_plots{
     //3piVtx plots 
     //variable to plot , name , ranges,  comma-separated list of cuts which are disabled before plotting
     TPlotDef{"decay_Vr","radial decay position","r[cm]",50,200},
-    TPlotDef{"mother_pt_PVX","matched kaon pt","pt[GeV/c^2]",0,1.2},
+    TPlotDef{"mother_pt_PVX","matched kaon pt","pt[GeV/c^2]",0,1.5},
     TPlotDef{"mother_m","reconstructed mass","M_inv[GeV/c]",0.45,0.55},
     TPlotDef{"mother_eta_PVX","pseudorapidity","eta",-2,2},
     TPlotDef{"mother_phi_PVX","phi","phi",-4,4},

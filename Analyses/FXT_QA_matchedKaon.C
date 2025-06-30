@@ -91,7 +91,7 @@ void FXT_QA_matchedKaon(){
     Res_3piPlots.resetPosition();
     Res_3piPlots_2D.resetPosition(); 
     AddPlots4QA(RecoVtx_plots,after_evCut_node,MatchedKaon_cut,Res_3piPlots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
-    //AddPlots4QA(RecoVtx_plots_2D,after_evCut_node,MatchedKaon_cut,Res_3piPlots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(RecoVtx_plots_2D,after_evCut_node,MatchedKaon_cut,Res_3piPlots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
 
 
     //Properties of matched kaons
@@ -117,7 +117,8 @@ void FXT_QA_matchedKaon(){
  
 } //loop over file
  
-  TFile *f=new TFile("chi2check_matched_FXT_2019_4p59.root","recreate");
+ // TFile *f=new TFile("matched_FXT_2019_4p59.root","recreate");
+  TFile *f=new TFile("matched_FXT_2020_5p75.root","recreate");
   f->mkdir("events");f->cd("events"); 
   DrawResults(Res_EventPlots);
  // DrawResults(Res_EventPlots_2D); 

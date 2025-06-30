@@ -35,22 +35,42 @@
    };
 */
 
-  /* TFileDescription data_2020_FXT[]={
-    {"../../ntup/2020_FXT_31p2_SL23d_noLcut/*.root","31.2GeV FXT SL23d",0,NULL}, 
-    {"../../ntup/2020_FXT_13p5_SL23e_noLcut/*.root","13.5GeV FXT SL23e",0,NULL}, 
-    {"../../ntup/2020_FXT_5p75_SL23e_noLcut/*.root","5.75GeV FXT SL23e",0,NULL}, 
-    {"../../ntup/2020_FXTTFG_5p75_withMap/*.root","5.75GeV FXT TFG topoMap",0,NULL}, 
-      }; */
-
+/*
+   TFileDescription data_2020_FXT[]={
+  //  {"../../ntup/2020_FXT_31p2_SL23d_noLcut/*.root","31.2GeV FXT SL23d",0,NULL}, 
+   // {"../../ntup/2020_FXT_13p5_SL23e_noLcut/*.root","13.5GeV FXT SL23e",0,NULL}, 
+    {"../../ntup/2020_FXT_5p75_SL23e_noLcut/*.root","5.75GeV FXT SL23e",0,NULL}, /
+    {"../../ntup/2020_FXT_5p75GeV_SL24y_devKFP/*.root","5.75GeV FXT SL24y",0,NULL}, 
+     //{"../../ntup/2020_FXT_5p75_embed_pokus2/*.root","embed 101",0,NULL}, //badsampling
+     //{"../../ntup/2020_FXT_5p75_embed_pokus3/*.root","embed 102",0,NULL}, //strange
+     {"../../ntup/2020_FXT_5p75_embed_pokus4/*.root","embed 103",0,NULL}, //the only good one
+      }; 
+ */
+      
+/*
  TFileDescription data_2019_FXT_4p59[]={
-    {"../../ntup/2019FXT_4p59_SL23d_picoDst/*.root","SL23d_pico",0,NULL}, 
-    {"../../ntup/2019FXT_4p59_TFG24c_picoDst/*.root","TFG24c picoDst",0,NULL}, 
-    {"../../ntup/2019FXT_4p59_TFG24c_MuDst/*.root","TFG24c MuDst",0,NULL}, 
-    {"../../ntup/2019FXT_4p59_TFG24d_picoDst//*.root","TFG24d picoDst",0,NULL}, 
-    {"../../ntup/2019FXT_4p59_TFG24d_MuDst/*.root","TFG24d MuDst",0,NULL}, 
-    {"../../ntup/2019_FXT_4p59_SL24_devKFP/*.root","SL24y",0,NULL}, 
+   // {"../../ntup/2019FXT_4p59_SL23d_picoDst/*.root","SL23d_pico",0,NULL}, 
+   // {"../../ntup/2019FXT_4p59_TFG24c_picoDst/*.root","TFG24c picoDst",0,NULL}, 
+   // {"../../ntup/2019FXT_4p59_TFG24c_MuDst/*.root","TFG24c MuDst",0,NULL}, 
+    {"../../ntup/2019FXT_4p59_TFG24d_picoDst/*.root","TFG24d picoDst",0,NULL}, 
+    //{"../../ntup/2019FXT_4p59_TFG24d_MuDst/*.root","TFG24d MuDst",0,NULL}, 
+    {"../../ntup/2019_FXT_4p59_SL24y_devKFP/*.root","SL24y",0,NULL}, 
   };
+*/
 
+
+ TFileDescription FXT_SL24y_comparison[]={
+  {"../../ntup/2020_FXT_5p75_SL24y_fullEmbed_devKFP/*.root","embed 2020 5p75",0,NULL}, //the only good one
+  {"../../ntup/2020_FXT_5p75_SL24y_devKFP/*.root","2020 5.75GeV",0,NULL}, 
+   //other 2020
+  {"../../ntup/2020_FXT_7p3_SL24y_devKFP/*.root","2020 7.3GeV",0,NULL}, 
+  {"../../ntup/2020_FXT_9p8_SL24y_devKFP/*.root","2020 9.8GeV",0,NULL}, 
+  //2021
+  {"../../ntup/2021_FXT_3p85_SL24y_devKFP/*.root","2021 3p85GeV",0,NULL},
+  //2019
+  {"../../ntup/2019_FXT_4p59GeV_SL24y_devKFP/*.root","2019 4p59GeV",0,NULL},
+  
+ };
 
 
 //=======================
@@ -58,10 +78,12 @@
 
   //TFileDescription* files=data19GeV;
   //TFileDescription* files=data_2020_FXT;
-  TFileDescription* files=data_2019_FXT_4p59;
- 
+  //TFileDescription* files=data_2019_FXT_4p59;
+  TFileDescription* files=FXT_SL24y_comparison;
+  
+
   const int nFiles=2; //for efficiency plots only nFiles<=2 possible
-  const int order[]={3,5};//{1,4,6};//{0,1,2,3,4};//{0,1,2};
+  const int order[]={0,1,2,3,4,5};//{1,4,6};//{0,1,2,3,4};//{0,1,2};
   const Long64_t nEntriefsLimit=TTree::kMaxEntries;//# or your number of entrie
 
 

@@ -3,3 +3,6 @@
 /StRoot/StEvent/
 /StRoot/StMuDSTMaker/
 .sl*
+*.so
+*.d
+*.log

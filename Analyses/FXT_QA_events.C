@@ -101,7 +101,7 @@ void FXT_QA_events(){
  
 } //loop over files
 
-TFile *f=new TFile("events_FXT2019_4p59.root","recreate");
+TFile *f=new TFile("events_FXT2020_5p75.root","recreate");
 DrawResults(Res_eventPlots);
 DrawResults(Res_eventPlots_2D);
 f->Write();

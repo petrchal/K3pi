@@ -41,11 +41,11 @@ TPlotDefinitions Event_plots{
     TPlotDef{"matchedKF","matched by KF","",-5,5},
     TPlotDef{"matchedGeom","matched by dp","",-5,5},
     TPlotDef{"mother_chi2ndf","3piVtx_chi2ndf","xi/ndf",0,0,"3piVtx_chi"},
-    TPlotDef{"mother_chi2ndf","3piVtx_chi2ndf detail","xi/ndf",0,2,"3piVtx_chi"},
+    TPlotDef{"mother_chi2ndf","33piVtx_chi2ndf","xi/ndf",0,2,"3piVtx_chi"},
     TPlotDef{"mother_PV_chi2","3piVtx_PV_chi2","xi/ndf",0,150}, //note in data are values ..-600
     TPlotDef{"mother_PV_l","3piVtx_PV_l","l[cm]",0,15},
-    TPlotDef{"mother_PV_dl","3piVtx_PV_dl","\sigma l[cm]",0,10},
-    TPlotDef{"(mother_PV_dl>0)?mother_PV_l/mother_PV_dl:0","3piVtx l per dl","\sigma l/dl",0,15},
+    TPlotDef{"mother_PV_dl","3piVtx_PV_dl","#sigma l[cm]",0,10},
+    TPlotDef{"(mother_PV_dl>0)?mother_PV_l/mother_PV_dl:0","3piVtx l per dl","l / #sigma l",0,15},
   
     TPlotDef{"mother_eta_PVX","eta from 3pi vertex at PVX","eta",-2.,2.,"eta"},
     TPlotDef{"decay_Vr","radial position of decay","Vr[cm]",50,200,"decay_Vr"}, 
