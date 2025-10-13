@@ -55,7 +55,7 @@
 
     
    //SL23 data 
-    {"../../ntup/2019_19GeV_SL23/*.root","data SL23 ",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu)"}, //new data
+    {"../../ntup/2019_19GeV_SL23/*1.root","data SL23 ",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu)"}, //new data
     //{"../../ntup/2019_19GeV_SL23/*.root","data SL23  with runId selection",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu),runId:goodRunId(Evt.runId)"}, 
     //{"../../ntup/2019_19GeV_SL23/*.root","data SL23  with runId+eventId selection",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu),runId:goodRunId(Evt.runId),eventId:(Evt.eventId<1200000)"}, 
    //{"../../ntup/2019_19GeV_SL23/*.root","19GeV data SL23 lowZDC",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu),ZDC:(Evt.ZDCx>100) && (Evt.ZDCx<300)"}, //new data
@@ -67,8 +67,9 @@
 
 
     //SL24y
-    {"../../ntup/2019_19GeV_SL24y/*.root","SL24y",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu)"}, //new data
-  
+    {"../../ntup/2019_19GeV_SL24y_FullRerunJuly2025_devKFP/*1.root","data SL24y",0,"trigger:Evt.isTrigger(trigList_2019_19AuAu)"}, //new data
+    //embed with SL24y
+    {"/home/petrchal/tpcAna/ntup/2019_19GeV_embedSL24/*.root","embedding SL24y",1,"trigger:Evt.isTrigger(trigList_2019_19AuAu)"}, //emb test
 
   };
 
@@ -89,10 +90,10 @@
 // K3piCut_EventCut =EventCut_2021_7p7AuAu; //just in case override 
    //to compare to TFG
  
-  const int nFiles=2; 
-  const int order[]={3,4};//{4,3,5};
+  const int nFiles=4; 
+  const int order[]={5,3,6,4};//{5,3,6,4};//{5,6};//{5,3,6,4}; //{5,6,4};
   //const int order[]={3,5,1};//{3,1,6,2};//{1,3};//{3,5};//{1,9};//{2,0,4};//{2,4,3,3};
-  const Long64_t nEntriefsLimit=TTree::kMaxEntries;//# or your number of entrie
+  const Long64_t nEntriesLimit=TTree::kMaxEntries;//# or your number of entrie
 
 
 

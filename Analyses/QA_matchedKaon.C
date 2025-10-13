@@ -31,7 +31,7 @@ void QA_matchedKaon(){
   int rebin=1;
   bool ignoreRange=false; // change to spot some outlayers
   const bool normalize=false; //plot normalized
- 
+  gIgnoreCutMods=false;
 
    // structure for results
   ResultList1D Res_EventPlots;
@@ -48,7 +48,7 @@ void QA_matchedKaon(){
     cout<<"opening file: "<<fname<<endl;
 
     auto chain_kaons = new TChain("kaons");
-    auto  fcount=chain_kaons->Add(fname,nEntriefsLimit);
+    auto  fcount=chain_kaons->Add(fname,nEntriesLimit);
     cout<<" TChain Added "<<fcount<<" files from "<<fname<<endl;
     //TObjArray * ll=chain_kaons->GetListOfFiles();
 
@@ -117,7 +117,7 @@ void QA_matchedKaon(){
  
 } //loop over files
 
-  TFile *f=new TFile("matchedComp_2019_SL24_noCuts.root","recreate");
+  TFile *f=new TFile("matchedComp_2019_SL24_vs_SL23_noEmbed_noCuts.root","recreate");
   f->mkdir("events");f->cd("events"); 
   DrawResults(Res_EventPlots);
   DrawResults(Res_EventPlots_2D); 

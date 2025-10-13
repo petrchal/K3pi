@@ -39,8 +39,7 @@ using RNode = ROOT::RDF::RNode;
                           
 */
     
-  const Long64_t nEntriesLimit=TTree::kMaxEntries;;//1000000;//TTree::kMaxEntries;//100000;// -1;
-  const int rebin=2; 
+  const int rebin=1; 
   bool ignoreRange=false; // change to spot some outlayers
   
   
@@ -86,6 +85,39 @@ void plotEfficiencies(){
 
   TPlotDefinitions PlotDefs= Efficiency_plots;
   
+  /*
+  //temporary altenation of RunId
+  TPlotDefinitions PlotDefs;
+  //does not work because of copyin char* inside prolt definition
+  for (auto &pl1:Efficiency_plots){
+    PlotDefs.push_back(pl1);
+    TPlotDef pl=pl1;
+    TString mod="rId:1";
+    if (pl.cutMods && pl.cutMods[0] != '\0') {
+         mod+=",";mod+=pl.cutMods;
+       }
+    char* copy = strdup(mod.Data());
+    pl.cutMods = copy;     
+    
+    TString tl=pl1.title;
+    cout<<tl<<endl;
+    tl+=" - NO runId cut";
+    pl.title=tl;
+    cout<<pl.title<<endl;
+    PlotDefs.push_back(pl);
+  }
+
+  cout<<" =================="<<PlotDefs.size()<<endl;
+
+ for (auto &p:PlotDefs){
+     cout<<"title:"<<p.title<<" ... "<<endl;
+     if (p.cutMods) cout<<p.cutMods<<endl;
+   } 
+  
+ cout<<" ||||||||||||||||||||||||||"<<endl;
+
+  return;
+*/
 
   //loop over files
   for (int iFile=0;iFile<nFiles;iFile++){
@@ -97,7 +129,7 @@ void plotEfficiencies(){
      cout<<"opening file: "<<fname<<endl;
 
     auto chain = new TChain("kaons");
-    int nfiles=chain->Add(fname,nEntriefsLimit);
+    int nfiles=chain->Add(fname,nEntriesLimit);
     cout<<" TChain Added "<<nFiles<<" nfiles.";
   
 
@@ -109,16 +141,20 @@ void plotEfficiencies(){
     
      //must be called after all cuts are read
      data_node=DefineNewVariables(data_node);
-     //data_node=AddVariations(vary_EvtVz,data_node);
-   
      
+
+     
+     /*
+     data_node=AddVariations(vary_EvtVz,data_node);
      data_node=AddVariations(vary_lastPointDiff,data_node);
      data_node=AddVariations(vary_3piVtx_chi2ndf,data_node);
      data_node=AddVariations(vary_dpDecay,data_node);
      data_node=AddVariations(vary_Minv,data_node);
      data_node=AddVariations(vary_daughter_Nhits,data_node);
+     */
+    data_node=AddVariations(vary_dpDecay,data_node);
+  
      
-
     //start filtering event
     auto  evCut=K3piCut_EventCut();
     if (files[order[iFile]].trigger){ //set propper trigers 
@@ -183,8 +219,7 @@ void plotEfficiencies(){
 
   } //file loop
 
-#ifdef __EXTERNAl_OVERRIDE__
-
+  #ifdef __EXTERNAl_OVERRIDE__
   TString side; 
    #ifdef _rightSIDE
     side="_rightVz";
@@ -194,8 +229,7 @@ void plotEfficiencies(){
   #endif
   TString nm="eff_2019_AuAu19GeV_SL23";nm+=side;nm+="_DCA";nm+=c_DCA;nm+="_nhits";nm+=c_nhits;nm+="_nhitsdEdx";nm+=c_nhits_dEdx;nm+=".root";
   #else
-  
-  TString nm="eff_2019_AuAu19GeV_SL24_rightHalf_10_DCA1_Nhits20.root";
+  TString nm="eff_2019_AuAu19GeV_SL24_strictDaugther_sectors.root";
  #endif
 
   cout<<"saving to"<<nm<<endl;
@@ -563,8 +597,10 @@ THStack *plotStackRatios(THStack * stack, bool plotNormalized, bool plotNormaliz
 void AddEffPlots(TPlotDefinitions& plotDefs, RNode numerator_node, RNode denom_node, TEffList& Res,const char * prefix)
  //std::vector<TEffFromSingleDef<TH1D>>::iterator &iter){
  {
-    auto iter=Res.begin();
-
+   auto iter=Res.begin();
+   
+   const int nBins=300;
+ 
      for (auto def:plotDefs){
 
        //for fist file this means to create the structure for others only add histogram
@@ -584,22 +620,22 @@ void AddEffPlots(TPlotDefinitions& plotDefs, RNode numerator_node, RNode denom_n
         //it(iterator) - vec.begin()
         TString title=prefix; title+=def.title;title+=";"; title+=def.axisTitle;
         try{
-         auto h_num=numerator_node.Histo1D(ROOT::RDF::TH1DModel(def.expr,title, 100/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),def.expr);
+         auto h_num=numerator_node.Histo1D(ROOT::RDF::TH1DModel(def.expr,title, nBins/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),def.expr);
          iter->numMap.push_back(ROOT::RDF::Experimental::VariationsFor(h_num));
         }
         catch (const std::runtime_error &e) { //must Define the variable
          auto h_num=numerator_node.Define(var.Data(),def.expr) //this must be done for calculated variables
-                    .Histo1D(ROOT::RDF::TH1DModel(def.expr,title, 100/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),var.Data()); 
+                    .Histo1D(ROOT::RDF::TH1DModel(def.expr,title, nBins/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),var.Data()); 
          iter->numMap.push_back(ROOT::RDF::Experimental::VariationsFor(h_num));
        }
 
        try{
-        auto h_den=denom_node.Histo1D(ROOT::RDF::TH1DModel(def.expr,title, 100/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),def.expr); 
+        auto h_den=denom_node.Histo1D(ROOT::RDF::TH1DModel(def.expr,title, nBins/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),def.expr); 
         iter->denMap.push_back(ROOT::RDF::Experimental::VariationsFor(h_den));
         }
         catch (const std::runtime_error &e) { //must Define the variable
          auto h_den=denom_node.Define(var.Data(),def.expr) 
-        .Histo1D(ROOT::RDF::TH1DModel(def.expr,title, 100/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),var.Data()); 
+        .Histo1D(ROOT::RDF::TH1DModel(def.expr,title, nBins/rebin, (ignoreRange)?0:def.lo, (ignoreRange)?0:def.hi),var.Data()); 
         iter->denMap.push_back(ROOT::RDF::Experimental::VariationsFor(h_den));
        }
 

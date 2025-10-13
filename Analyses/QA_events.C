@@ -37,8 +37,9 @@ void QA_events(){
  //K3piCut_EventCut =EventCut_2019_19AuAu; //just in case override 
 
   //plotting modifiers
-  int rebin=2;
+  int rebin=1;
   bool ignoreRange=false; // change to spot some outlayers
+  gIgnoreCutMods=true;
   //const bool normalize=false; 
  
  
@@ -93,7 +94,7 @@ void QA_events(){
  
 } //loop over files
 
-TFile *f=new TFile("eventsComp_2019_19GeV_shortId.root","recreate");
+TFile *f=new TFile("eventsComp_2019_19GeV_ignoreCutMods.root","recreate");
 DrawResults(Res_eventPlots);
 DrawResults(Res_eventPlots_2D);
 f->Write();

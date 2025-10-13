@@ -49,9 +49,10 @@ TPlotDefinitions Event_plots{
   
     TPlotDef{"mother_eta_PVX","eta from 3pi vertex at PVX","eta",-2.,2.,"eta"},
     TPlotDef{"decay_Vr","radial position of decay","Vr[cm]",50,200,"decay_Vr"}, 
-    TPlotDef{"decay_Vz","z position of decay","Vz[cm]",-100,100}, 
+    TPlotDef{"decay_Vz","z position of decay","Vz[cm]",-150,150,"decay_Vz"}, 
     TPlotDef{"mother_pt_PVX","pt from 3pi vertex at PVX","pt[GeV/c^2]",0,1.5,"pt"},
-    TPlotDef{"mother_phi_PVX","phi from 3pi vertex at PVX","phi",-7,7.},
+    TPlotDef{"mother_phi_PVX","phi from 3pi vertex at PVX","phi",-4,4.},
+    TPlotDef{"PhiAtDecay","phi position of 3pi vertex","phi",-4,4.},
     TPlotDef{"MaxHits(decay_Vr)","maximum number of hits of matched kaon","hnits",-0.5,99.5,"decay_Vr"},
  
 
@@ -85,7 +86,12 @@ TPlotDefinitions Event_plots{
     TPlotDef_2D{"decay_Vr", "mother_pt_PVX","3pi - pt vs r","r[cm]","pt[GeV/c^2]",0.,200.,0,2.,"eta,pt,decay_Vr"},
     TPlotDef_2D{"mother_PV_l", "mother_PV_dl","3pi - distance to PV vs error","l to pV[cm]","sigma l to PV[cm]",0,15.,-0,10},
     TPlotDef_2D{"mother_PV_l", "(mother_PV_dl>0)?mother_PV_l/mother_PV_dl:0","3pi - distance to PV vs nsigma","l to pV[cm]","nsigma l to PV",0,15.,-0,10},
-     
+    TPlotDef_2D{"mother_phi_PVX", "PhiAtDecay","3pi - phi at PVTX vs at decay","phi_PVTX","phi_decay",-4,4.,-4,4},
+    TPlotDef_2D{"mother_pt_PVX", "PhiAtDecay-mother_phi_PVX","3pi - pt vs phi difference","pt","PhiAtDecay-mother_phi_PVX",0,2,-4,4},
+    TPlotDef_2D{"decay_Vr", "PhiAtDecay-mother_phi_PVX","3pi - r vs phi difference","pt","PhiAtDecay-mother_phi_PVX",0,2,-4,4},
+       
+
+
     //daughters[0]
      TPlotDef_2D{"d.nhits_pos[0]", "d.nhits[0]","daughter[0] - nhits possible vs measured","nhits possible","hnits",-0.5,99.5,-0.5,99.5,"decay_Vr"},
      TPlotDef_2D{"d.nhits_pos[0]", "decay_Vr","daughter[0] - nhits possible vs r","nhits possible","r[cm]",-0.5,99.5,0.,200.,"decay_Vr"},
@@ -115,7 +121,7 @@ TPlotDefinitions Event_plots{
     /*
     TPlotDef{"mother_eta_PVX","eta from 3pi vertex at PVX","eta",-2.,2.,"eta"},
     TPlotDef{"mother_pt_PVX","pt from 3pi vertex at PVX","pt[GeV/c^2]",0,1.5,"pt"},
-    TPlotDef{"mother_phi_PVX","phi from 3pi vertex at PVX","phi",-7,7.},
+    TPlotDef{"mother_phi_PVX","phi from 3pi vertex at PVX","phi",-4,4.},
     TPlotDef{"MaxHits(decay_Vr)","maximum number of hits of matched kaon","hnits",-0.5,99.5,"decay_Vr"},
  
 
@@ -236,6 +242,8 @@ TPlotDefinitions Kaon_plots{
     TPlotDef{"mother_m","reconstructed mass","M_inv[GeV/c]",0.45,0.55},
     TPlotDef{"mother_eta_PVX","pseudorapidity","eta",-2,2},
     TPlotDef{"mother_phi_PVX","phi","phi",-4,4},
+    TPlotDef{"PhiAtDecay","phi_at_decay","phi_at_decay",-4,4},
+    TPlotDef{"PhiAtDecay_sector","phi_at_decay/12.","phi_at_decay/12.",-0.4,0.4},
        //TPlotDef{"3piVtx_PV_l/3piVtx_PV_dl","nsig l","nsig l",0,15}, //bad idea
        //TPlotDef{"d.nhits[4]","number of hits","nhits",-0.5,99.5},   //bad idea
     TPlotDef{"Evt.Vz","event vertex z-position","Vz[cm]",-120,120},
