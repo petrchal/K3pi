@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="5"  filesPerHour="10" simulateSubmission="false" copyInputLocally="true" fileListSyntax="xrootd">
+<job  name="MuMcAnalysis" minFilesPerProcess="1" maxFilesPerProcess="50"  filesPerHour="1" simulateSubmission="false" copyInputLocally="true" fileListSyntax="xrootd">
 
 <Generator>
     <Location>./report/</Location>
@@ -17,7 +17,7 @@
   pwd
   set noPID=1 #ignore PID - usual behaviour
   set isPico=1 #pico - data, MuDst-embedding
-  set isFXT=1
+  set isFXT=0
 
 #processignal flag: {kAllTracks=0,kMcTracksOnly=1,kRealTracksOnly=2;
   set trkType=0
@@ -29,13 +29,16 @@
   #set geometry=y2018
   
   #auau19GeV 2019 => y2019
-  #set geometry=y2019
+  set geometry=y2019
   
   #auau54
   #set geometry=y2017
+
+  FXT 2020
+  #set geometry=y2020
   
-  #FXT
-  set geometry=y2020
+  #FXT 2021
+  #set geometry=y2021
   
   #under TFG
   #source ./setDEV2.csh
@@ -65,6 +68,7 @@
 <!-- <input URL="file:/gpfs/mnt/gpfs01/star/pwg_tasks/TF_TrkEff/reco/2021/RF/TFG21c.B/7p7GeV_2021/*/*/*MuDst.root" nFiles="1" /> -->
 <!-- official production -->
 <!-- <input URL="catalog:star.bnl.gov?production=P22ib,trgsetupname=production_7p7GeV_2021,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/>   -->
+<!--  <input URL="catalog:star.bnl.gov?production=P24iy,library=SL24y,trgsetupname=production_7p7_2021,storage=local,filetype=daq_reco_picodst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
 
 <!-- I need to find my simulations -->
 <!-- <input URL="file:/star/u/petrchal/kaons_simulated/2021-04-26_06-32_singleK/production/*MuDst.root" nFiles="all" /> -->
@@ -88,6 +92,19 @@
 <!--  <input URL="catalog:star.bnl.gov?production=P23id,trgsetupname=production_19GeV_2019,library=SL23d,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
 <!--SL24y reproduction -->
 <!-- <input URL="catalog:star.bnl.gov?production=P24iy,library=SL24y,trgsetupname=production_19GeV_2019,storage=local,filetype=daq_reco_picodst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
+<!-- Embeddings .............  -->
+<!-- 19GeV 2019-->
+<!-- June 2023 - P21ic setup - compatible with P21ic production -->
+<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3pi_*/P21ic.SL21c/2019/*/*/*MuDst.root" nFiles="all"/> -->
+<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3pi_*/P21ic.SL21c/2019/*/*/*picoDst.root" nFiles="all"/> -->
+<!-- 19GeV 2023 tune for the lates SL23 production - test sample-->
+<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_100*/P23id.SL23d/2019/*/*/*picoDst.root" nFiles="all"/>  -->
+<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_100*/P23id.SL23d/2019/*/*/*MuDst.root" nFiles="all"/> -->
+<!-- FULL STATISTICS: -->
+<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_*_*/P23id.SL23d/2019/*/*/*picoDst.root" nFiles="all"/> -->
+<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_*/P23id.SL23d/2019/*/*/*MuDst.root" nFiles="all"/> -->
+<!-- SL24y: -->
+<input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP24iy_*_20214203/P24iy.SL24y/2019/*/*/*picoDst.root" nFiles="all"/>  
 
 <!-- 27GeV collider year18 official picDst collider mode -->
 <!-- <input URL="catalog:star.bnl.gov?production=P19ib,trgsetupname=27GeV_production_2018,filetype=daq_reco_picoDst,filename~st_phys,storage!=HPSS" nFiles="all"/> -->
@@ -112,18 +129,6 @@
 <!-- new tuned embedding 5M events-->
 <!-- <input URL="file:/star/data105/embedding/27GeV_production_2018/Kplus3pi_4*_20192929/P19ib.SL19b/2018/*/*/*MuDst.root" nFiles="all"/> -->
 
-<!-- Embeddings .............  -->
-<!-- 19GeV 2019-->
-<!-- June 2023 - P21ic setup - compatible with P21ic production -->
-<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3pi_*/P21ic.SL21c/2019/*/*/*MuDst.root" nFiles="all"/> -->
-<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3pi_*/P21ic.SL21c/2019/*/*/*picoDst.root" nFiles="all"/> -->
-<!-- 19GeV 2023 tune for the lates SL23 production - test sample-->
-<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_100*/P23id.SL23d/2019/*/*/*picoDst.root" nFiles="all"/>  -->
-<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_100*/P23id.SL23d/2019/*/*/*MuDst.root" nFiles="all"/> -->
-<!-- FULL STATISTICS: -->
-<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_*_*/P23id.SL23d/2019/*/*/*picoDst.root" nFiles="all"/> -->
-<!-- <input URL="file:/star/data105/embedding/production_19GeV_2019/Kplus3piP23id_*/P23id.SL23d/2019/*/*/*MuDst.root" nFiles="all"/> -->
-                     
 
 
 
@@ -132,8 +137,15 @@
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_13p5GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_5p75GeV_fixedTarget_2020,production=P23ie,library=SL23e,filetype=daq_reco_picoDst" nFiles="all"/> -->
 <!--  P24y rerun -->
-<input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_5p75GeV_fixedTarget_2020,production=P24iy,library=SL24y,filetype=daq_reco_picoDst" nFiles="all"/> 
-
+<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_5p75GeV_fixedTarget_2020,production=P24iy,library=SL24y,filetype=daq_reco_picoDst" nFiles="all"/>  -->
+<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_7p3GeV_fixedTarget_2020,production=P24iy,library=SL24y,filetype=daq_reco_picoDst" nFiles="all"/>  -->
+<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_9p8GeV_fixedTarget_2020,production=P24iy,library=SL24y,filetype=daq_reco_picoDst" nFiles="all"/>  -->
+<!-- embedding -->
+<!-- <input URL="file:/star/embed/embedding/production_5p75GeV_fixedTarget_2020/Kplus3pi_102_20242201/P24iy.SL24y/2020/*/*/*MuDst.root" nFiles="all"/>  -->
+<!-- <input URL="file:/star/embed/embedding/production_5p75GeV_fixedTarget_2020/Kplus3pi_102_20242201/P24iy.SL24y/2020/*/*/*picoDst.root" nFiles="all"/> -->
+<!-- <input URL="file:/star/embed/embedding/production_5p75GeV_fixedTarget_2020/Kplus3pi_103_20242201/P24iy.SL24y/2020/*/*/*picoDst.root" nFiles="all"/> -->
+<!-- final full stat embedding -->
+<!-- <input URL="file:/star/data105/embedding/production_5p75GeV_fixedTarget_2020/Kplus3pi_20*/P24iy.SL24y/2020/*/*/*picoDst.root" nFiles="all"/> -->
 
 <!-- 2019 FXT TFG rerun -->
 <!-- <input URL="file:/gpfs01/star/data24/TpcAlignment/TFG24c/2020/RF/5p75GeV_fixedTarget/*/*/*picoDst.root" nFiles="all"/> -->
@@ -151,6 +163,10 @@
 <!-- official 2019 4p59 FXT -->
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_4p59GeV_fixedTarget_2019,production=P23id,library=SL23d,filetype=daq_reco_picoDst" nFiles="all"/> -->
 <!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_4p59GeV_fixedTarget_2019,production=P24iy,library=SL24y,filetype=daq_reco_picoDst" nFiles="all"/>  -->
+
+<!-- official 2021 FXT -->
+<!-- <input URL="catalog:star.bnl.gov?filename~st_phys,trgsetupname=production_3p85GeV_fixedTarget_2021,production=P24iy,library=SL24y,filetype=daq_reco_picoDst" nFiles="all"/> -->
+
 
 
 <SandBox installer="ZIP">
