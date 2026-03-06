@@ -39,7 +39,7 @@ void QA_events(){
   //plotting modifiers
   int rebin=1;
   bool ignoreRange=false; // change to spot some outlayers
-  gIgnoreCutMods=true;
+  gIgnoreCutMods=false;
   //const bool normalize=false; 
  
  
@@ -56,7 +56,7 @@ void QA_events(){
     //event count trees
    // auto chain_events = new TChain("events");
     auto chain_events = new TChain("events");
-    auto  fcount=chain_events->Add(fname,nEntriefsLimit);
+    auto  fcount=chain_events->Add(fname,nEntriesLimit);
     cout<<" TChain Added "<<fcount<<" files from "<<fname<<endl;
    //TObjArray * ll=chain_kaons->GetListOfFiles();
 
@@ -94,7 +94,7 @@ void QA_events(){
  
 } //loop over files
 
-TFile *f=new TFile("eventsComp_2019_19GeV_ignoreCutMods.root","recreate");
+TFile *f=new TFile("eventsComp_2019_19GeV_SL24vsSL24.root","recreate");
 DrawResults(Res_eventPlots);
 DrawResults(Res_eventPlots_2D);
 f->Write();

@@ -9,7 +9,7 @@
 #include "tpcPadPlanes.C"
 #include "K3piLib.C"
 
-//#define __EXTERNAl_OVERRIDE__
+//#define 
 
 #ifdef __EXTERNAl_OVERRIDE__
   #include "inputs.h" //for automatization
@@ -28,13 +28,14 @@ const Float_t K_m=0.494;
 //----------------- cut variations ----------------------------------------
 //TCutVariation vary_3piVtx_chi2ndf={"cut_3pi_ch2ndf",{"cut_3pi_ch2ndf+0.2","cut_3pi_ch2ndf+0.4"}};
 TCutVariation vary_3piVtx_chi2ndf={"cut_3pi_ch2ndf",{"cut_3pi_ch2ndf+0.1","cut_3pi_ch2ndf-0.05","cut_3pi_ch2ndf-0.1"}};
-TCutVariation vary_lastPointDiff={"cut_lastPointDiff",{"cut_lastPointDiff+3.","cut_lastPointDiff-3."}};
+//TCutVariation vary_lastPointDiff={"cut_lastPointDiff",{"cut_lastPointDiff+3.","cut_lastPointDiff-3."}};
+TCutVariation vary_lastPointDiff={"cut_lastPointDiff",{"cut_lastPointDiff-6.","cut_lastPointDiff-3.","cut_lastPointDiff+3.","cut_lastPointDiff+6."}};
 TCutVariation vary_EvtVz={"cut_Vz",{"cut_Vz+15.","cut_Vz-15."}};
-TCutVariation vary_dpDecay={"cut_dpDecay",{"cut_dpDecay+0.05","cut_dpDecay-0.02","cut_dpDecay-0.1",}};
+TCutVariation vary_dpDecay={"cut_dpDecay",{"cut_dpDecay+0.15","cut_dpDecay+0.05","cut_dpDecay-0.02","cut_dpDecay-0.1",}}; //default 0.2
 TCutVariation vary_Minv={"cut_mom_Minv",{"cut_mom_Minv+0.02", "cut_mom_Minv-0.05"}};//0.015 
 TCutVariation vary_daughter_Nhits={"cut_daugh_nhits",{"12.", "13."}};//11
+TCutVariation vary_daughter_pt={"cut_daugh_pt",{"0.100"}};//0
 TCutVariation vary_DCAxy={"PvtxDcaXY_corrected",{"float(PvtxDcaXY_corrected+0.1)"}};//11
-
 //runId list
 std::vector<unsigned int>  runIds_2019;
 
@@ -127,14 +128,13 @@ bool goodRunId2019(unsigned int id) {
 }
 
 
-//------EVENT CUTS here----------------------------------------
-//------ this a to ensure that all theprocedures use the same event cut
+//------EVENT CUTS here---------------------------------------- this a to ensure that all theprocedures use the same event cut
 K3PiCut EventCut_2019_19AuAu(){
 
   K3PiCut Event_cut;
 
   //temporary !!!! - since my SL24 data are incomplete
-  //Event_cut["rId"]="Evt.runId<20068000";
+  Event_cut["rId"]="Evt.runId>20074500";
 
   Event_cut["trigger"]="Evt.isTrigger(trigList_2019_19AuAu)";
   //extracted from emebedding - using exatly same data
@@ -147,7 +147,7 @@ K3PiCut EventCut_2019_19AuAu(){
 
   //always on  
   Event_cut["Vz"]="(Evt.Vz>-cut_Vz)&&(Evt.Vz<cut_Vz)"; //embedding width
-  //Event_cut["Vz"]="(Evt.Vz<-10)&&(Evt.Vz>-cut_Vz)"; //left half
+   //Event_cut["Vz"]="(Evt.Vz<-10)&&(Evt.Vz>-cut_Vz)"; //left half
   //override from inputs.h
   
   #ifdef __EXTERNAl_OVERRIDE__
@@ -272,6 +272,9 @@ int MaxHitsDaughter(double r){
   return nPadRows-MaxHits(r);
 }
 
+
+//#define DEF_pt_cut (d.pt[0]>150) && (d.pt[1]>150)&& (d.PvtxDca_official[2]>150)
+
 //quality of reconstruction of the 3pi vertex + PID
 //can be varied for systematic checks
 //on purpose does not contain PID cut
@@ -310,6 +313,7 @@ K3PiCut Setup_3piVertexQA_old(){
      //tmp["daughter_lastHit"]="(d.lastPointR[0]>155) && (d.lastPointR[1]>155)&& (d.lastPointR[2]>155)";
      //tmp["nhits_posrat"]="( (NhitsOK(d.nhits[0],decay_Vr)) &&  (NhitsOK(d.nhits[1],decay_Vr)) &&  (NhitsOK(d.nhits[2],decay_Vr)) )"; not working for iTPC
 
+  
      //seems that Maxim added flagging of badly reconstructed vertexes:
      tmp["badrecoPhi"]="mother_phi_PVX!=0.0";
       
@@ -327,7 +331,7 @@ K3PiCut Setup_3piVertexQA(){
 
      AddNewVar("MaxHitsDaughter","MaxHitsDaughter(decay_Vr)");
 
-     AddNewVar("cut_3pi_ch2ndf",".05");  //0.1 - strict cut, most of 3pi are below 0.2
+     AddNewVar("cut_3pi_ch2ndf",".2");  //0.1 - strict cut, most of 3pi are below 0.2
      VertexQA_cut["3piVtx_chi"]="(mother_chi2ndf<cut_3pi_ch2ndf)"; //30 -cut off in extraction, the DNF shoudl be 5?
      
      //TODO - possible to include
@@ -339,7 +343,7 @@ K3PiCut Setup_3piVertexQA(){
     VertexQA_cut["minv"]="(fabs(mother_m-0.494)<cut_mom_Minv)"; //sigma=0.005 (even little less)
           
         
-    AddNewVar("cut_daugh_nhits","15.");
+    AddNewVar("cut_daugh_nhits","15."); //standard is 11
     VertexQA_cut["nhits_daughters"]="(d.nhits[0]>=cut_daugh_nhits && d.nhits[1]>=cut_daugh_nhits && d.nhits[2]>=cut_daugh_nhits)"; 
      
     //this seems to remove all short tracks - BAD seem the nhits_pos is not filled correctly for secondaries
@@ -396,7 +400,7 @@ K3PiCut Setup_3piVtxKinematics(){
 
     AddNewVar("PhiAtDecay","atan2(decay_Vy,decay_Vx)");
     AddNewVar("PhiAtDecay_sector","(PhiAtDecay+0.523)/12.");
-   
+  
 
    // long track without iTPC: 2018
    //kin_cut["decay_Vr"]="(decay_Vr>140)&&(decay_Vr<160)"; //170
@@ -447,8 +451,8 @@ K3PiCut K3piCut_KaonAnalysisCut(){
    s=std::to_string(c_DCA);AddNewVar("cut_kaonDCA",s);
    s=std::to_string(c_nhits);AddNewVar("cut_kaonNhits",s);
  #else 
-   //AddNewVar("cut_kaonDCA","1");
-   //AddNewVar("cut_kaonNhits","20");
+   AddNewVar("cut_kaonDCA","1");
+   AddNewVar("cut_kaonNhits","20");
   #endif
 
   
@@ -457,7 +461,10 @@ K3PiCut K3piCut_KaonAnalysisCut(){
    
    //res["kaon_nhits"]=" d.nhits[K_match]>cut_kaonNhits";
   
-
+   //pt - to re
+   AddNewVar("cut_daugh_pt","0.0");
+   res["daughter_pt"]="(d.pt[0]>cut_daugh_pt) && (d.pt[1]>cut_daugh_pt)&& (d.PvtxDca_official[2]>cut_daugh_pt)";
+    
    //res["kaon_hits_ratio"]="(d.nhits[K_match]/d.nhits_pos[K_match])>0.5"; 
    //note: nhits/npos .... not tested yet the npos is not calculated correctly for track not reaching outer edge of TPC
    //res["nhits_dEdx"]="";

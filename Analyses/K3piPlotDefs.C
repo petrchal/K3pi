@@ -60,6 +60,7 @@ TPlotDefinitions Event_plots{
     //mact
     //first decay daugter 
     TPlotDef{"d.index[0]","daughter[0] index","index",-0.5,6.5},
+    TPlotDef{"d.pt[0]","daughter[0] pt","pt[GeV]",0,2.},
     TPlotDef{"d.nhits[0]","daughter[0] nHitsFit","nHitsFit ()",-0.5,99.5,"nhits_daughters"},
     TPlotDef{"d.nhits_pos[0]","daughter[0] NHits possible from DST","nHitsPos",-0.5,99.5,"nhits_possible"},
     TPlotDef{"MaxHitsDaughter","daughter[0] NHits possible from Vr","nHitsPos",-0.5,99.5,"nhits_possible"},
@@ -160,6 +161,7 @@ TPlotDefinitions Kaon_plots{
     TPlotDef{"d.PvtxDca_mu[K_match]","recalc from helix Prim. vtx DCA ","dca[cm]",-1,10,"kaon_DCA"},
     TPlotDef{"d.PvtxDcaXY_mu[K_match]","recalc from helix Prim. vtx DCA XY ","dca_xy[cm]",-3,3,"kaon_DCA"},
    
+    TPlotDef{"d.pt[K_match]","kaon: pt","pt[GeV]",0,2.},
     TPlotDef{"d.lastPointR[K_match]","kaon: last hit position","r[cm]",0,200},
     TPlotDef{"d.match_chi2[K_match]","kaon: match_chi2","chi2",0,0},
     TPlotDef{"d.idTruth[K_match]","kaon: idTruth","idTruth",0,0},
@@ -199,7 +201,7 @@ TPlotDefinitions Kaon_plots{
      TPlotDef_2D{"d.lastPointR[4]", "decay_Vr","kaon - nhits measured vs r","lastPoint[cm]","r[cm]",0.,200.5,0.,200.,"decay_Vr"},
      TPlotDef_2D{"d.nhits_pos[4]", "MaxHits(decay_Vr)","kaon - nhits possible vs calculated max","nhits possible","MaxHits(Vr)",-0.5,99.5,-0.5,99.5,"decay_Vr"},
    
-      //matching related
+     //matching related
   /*
     TPlotDef{"d.nhits[K_match]","kaon nHitsFit","nHitsFit",-0.5,99.5,"kaon_nhits"},
     TPlotDef{"d.nhits_pos[K_match]","kaon nHitsPos (from MuDst)","nHitsPos",-0.5,99.5,},

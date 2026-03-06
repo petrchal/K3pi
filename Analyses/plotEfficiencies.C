@@ -39,7 +39,7 @@ using RNode = ROOT::RDF::RNode;
                           
 */
     
-  const int rebin=1; 
+  const int rebin=8; //up to 16 possible
   bool ignoreRange=false; // change to spot some outlayers
   
   
@@ -152,8 +152,11 @@ void plotEfficiencies(){
      data_node=AddVariations(vary_Minv,data_node);
      data_node=AddVariations(vary_daughter_Nhits,data_node);
      */
-    data_node=AddVariations(vary_dpDecay,data_node);
-  
+   //data_node=AddVariations(vary_dpDecay,data_node);
+   //data_node=AddVariations(vary_daughter_pt,data_node);
+    data_node=AddVariations(vary_lastPointDiff,data_node);
+   
+
      
     //start filtering event
     auto  evCut=K3piCut_EventCut();
@@ -229,7 +232,7 @@ void plotEfficiencies(){
   #endif
   TString nm="eff_2019_AuAu19GeV_SL23";nm+=side;nm+="_DCA";nm+=c_DCA;nm+="_nhits";nm+=c_nhits;nm+="_nhitsdEdx";nm+=c_nhits_dEdx;nm+=".root";
   #else
-  TString nm="eff_2019_AuAu19GeV_SL24_strictDaugther_sectors.root";
+  TString nm="eff_tmp.root";//"eff_2019_AuAu19GeV_SL24_ptDaugher0_nkp1.root";//"eff_2019_AuAu19GeV_SL24_Vr130_DCA1_Nhits20_rebinned.root";
  #endif
 
   cout<<"saving to"<<nm<<endl;

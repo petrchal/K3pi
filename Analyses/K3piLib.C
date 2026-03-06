@@ -94,6 +94,7 @@ template <typename T> struct TSinglePlotRes{
      //not fully used so far
      std::tuple<string,string,string> labels;
      //TString label; //how to label in the graph    
+     unsigned int normalization=0;
 
 };
 
@@ -327,9 +328,7 @@ int K3PiCut::Replace(const char* var){
 
   
 //------cut variations-------------------------------------------------------
-//https://root.cern/doc/master/classROOT_1_1RDF_1_1RInterface.html#a9b67e8eb75d2205f8a083d38eb3f14a6
-// df.Vary({"x", "y"}, "ROOT::RVec<ROOT::RVecD>{{x*0.9, x*1.1}, {y*0.9, y*1.1}}", 2, "xy")
-// df.Vary({"x", "y"}, "ROOT::RVec<ROOT::RVecD>{{x*0.9, x*1.1}, {y*0.9, y*1.1}}", {"down", "up"}, "xy")
+//https://root.cern/doc/master/classROOT_1_1RDF_1_1RInterface.html#a9b67e8eb7
 
 //---cut variables for varying
 class TNewVariables: public K3PiCut{
@@ -337,14 +336,20 @@ public:
   ROOT::RDF::RNode DefineNewVariables(ROOT::RDF::RNode nod);
 };
 
-
 ROOT::RDF::RNode TNewVariables::DefineNewVariables(ROOT::RDF::RNode nod){
-    for (auto v: m){
-        cout<<"Defining new variable: "<<v.first<<"="<<v.second<<endl;
-        nod=nod.Define(v.first,v.second);
+  for (auto v : m) {
+    std::cout << "Defining new variable: " << v.first << "=" << v.second << std::endl;
+    try {
+        nod = nod.Define(v.first, v.second);
+    } catch (const std::exception &e) {
+        std::cerr << "Error defining variable " << v.first
+                  << ": " << e.what() << std::endl;
     }
-   return nod;
 }
+return nod;
+}
+
+
 
 TNewVariables NewVars;
 
@@ -418,7 +423,7 @@ void AddPlots_1D(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,ResultList1D&
 //this not only adds plots, but for each plots modifies the cut so that it can be plotted without bounds
 ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,K3PiCut defaultCut, ResultList1D& rlist,
  //ResultList1D::iterator &iter, 
- const char * plotprefix = "", const char * fileprefix = "",bool rebin=false,bool ignoreRange=false)
+ const char * plotprefix = "", const char * fileprefix = "",bool rebin=false,bool ignoreRange=false, unsigned long normalization=0)
  {
    
    auto iter=rlist.CurrentPosition();
@@ -451,6 +456,7 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,K
         TSinglePlotRes<TH1D> sr;
         sr.resMap.push_back(ROOT::RDF::Experimental::VariationsFor(h)); 
         sr.labels={fileprefix,plotprefix,""};
+        sr.normalization=normalization;
        
         //add second one for comparison with a given cut
         
@@ -468,6 +474,8 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,K
           bb+="disabled ";bb+=def.cutMods; bb+=" cut";
          // sr.label=bb; 
           sr.labels={fileprefix,plotprefix,bb.Data()};
+          sr.normalization=normalization;
+      
           (*iter)->singlePlots.push_back(sr); //use prefix as a label of the histogram
         } 
         
@@ -488,7 +496,7 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions& plotDefs, ROOT::RDF::RNode node,K
 //this not only adds plots, but for each plots modifies the cut so that it can be plotted without bounds
 ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions_2D& plotDefs, ROOT::RDF::RNode node,K3PiCut defaultCut, ResultList2D& rlist,
  //ResultList2D::iterator &iter, 
- const char * plotprefix = "", const char * fileprefix = "",bool rebin=false,bool ignoreRange=false)
+ const char * plotprefix = "", const char * fileprefix = "",bool rebin=false,bool ignoreRange=false,unsigned int normalization=0)
  {
     auto iter=rlist.CurrentPosition();
 
@@ -521,7 +529,7 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions_2D& plotDefs, ROOT::RDF::RNode nod
         TSinglePlotRes<TH2D> sr;
         sr.resMap.push_back(ROOT::RDF::Experimental::VariationsFor(h)); 
         sr.labels={fileprefix,plotprefix,""};
-       
+        sr.normalization=normalization;
         //add second one for comparison with a given cut
         
         if (def.cutMods && (gIgnoreCutMods==false)){
@@ -543,6 +551,7 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions_2D& plotDefs, ROOT::RDF::RNode nod
           bb+="disabled ";bb+=def.cutMods; bb+=" cut";
          // sr.label=bb; 
           sr.labels={fileprefix,plotprefix,bb.Data()};
+          sr.normalization=normalization;
           (*iter)->singlePlots.push_back(sr); //use prefix as a label of the histogram
         } 
         
@@ -563,7 +572,7 @@ ROOT::RDF::RNode AddPlots4QA(TPlotDefinitions_2D& plotDefs, ROOT::RDF::RNode nod
 
 //-----------------------------------------------------------------------
 //histograms and normalized ratios for one variable defintion over files ( and variations)
-void Draw1Dstack(SingleDefResStack1D &r,const char* variation="nominal"){
+void Draw1Dstack(SingleDefResStack1D &r,const char* variation="nominal", const bool renormalize=false){
 
   const int   color[]={kBlack,kBlue,kRed,kGreen,kMagenta,kCyan}; 
 
@@ -619,13 +628,17 @@ void Draw1Dstack(SingleDefResStack1D &r,const char* variation="nominal"){
       int  nVariations =keys.size();
 
       TString str=get<0>(sr.labels);str+=" ";str+=get<2>(sr.labels);
-      cout<<"sr.labels="<<str.Data()<<endl;
+      //cout<<"sr.labels="<<str.Data()<<endl;
       l->AddEntry((TObject*)0, "", "");  
       if (nVariations>1) l->AddEntry((TObject*)0, str.Data(), "");
      
       for (int iv=0;iv<nVariations;iv++){ //loop over variations
          cout<<"  variation "<<keys[iv]<<endl;
          pad1->cd();
+         if (renormalize && (sr.normalization>0)){ //forced to renormalize the plots - usually by number of events
+            cout<<" !!!! renormalizing histograms per user request!!!"<<endl;
+            sr.ResMap()[keys[iv]].Scale(1./((Double_t)sr.normalization));
+         }
          TH1* h_copy=(TH1*)sr.ResMap()[keys[iv]].Clone(); //use default variation hist[]
 
          //if (iv==0){ //this will be denumerator
@@ -801,7 +814,7 @@ void Draw2Dstack(SingleDefResStack2D &r,const char* variation="nominal"){
   }
 
 //-----------------------------------------------------------------------
- void DrawResults(ResultList1D &results,const char* whichVariation=NULL){
+ void DrawResults(ResultList1D &results, const bool renormalize=false, const char* whichVariation=NULL){
     cout<<endl<<"DrawResults"<<endl;
 //draw 1D histograms in stack
     gStyle->SetPadTickY(1);
@@ -812,7 +825,7 @@ void Draw2Dstack(SingleDefResStack2D &r,const char* variation="nominal"){
         cout<<"Plotting Stack for expression: "<<r.def.expr<<endl;
         if (r.singlePlots.size()==0){ cout<<"  !!!!plot empty"<<endl; continue; }
         //if (r.singlePlots.size()>1) 
-          Draw1Dstack(r,whichVariation);\
+          Draw1Dstack(r,whichVariation,renormalize);\
           /*
   else {
     cout<<"simple plot"<<endl;

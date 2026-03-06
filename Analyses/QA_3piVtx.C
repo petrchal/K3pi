@@ -28,23 +28,49 @@ void QA_3piVtx(){
   //plotting modifiers
   int rebin=1;
   bool ignoreRange=false; // change to spot some outlayers
-  //const bool normalize=false; //plot normalized
+  bool normalize2events=false; //plot normalized to number of events pasisng event cuts
    gIgnoreCutMods=false;
  
 
   // structure for results
+  //it woudl be better to not to duplicate the scaled plot..just redo drawing 
   ResultList1D Res_EventPlots;
   ResultList2D Res_EventPlots_2D; 
   ResultList1D Res_3piPlots;
   ResultList2D Res_3piPlots_2D; 
   ResultList1D Res_KaonPlots; 
   ResultList2D Res_KaonPlots_2D; 
-   
+
   //loop over datasets
   for (int iFile=0;iFile<nFiles;iFile++){
    
    TString fname=files[order[iFile]].fileName;
-    cout<<"opening file: "<<fname<<endl;
+    cout<<"working on file: "<<fname<<endl;
+
+    //common event cuts
+    auto  evCut=K3piCut_EventCut();
+    if (files[order[iFile]].trigger){ //set propper trigers 
+       evCut.Replace(files[order[iFile]].trigger);
+    }
+    cout<<" Event cut used:  "<<endl <<evCut.Str()<<endl<<endl;
+   
+
+    //first, if requested, get event normalization
+    unsigned int norm=0; 
+    if (normalize2events){ //coutn number of events
+       cout<<endl<<"======Getting total number of events====="<<endl;
+       cout<<" disregrad the error of undefined variables: those are for kaon tree"<<endl;
+       auto chain_events = new TChain("events");
+       auto  fcount=chain_events->Add(fname,nEntriesLimit);
+      // cout<<" TChain Added "<<fcount<<" files from "<<fname<<endl;
+      //TObjArray * ll=chain_kaons->GetListOfFiles();
+       ROOT::RDF::RNode event_node = ROOT::RDF::AsRNode(RDataFrame(*chain_events)); //raw event count
+       event_node=DefineNewVariables(event_node);
+
+      auto ct= event_node.Filter(evCut.Str()).Count();norm=ct.GetValue();
+      cout<<"====="<<norm<<" events passed event cuts - will use for normalization"<<endl<<endl;
+      delete chain_events;
+   }
 
     auto chain_kaons = new TChain("kaons");
     auto  fcount=chain_kaons->Add(fname,nEntriesLimit);
@@ -54,18 +80,11 @@ void QA_3piVtx(){
     //root dataframe
     ROOT::RDF::RNode  kaons_node= ROOT::RDF::AsRNode(RDataFrame(*chain_kaons)); //raw event count
   
-    //common event cuts
-    auto  evCut=K3piCut_EventCut();
-    if (files[order[iFile]].trigger){ //set propper trigers 
-       evCut.Replace(files[order[iFile]].trigger);
-    }
-
     //must be called after all cuts are read
     kaons_node=DefineNewVariables(kaons_node);
 
     ROOT::RDF::RNode d_events = kaons_node.Filter(evCut.Str());
-    cout<<" Event cut used:  "<<endl <<evCut.Str()<<endl<<endl;
-     //all 3pi candidates ... all together MC and non MC, positive and negative !!!
+      //all 3pi candidates ... all together MC and non MC, positive and negative !!!
     //auto d_3piCandidates = d_events.Filter(K3piCut_VertexCanditate().Str());
     
       
@@ -81,7 +100,7 @@ void QA_3piVtx(){
     Res_3piPlots_2D.resetPosition(); 
     Res_KaonPlots.resetPosition(); 
     Res_KaonPlots_2D.resetPosition(); 
-   
+
 
     // event plot per 3pi+
     auto Cut=Reco3piVtx_cut+evCut;
@@ -100,11 +119,11 @@ void QA_3piVtx(){
 
     Cut=Reco3piVtx_cut;
     //Mother(3pi vertex) per found 3pi vertex 
-    AddPlots4QA(RecoVtx_plots,d_events,Cut,Res_3piPlots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
-    AddPlots4QA(RecoVtx_plots_2D,d_events,Cut,Res_3piPlots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(RecoVtx_plots,d_events,Cut,Res_3piPlots,"entry per 3pi+",files[order[iFile]].lable,rebin,false,norm);
+    AddPlots4QA(RecoVtx_plots_2D,d_events,Cut,Res_3piPlots_2D,"entry per 3pi+",files[order[iFile]].lable,rebin,false);
     //!!! this is without kaon matching cuts
-    AddPlots4QA(Kaon_plots,d_events,Cut,Res_KaonPlots,"per found 3pi+",files[order[iFile]].lable,rebin,false);
-    AddPlots4QA(Kaon_plots_2D,d_events,Cut,Res_KaonPlots_2D,"per found 3pi+",files[order[iFile]].lable,rebin,false);
+    AddPlots4QA(Kaon_plots,d_events,Cut,Res_KaonPlots,"entry per 3pi+",files[order[iFile]].lable,rebin,false,norm);
+    AddPlots4QA(Kaon_plots_2D,d_events,Cut,Res_KaonPlots_2D,"entry per 3pi+",files[order[iFile]].lable,rebin,false);
      
    
    cout<<"trigger lazy evaluation"<<endl;
@@ -120,17 +139,19 @@ void QA_3piVtx(){
 } //loop over files
 
 //TFile *f=new TFile("3piComp_2019_SL24_noCuts_withSL23data_ignoreCutMods_cutOnRunId.root","recreate");
- TFile *f=new TFile("3piComp_2019_SL24_vs SL23_noCuts.root","recreate");
-   f->mkdir("events");f->cd("events"); 
+ TFile *f=new TFile("3pi_test.root","recreate");
+  f->mkdir("events");f->cd("events"); 
   DrawResults(Res_EventPlots);
   DrawResults(Res_EventPlots_2D); 
-  f->mkdir("3pi");f->cd("3pi"); 
+  auto dir=f->mkdir("3pi");dir->cd(); 
   DrawResults(Res_3piPlots);
-  DrawResults(Res_3piPlots_2D); 
-  f->mkdir("kaons");f->cd("kaons"); 
+  DrawResults(Res_3piPlots_2D);
+  if (normalize2events) {dir->mkdir("perEvent")->cd(); DrawResults(Res_3piPlots,true); }
+  dir = f->mkdir("kaons");dir->cd(); 
   DrawResults(Res_KaonPlots); 
   DrawResults(Res_KaonPlots_2D);
-f->Write();
+ if (normalize2events) {dir->mkdir("perEvent")->cd(); DrawResults(Res_KaonPlots,true); }
+ f->Write();
 //f.Close(); //dono tclose to see resutls
 
 return;
